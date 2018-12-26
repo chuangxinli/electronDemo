@@ -22,12 +22,32 @@
         <div class="name">Node:</div>
         <div class="value">{{ node }}</div>
       </div>
+      <el-table
+        :data="jsonArr"
+        stripe
+        style="width: 100%">
+        <el-table-column
+          prop="试卷名称"
+          label="Tatle"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="试卷属性"
+          label="Attribute"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="学段学科"
+          label="Subject">
+        </el-table-column>
+      </el-table>
+      <p>{{num}}</p>
       <div class="item">
         <div class="name">Platform:</div>
         <div class="value">{{ platform }}</div>
       </div>
       <div>
-        <el-button type="primary">主要按钮</el-button>
+        <el-button type="primary" @click="getData()">主要按钮</el-button>
       </div>
       <importPaper></importPaper>
     </div>
@@ -37,6 +57,24 @@
 <script>
   import importPaper from '@/components/import.vue'
   export default {
+    computed: {
+      jsonArr() {
+        return this.$store.state.jsonArr
+      },
+      num() {
+        return this.$store.state.main
+      }
+    },
+    methods: {
+      getData() {
+        /*this.$store.commit('CHANGE_jSON_OBJ', {jsonArr: [{
+          Tatle: 'adasdsad',
+          Attribute: 'zczvzvzx',
+          Subject: '124131312'
+        }]})*/
+        this.$store.dispatch('someAsyncTask')
+      }
+    },
     components: {
       importPaper
     },

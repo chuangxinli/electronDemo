@@ -1,5 +1,8 @@
+const fs = require('fs')
+//let jsonObj = fs.readFileSync()
 const state = {
-  main: 0
+  main: 1231312312312312312312,
+  jsonArr: []
 }
 
 const mutations = {
@@ -8,6 +11,9 @@ const mutations = {
   },
   INCREMENT_MAIN_COUNTER (state) {
     state.main++
+  },
+  CHANGE_jSON_OBJ(state, obj){
+     state.jsonArr = obj.jsonArr
   }
 }
 
