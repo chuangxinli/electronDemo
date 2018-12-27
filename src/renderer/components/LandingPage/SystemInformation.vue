@@ -27,27 +27,35 @@
         stripe
         style="width: 100%">
         <el-table-column
-          prop="试卷名称"
-          label="Tatle"
+          type="index"
+          width="50">
+        </el-table-column>
+        <el-table-column
+          prop="Tatle"
+          label="试卷名称"
           width="180">
         </el-table-column>
         <el-table-column
-          prop="试卷属性"
-          label="Attribute"
+          prop="Attribute"
+          label="试卷属性"
           width="180">
         </el-table-column>
         <el-table-column
-          prop="学段学科"
-          label="Subject">
+          prop="Subject"
+          label="学段学科">
         </el-table-column>
       </el-table>
-      <p>{{num}}</p>
+      <p>数量：{{num}}</p>
       <div class="item">
         <div class="name">Platform:</div>
         <div class="value">{{ platform }}</div>
       </div>
       <div>
-        <el-button type="primary" @click="getData()">主要按钮</el-button>
+        <el-button type="primary" @click="INCREMENT_MAIN_COUNTER({num: 5})">+</el-button>
+        <el-button type="primary" @click="DECREMENT_MAIN_COUNTER({num: 20})">-</el-button>
+        <el-button type="primary" @click="changeData()">改变数据</el-button>
+        <el-button type="primary" @click="upload()">上传一个</el-button>
+        <el-button type="primary" @click="goList()">goList</el-button>
       </div>
       <importPaper></importPaper>
     </div>
@@ -55,25 +63,46 @@
 </template>
 
 <script>
+  import {mapActions} from 'vuex'
   import importPaper from '@/components/import.vue'
   export default {
     computed: {
       jsonArr() {
-        return this.$store.state.jsonArr
+        return this.$store.state.Counter.jsonArr
       },
       num() {
-        return this.$store.state.main
+        return this.$store.state.Counter.num
       }
     },
     methods: {
-      getData() {
-        /*this.$store.commit('CHANGE_jSON_OBJ', {jsonArr: [{
-          Tatle: 'adasdsad',
-          Attribute: 'zczvzvzx',
-          Subject: '124131312'
-        }]})*/
-        this.$store.dispatch('someAsyncTask')
+      ...mapActions(['INCREMENT_MAIN_COUNTER', 'DECREMENT_MAIN_COUNTER']),
+      changeData() {
+        this.arr.push({
+          Tatle: new Date().getTime(),
+          Attribute: 'weqeqweqweq',
+          Subject: 'adadasdsdas'
+        })
+        this.$store.dispatch('INCREMENT_MAIN_COUNTER')
+        this.$store.dispatch('CHANGE_jSON_ARR',
+          {
+            jsonArr: this.arr
+          }
+        )
+      },
+      upload(){
+        this.$store.dispatch('DELETE_ONE_PAPER',{
+          localId: 1545899249017
+        })
+      },
+      goList() {
+        this.$router.push({
+          path: '/List'
+        })
       }
+    },
+    mounted(){
+      console.log(this.main)
+      console.log(this.jsonArr)
     },
     components: {
       importPaper
@@ -85,7 +114,8 @@
         node: process.versions.node,
         path: this.$route.path,
         platform: require('os').platform(),
-        vue: require('vue/package.json').version
+        vue: require('vue/package.json').version,
+        arr: []
       }
     }
   }
@@ -100,7 +130,9 @@
     margin-top: 10px;
   }
 
-  .items { margin-top: 8px; }
+  .items {
+    margin-top: 8px;
+  }
 
   .item {
     display: flex;

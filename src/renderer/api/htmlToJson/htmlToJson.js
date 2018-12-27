@@ -142,7 +142,7 @@ function htmlToJson(res, docxArr, myEmitter) {
   let jsonArr = [], errArr = []  //成功解析和失败解析的列表
   for (let i = 0, len = docxArr.length; i < len; i++) {
     let jsonObj = {
-      Tatil: '',
+      Tatle: '',
       Attribute: '',
       Material: '',
       Subject: '',
@@ -160,6 +160,7 @@ function htmlToJson(res, docxArr, myEmitter) {
       Spenttime: '',
       DiffcultyType: '',
       Difficulty: '',
+      localId: '',
       question: []
     }  //单个试卷的json对象
     let primaryStr = '' //p标签中的内容
@@ -204,7 +205,7 @@ function htmlToJson(res, docxArr, myEmitter) {
           if (/^\s*#\s*#/.test(primaryStr)) {
             curItemType = 'title'
             if (dealSpace('试卷名称').test(primaryStr)) {
-              jsonObj.Tatil = getTitleInfo('试卷名称', primaryStr)
+              jsonObj.Tatle = getTitleInfo('试卷名称', primaryStr)
               continue
             }
             if (dealSpace('试卷属性').test(primaryStr)) {
@@ -443,9 +444,10 @@ function htmlToJson(res, docxArr, myEmitter) {
         }
       }
       dealSubQuestion(jsonObj)
+      jsonObj.localId = new Date().getTime()
       myEmitter.emit('success', {i, jsonObj, temp, path: docxArr[i]})
       jsonArr.push(jsonObj)
-      if(i === docxArr.length - 1){
+      if((jsonArr.length + errArr.length) === docxArr.length){
         res.send({
           jsonArr,
           errArr
@@ -455,7 +457,7 @@ function htmlToJson(res, docxArr, myEmitter) {
       .catch(err => {
         console.log(err)
         errArr.push({index: i, path: docxArr[i]})
-        if(i === docxArr.length - 1){
+        if((jsonArr.length + errArr.length) === docxArr.length - 1 === docxArr.length){
           res.send({
             jsonArr,
             errArr

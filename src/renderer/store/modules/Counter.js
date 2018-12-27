@@ -1,26 +1,63 @@
-const fs = require('fs')
+//const fs = require('fs')
 //let jsonObj = fs.readFileSync()
 const state = {
-  main: 1231312312312312312312,
+  num: 1234,
   jsonArr: []
 }
 
 const mutations = {
-  DECREMENT_MAIN_COUNTER (state) {
-    state.main--
+  DECREMENT_MAIN_COUNTER (state, payload) {
+    if(payload && payload.num){
+      state.num -= payload.num
+    }else{
+      state.num--
+    }
   },
-  INCREMENT_MAIN_COUNTER (state) {
-    state.main++
+  INCREMENT_MAIN_COUNTER (state, payload) {
+    if(payload && payload.num){
+      state.num += payload.num
+    } else {
+      state.num++
+    }
   },
-  CHANGE_jSON_OBJ(state, obj){
-     state.jsonArr = obj.jsonArr
+  //导入成功  payload => {jsonArr: [{},{},{}]}
+  CHANGE_jSON_ARR(state, payload){
+    //state.jsonArr.concat(payload.jsonArr)
+    state.jsonArr = payload.jsonArr
+  },
+  //上传成功 payload => {localId: Number}
+  DELETE_ONE_PAPER(state, payload){
+     for(let i = 0, len = state.jsonArr.length; i < len; i++){
+       if(payload.localId === state.jsonArr[i].localId){
+          state.jsonArr.splice(i, 1)
+       }
+     }
+  },
+  //修改某个试卷 payload => {paper: {}}
+  CHANGE_ONE_PAPER(state, payload){
+    for(let i = 0, len = state.jsonArr.length; i < len; i++){
+      if(payload.paper.localId === state.jsonArr[i].localId){
+        state.jsonArr.splice(i, 1, payload.paper)
+      }
+    }
   }
 }
 
 const actions = {
-  someAsyncTask ({ commit }) {
-    // do something async
-    commit('INCREMENT_MAIN_COUNTER')
+  INCREMENT_MAIN_COUNTER ({commit}, payload) {
+    commit('INCREMENT_MAIN_COUNTER', payload)
+  },
+  DECREMENT_MAIN_COUNTER ({commit}, payload) {
+    commit('DECREMENT_MAIN_COUNTER', payload)
+  },
+  CHANGE_jSON_ARR ({commit}, payload) {
+    commit('CHANGE_jSON_ARR', payload)
+  },
+  DELETE_ONE_PAPER ({commit}, payload) {
+    commit('DELETE_ONE_PAPER', payload)
+  },
+  CHANGE_ONE_PAPER ({commit}, payload) {
+    commit('CHANGE_ONE_PAPER', payload)
   }
 }
 
