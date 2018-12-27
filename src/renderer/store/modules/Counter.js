@@ -2,19 +2,19 @@
 //let jsonObj = fs.readFileSync()
 const state = {
   num: 1234,
-  jsonArr: []
+  jsonArr1: []
 }
 
 const mutations = {
   DECREMENT_MAIN_COUNTER (state, payload) {
-    if(payload && payload.num){
+    if (payload && payload.num) {
       state.num -= payload.num
-    }else{
+    } else {
       state.num--
     }
   },
   INCREMENT_MAIN_COUNTER (state, payload) {
-    if(payload && payload.num){
+    if (payload && payload.num) {
       state.num += payload.num
     } else {
       state.num++
@@ -23,21 +23,23 @@ const mutations = {
   //导入成功  payload => {jsonArr: [{},{},{}]}
   CHANGE_jSON_ARR(state, payload){
     //state.jsonArr.concat(payload.jsonArr)
-    state.jsonArr = payload.jsonArr
+    state.jsonArr1 = payload.jsonArr
   },
   //上传成功 payload => {localId: Number}
   DELETE_ONE_PAPER(state, payload){
-     for(let i = 0, len = state.jsonArr.length; i < len; i++){
-       if(payload.localId === state.jsonArr[i].localId){
-          state.jsonArr.splice(i, 1)
-       }
-     }
+    for (let i = 0, len = state.jsonArr1.length; i < len; i++) {
+      if (!state.jsonArr1[i]) {
+        continue
+      } else if (payload.localId == state.jsonArr1[i].localId) {
+        state.jsonArr1.splice(i, 1)
+      }
+    }
   },
   //修改某个试卷 payload => {paper: {}}
   CHANGE_ONE_PAPER(state, payload){
-    for(let i = 0, len = state.jsonArr.length; i < len; i++){
-      if(payload.paper.localId === state.jsonArr[i].localId){
-        state.jsonArr.splice(i, 1, payload.paper)
+    for (let i = 0, len = state.jsonArr1.length; i < len; i++) {
+      if (payload.paper.localId === state.jsonArr1[i].localId) {
+        state.jsonArr1.splice(i, 1, payload.paper)
       }
     }
   }

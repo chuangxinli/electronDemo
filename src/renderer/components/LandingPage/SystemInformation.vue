@@ -68,7 +68,7 @@
   export default {
     computed: {
       jsonArr() {
-        return this.$store.state.Counter.jsonArr
+        return this.$store.state.Counter.jsonArr1
       },
       num() {
         return this.$store.state.Counter.num
@@ -90,8 +90,9 @@
         )
       },
       upload(){
+        //1545932422988
         this.$store.dispatch('DELETE_ONE_PAPER',{
-          localId: 1545899249017
+          localId: 1545936411453
         })
       },
       goList() {

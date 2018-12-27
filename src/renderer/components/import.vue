@@ -11,8 +11,8 @@
     name: 'export-paper',
     computed: {
       jsonArr() {
-        this.arr = this.$store.state.jsonArr
-        return this.$store.state.jsonArr
+        this.arr = this.$store.state.jsonArr1
+        return this.$store.state.jsonArr1
       },
       num() {
         return this.$store.state.main
