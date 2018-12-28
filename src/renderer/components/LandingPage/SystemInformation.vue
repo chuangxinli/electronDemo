@@ -68,7 +68,7 @@
   export default {
     computed: {
       jsonArr() {
-        return this.$store.state.Counter.jsonArr1
+        return this.$store.state.Counter.jsonArr
       },
       num() {
         return this.$store.state.Counter.num
