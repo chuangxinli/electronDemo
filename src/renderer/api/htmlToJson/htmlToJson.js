@@ -457,7 +457,7 @@ function htmlToJson(res, docxArr, myEmitter) {
       .catch(err => {
         console.log(err)
         errArr.push({index: i, path: docxArr[i]})
-        if((jsonArr.length + errArr.length) === docxArr.length - 1 === docxArr.length){
+        if((jsonArr.length + errArr.length) === docxArr.length){
           res.send({
             jsonArr,
             errArr

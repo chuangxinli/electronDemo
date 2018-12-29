@@ -44,6 +44,16 @@
           prop="Subject"
           label="学段学科">
         </el-table-column>
+        <el-table-column
+          fixed="right"
+          label="Operations"
+          width="120">
+          <template slot-scope="scope">
+            <el-button @click="deletePaper(scope.row.localId)" type="text" size="small">Delete</el-button>
+            <el-button type="text" size="small">Edit</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
       </el-table>
       <p>数量：{{num}}</p>
       <div class="item">
@@ -98,6 +108,12 @@
       goList() {
         this.$router.push({
           path: '/List'
+        })
+      },
+      deletePaper(localId){
+        console.log(localId)
+        this.$store.dispatch('DELETE_ONE_PAPER',{
+          localId: localId
         })
       }
     },
