@@ -1,0 +1,149 @@
+<template>
+    <div>
+        <el-form :label-position="labelPosition" label-width="80px" :model="formLabelAlign" class="signin">
+            <el-form-item label="账号：" class="mBot50 mTop80">
+                <el-input v-model="formLabelAlign.username"></el-input>
+            </el-form-item>
+            <el-form-item label="密码：" class="mBot50">
+                <el-input v-model="formLabelAlign.password" type="password"></el-input>
+            </el-form-item>
+            <el-checkbox v-model="formLabelAlign.remember" class="remember">记住密码</el-checkbox>
+            <el-button type="primary" @click="onSubmit" class="signinBtn">登录</el-button>
+        </el-form>
+        <div class="box"></div>
+    </div>
+</template>
+
+<script>
+    export default {
+        data() {
+            return {
+                labelPosition: 'center',
+                formLabelAlign: {
+                    username: '',
+                    password: '',
+                    remember: localStorage.getItem('remember') ? true : false
+                }
+            }
+        },
+        mounted() {
+            if(this.formLabelAlign.remember){
+                this.formLabelAlign.username = localStorage.getItem('username')
+                this.formLabelAlign.password = localStorage.getItem('password')
+            }
+        },
+        methods: {
+            async onSubmit() {
+                if(!this.formLabelAlign.username){
+                    this.$message({
+                        type: 'warning',
+                        message: '账号不能为空！',
+                        showClose: true,
+                        duration: 2000
+                    })
+                    return
+                }
+                if(!this.formLabelAlign.password){
+                    this.$message({
+                        type: 'warning',
+                        message: '密码不能为空！',
+                        showClose: true,
+                        duration: 2000
+                    })
+                    return
+                }
+                let url = '/login'
+                let params = {
+                    username: this.formLabelAlign.username,
+                    password: this.formLabelAlign.password,
+                    type: 1 //教师
+                }
+                let  data = await this.api.get(url, params, { loading: true})
+                if(data){
+                    console.log(data)
+                    this.global.uid = data.uid
+                    this.global.sid = data.sid
+                    console.log(this.formLabelAlign.remember)
+                    if(!this.formLabelAlign.remember){
+                        localStorage.removeItem('remember')
+                        localStorage.removeItem('username')
+                        localStorage.removeItem('password')
+                    }else{
+                        localStorage.setItem('remember', 'true')
+                        localStorage.setItem('username', this.formLabelAlign.username)
+                        localStorage.setItem('password', this.formLabelAlign.password)
+                    }
+                    this.getRoleList()
+                    this.getTeacherSchool()
+                }
+            },
+            async getRoleList() {
+                let url = '/das/systemManage/getRoleListByUid'
+                let params = {
+                    sid: this.global.sid,
+                    uid: this.global.uid
+                }
+                let data = await this.api.get(url, params)
+                if(data){
+                    let roleObj = data.infoList.filter(function (item) {
+                        return item.default == 1
+                    })[0] ? data.infoList.filter(function (item) {
+                            return item.default == 1
+                        })[0] : data.infoList[0]
+                    this.global.roleId = roleObj.roleId
+                    this.global.roleName = roleObj.roleName
+                    this.global.nickName = roleObj.nickName
+                    this.$router.push({
+                        path: '/Home'
+                    })
+                }
+            },
+            async getTeacherSchool(){
+                let url = '/das/scanExam/getTeacherSchool'
+                let params = {
+                    sid: this.global.sid,
+                    uid: this.global.uid,
+                    teacherId: this.global.uid
+                }
+                let data = await this.api.get(url, params)
+                if(data){
+                    console.log(data)
+                    this.global.schoolName = data.infoList[0].schoolName
+                    this.global.schoolId = data.infoList[0].schoolId
+                }
+            }
+        }
+    }
+</script>
+
+<style scoped>
+    .signin{
+        width: 400px;
+        height: 400px;
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        margin: auto;
+        text-align: center;
+        z-index: 9999;
+    }
+    .box{
+        width: 600px;
+        height: 400px;
+        border: 1px solid #cdcdcd;
+        border-radius: 30px;
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        margin: auto;
+        text-align: center;
+    }
+    .signinBtn{
+        width: 200px;
+        margin-left: 20px;
+    }
+</style>

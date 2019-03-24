@@ -4,20 +4,33 @@ import Router from 'vue-router'
 Vue.use(Router)
 
 export default new Router({
-  routes: [
-    {
-      path: '/',
-      name: 'landing-page',
-      component: require('@/components/LandingPage').default
-    },
-    {
-      path: '/List',
-      name: 'List',
-      component: require('@/pages/list').default
-    },
-    {
-      path: '*',
-      redirect: '/'
-    }
-  ]
+    routes: [
+        {
+            path: '/SignIn',
+            name: 'SignIn',
+            component: require('@/pages/SignIn').default
+        },
+        {
+            path: '/Home',
+            name: 'Home',
+            component: require('@/pages/Home').default,
+            redirect: '/Home/WeekReport',
+            children: [
+                {
+                    path: '/Home/MonthReport',
+                    name: 'MonthReport',
+                    component: require('@/pages/MonthReport').default
+                },
+                {
+                    path: '/Home/WeekReport',
+                    name: 'WeekReport',
+                    component: require('@/pages/WeekReport').default
+                }
+            ]
+        },
+        {
+            path: '*',
+            redirect: '/SignIn'
+        }
+    ]
 })
