@@ -5,87 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7486ea55-367c-48fa-9e96-f49c8ff11824" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/exe/wkhtmltoimage.exe" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/exe/wkhtmltopdf.exe" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/app.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/renderer/api.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/renderer/assets/css/global.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/renderer/components/Paging.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/renderer/global.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/renderer/pages/Aside.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/renderer/pages/Footer.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/renderer/pages/Header.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/renderer/pages/Home.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/renderer/pages/MonthReport.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/renderer/pages/SignIn.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/renderer/pages/WeekReport.vue" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/wkhtmltoimage.exe" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/wkhtmltopdf.exe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/appExpress.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545808436707__1__001 - 副本 (2)/001 - 副本 (2).html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545808436707__1__001 - 副本 (2)/001 - 副本 (2).json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545808437518__2__001 - 副本 (3)/001 - 副本 (3).html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545808437518__2__001 - 副本 (3)/001 - 副本 (3).json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545808440225__3__001 - 副本/001 - 副本.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545808440225__3__001 - 副本/001 - 副本.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545808441076__4__001/001.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545808441076__4__001/001.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545808699026__1__学科网下载试卷完整版 (1)/学科网下载试卷完整版 (1).html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545808699026__1__学科网下载试卷完整版 (1)/学科网下载试卷完整版 (1).json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545811745688__1__001 - 副本 (2)/001 - 副本 (2).html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545811745688__1__001 - 副本 (2)/001 - 副本 (2).json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545811870517__1__001 - 副本 (3)/001 - 副本 (3).html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545811870517__1__001 - 副本 (3)/001 - 副本 (3).json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545812521568__1__001 - 副本 (2)/001 - 副本 (2).html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545812521568__1__001 - 副本 (2)/001 - 副本 (2).json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545812522301__2__001/001.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545812522301__2__001/001.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545812632892__1__001 - 副本 (2)/001 - 副本 (2).html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545812632892__1__001 - 副本 (2)/001 - 副本 (2).json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545812633695__2__001/001.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545812633695__2__001/001.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545812769267__1__001 - 副本/001 - 副本.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545812769267__1__001 - 副本/001 - 副本.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545812770014__3__3333/3333.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545812770014__3__3333/3333.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545813561259__1__001/001.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545813561259__1__001/001.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545816358171__1__001/001.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545816358171__1__001/001.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545818911461__2__001/001.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545818911461__2__001/001.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545818913666__1__001 - 副本/001 - 副本.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545818913666__1__001 - 副本/001 - 副本.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545819102139__1__001/001.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545819102139__1__001/001.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545819240446__1__001/001.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545819240446__1__001/001.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545819273398__1__001/001.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545819273398__1__001/001.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545819354066__1__001/001.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545819354066__1__001/001.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545819390405__1__001/001.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545819390405__1__001/001.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545819527110__1__001/001.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545819527110__1__001/001.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545819638198__1__001/001.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545819638198__1__001/001.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545819695505__1__001/001.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545819695505__1__001/001.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545820011086__1__001/001.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/fileOfJsonAndHtml/1545820011086__1__001/001.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/htmlToJson/hello.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/api/htmlToJson/htmlToJson.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/components/LandingPage/SystemInformation.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/components/Paging/Paging.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/components/app.components.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/renderer/components/app.components.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/renderer/main.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/pages/list.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/router/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/renderer/router/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/store/modules/Counter.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/renderer/store/modules/Counter.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/renderer/global.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/renderer/global.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -117,7 +37,7 @@
             <entry file="file://$PROJECT_DIR$/src/renderer/pages/SignIn.vue">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="812">
-                  <caret line="117" lean-forward="true" selection-start-line="117" selection-end-line="117" />
+                  <caret line="117" selection-start-line="117" selection-end-line="117" />
                   <folding>
                     <element signature="e#1281#3095#0" />
                     <element signature="e#3129#4010#0" />
@@ -131,7 +51,7 @@
             <entry file="file://$PROJECT_DIR$/src/renderer/pages/Aside.vue">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="522">
-                  <caret line="17" column="18" lean-forward="true" selection-start-line="17" selection-start-column="18" selection-end-line="17" selection-end-column="18" />
+                  <caret line="17" column="18" selection-start-line="17" selection-start-column="18" selection-end-line="17" selection-end-column="18" />
                 </state>
               </provider>
             </entry>
@@ -140,7 +60,7 @@
             <entry file="file://$PROJECT_DIR$/src/renderer/pages/Footer.vue">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="348">
-                  <caret line="20" column="16" lean-forward="true" selection-start-line="20" selection-start-column="16" selection-end-line="20" selection-end-column="16" />
+                  <caret line="20" column="16" selection-start-line="20" selection-start-column="16" selection-end-line="20" selection-end-column="16" />
                 </state>
               </provider>
             </entry>
@@ -149,7 +69,7 @@
             <entry file="file://$PROJECT_DIR$/src/renderer/pages/Header.vue">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="87">
-                  <caret line="7" column="10" lean-forward="true" selection-start-line="7" selection-start-column="10" selection-end-line="7" selection-end-column="10" />
+                  <caret line="7" column="10" selection-start-line="7" selection-start-column="10" selection-end-line="7" selection-end-column="10" />
                 </state>
               </provider>
             </entry>
@@ -163,7 +83,7 @@
             <entry file="file://$PROJECT_DIR$/src/renderer/pages/Home.vue">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="812">
-                  <caret line="38" column="21" lean-forward="true" selection-start-line="38" selection-start-column="21" selection-end-line="38" selection-end-column="21" />
+                  <caret line="38" column="21" selection-start-line="38" selection-start-column="21" selection-end-line="38" selection-end-column="21" />
                 </state>
               </provider>
             </entry>
@@ -181,7 +101,7 @@
             <entry file="file://$PROJECT_DIR$/src/renderer/pages/MonthReport.vue">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="203">
-                  <caret line="10" column="49" lean-forward="true" selection-start-line="10" selection-start-column="49" selection-end-line="10" selection-end-column="49" />
+                  <caret line="10" column="49" selection-start-line="10" selection-start-column="49" selection-end-line="10" selection-end-column="49" />
                   <folding>
                     <element signature="n#div#1;n#div#0;n#template#0;n#!!top" />
                     <element signature="n#style#0;n#el-table#0;n#div#1;n#div#0;n#template#0;n#!!top" expanded="true" />
@@ -197,7 +117,7 @@
             <entry file="file://$PROJECT_DIR$/src/renderer/assets/css/global.css">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="417">
-                  <caret line="51" column="1" lean-forward="true" selection-start-line="51" selection-start-column="1" selection-end-line="51" selection-end-column="1" />
+                  <caret line="51" column="1" selection-start-line="51" selection-start-column="1" selection-end-line="51" selection-end-column="1" />
                 </state>
               </provider>
             </entry>
@@ -221,8 +141,8 @@
           <file leaf-file-name="global.js" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/src/renderer/global.js">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="174">
-                  <caret line="5" column="12" selection-start-line="5" selection-start-column="4" selection-end-line="5" selection-end-column="12" />
+                <state relative-caret-position="29">
+                  <caret line="1" column="14" selection-start-line="1" selection-start-column="14" selection-end-line="1" selection-end-column="14" />
                 </state>
               </provider>
             </entry>
@@ -292,7 +212,6 @@
         <option value="$PROJECT_DIR$/src/renderer/main.js" />
         <option value="$PROJECT_DIR$/src/renderer/pages/WeekReport.vue" />
         <option value="$PROJECT_DIR$/src/renderer/router/index.js" />
-        <option value="$PROJECT_DIR$/src/renderer/global.js" />
         <option value="$PROJECT_DIR$/src/renderer/components/app.components.js" />
         <option value="$PROJECT_DIR$/src/renderer/pages/Aside.vue" />
         <option value="$PROJECT_DIR$/src/renderer/pages/Footer.vue" />
@@ -302,6 +221,7 @@
         <option value="$PROJECT_DIR$/src/renderer/pages/SignIn.vue" />
         <option value="$PROJECT_DIR$/src/renderer/store/modules/Counter.js" />
         <option value="$PROJECT_DIR$/src/renderer/pages/Header.vue" />
+        <option value="$PROJECT_DIR$/src/renderer/global.js" />
       </list>
     </option>
   </component>
@@ -355,49 +275,7 @@
               <item name="electronDemo" type="b2602c69:ProjectViewProjectNode" />
               <item name="electronDemo" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="electronDemo" type="b2602c69:ProjectViewProjectNode" />
-              <item name="electronDemo" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="renderer" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="electronDemo" type="b2602c69:ProjectViewProjectNode" />
-              <item name="electronDemo" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="renderer" type="462c0819:PsiDirectoryNode" />
-              <item name="assets" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="electronDemo" type="b2602c69:ProjectViewProjectNode" />
-              <item name="electronDemo" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="renderer" type="462c0819:PsiDirectoryNode" />
-              <item name="assets" type="462c0819:PsiDirectoryNode" />
-              <item name="css" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="electronDemo" type="b2602c69:ProjectViewProjectNode" />
-              <item name="electronDemo" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="renderer" type="462c0819:PsiDirectoryNode" />
-              <item name="components" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="electronDemo" type="b2602c69:ProjectViewProjectNode" />
-              <item name="electronDemo" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="renderer" type="462c0819:PsiDirectoryNode" />
-              <item name="pages" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="electronDemo" type="b2602c69:ProjectViewProjectNode" />
-              <item name="electronDemo" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="renderer" type="462c0819:PsiDirectoryNode" />
-              <item name="router" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -477,18 +355,17 @@
       <workItem from="1553341759463" duration="47000" />
       <workItem from="1553415769521" duration="2387000" />
       <workItem from="1553418191784" duration="10058000" />
-      <workItem from="1553428658138" duration="6660000" />
+      <workItem from="1553428658138" duration="7370000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="115006000" />
+    <option name="totallyTimeSpent" value="115716000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="7" />
-    <editor active="true" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.12908325" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.12908325" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
@@ -496,7 +373,7 @@
       <window_info id="npm" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Run" order="2" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info anchor="bottom" id="Terminal" order="7" visible="true" weight="0.2693566" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="7" visible="true" weight="0.2693566" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -768,7 +645,7 @@
     <entry file="file://$PROJECT_DIR$/src/renderer/pages/MonthReport.vue">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="203">
-          <caret line="10" column="49" lean-forward="true" selection-start-line="10" selection-start-column="49" selection-end-line="10" selection-end-column="49" />
+          <caret line="10" column="49" selection-start-line="10" selection-start-column="49" selection-end-line="10" selection-end-column="49" />
           <folding>
             <element signature="n#div#1;n#div#0;n#template#0;n#!!top" />
             <element signature="n#style#0;n#el-table#0;n#div#1;n#div#0;n#template#0;n#!!top" expanded="true" />
@@ -782,21 +659,21 @@
     <entry file="file://$PROJECT_DIR$/src/renderer/assets/css/global.css">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="417">
-          <caret line="51" column="1" lean-forward="true" selection-start-line="51" selection-start-column="1" selection-end-line="51" selection-end-column="1" />
+          <caret line="51" column="1" selection-start-line="51" selection-start-column="1" selection-end-line="51" selection-end-column="1" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/renderer/pages/Footer.vue">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="348">
-          <caret line="20" column="16" lean-forward="true" selection-start-line="20" selection-start-column="16" selection-end-line="20" selection-end-column="16" />
+          <caret line="20" column="16" selection-start-line="20" selection-start-column="16" selection-end-line="20" selection-end-column="16" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/renderer/pages/Aside.vue">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="522">
-          <caret line="17" column="18" lean-forward="true" selection-start-line="17" selection-start-column="18" selection-end-line="17" selection-end-column="18" />
+          <caret line="17" column="18" selection-start-line="17" selection-start-column="18" selection-end-line="17" selection-end-column="18" />
         </state>
       </provider>
     </entry>
@@ -810,7 +687,7 @@
     <entry file="file://$PROJECT_DIR$/src/renderer/pages/SignIn.vue">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="812">
-          <caret line="117" lean-forward="true" selection-start-line="117" selection-end-line="117" />
+          <caret line="117" selection-start-line="117" selection-end-line="117" />
           <folding>
             <element signature="e#1281#3095#0" />
             <element signature="e#3129#4010#0" />
@@ -822,26 +699,26 @@
     <entry file="file://$PROJECT_DIR$/src/renderer/pages/Home.vue">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="812">
-          <caret line="38" column="21" lean-forward="true" selection-start-line="38" selection-start-column="21" selection-end-line="38" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/renderer/global.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="174">
-          <caret line="5" column="12" selection-start-line="5" selection-start-column="4" selection-end-line="5" selection-end-column="12" />
+          <caret line="38" column="21" selection-start-line="38" selection-start-column="21" selection-end-line="38" selection-end-column="21" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/renderer/pages/Header.vue">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="87">
-          <caret line="7" column="10" lean-forward="true" selection-start-line="7" selection-start-column="10" selection-end-line="7" selection-end-column="10" />
+          <caret line="7" column="10" selection-start-line="7" selection-start-column="10" selection-end-line="7" selection-end-column="10" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/renderer/global.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="29">
+          <caret line="1" column="14" selection-start-line="1" selection-start-column="14" selection-end-line="1" selection-end-column="14" />
+        </state>
+      </provider>
     </entry>
   </component>
 </project>
