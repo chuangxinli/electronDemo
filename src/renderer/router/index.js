@@ -25,6 +25,16 @@ export default new Router({
                     path: '/Home/WeekReport',
                     name: 'WeekReport',
                     component: require('@/pages/WeekReport').default
+                },
+                {
+                    path: '/Home/SeeWeekReport',
+                    name: 'SeeWeekReport',
+                    component: require('@/pages/SeeWeekReport').default
+                },
+                {
+                    path: '/Home/SeeMonthReport/:taskId',
+                    name: 'SeeMonthReport',
+                    component: require('@/pages/SeeMonthReport').default
                 }
             ]
         },

@@ -83,7 +83,7 @@
                         label="操作"
                         width="200">
                     <template slot-scope="scope">
-                        <el-button @click="handleClick(scope.row)" type="text" size="small">查看报告</el-button>
+                        <el-button @click="seeMonthReport(scope.row)" type="text" size="small">查看报告</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -161,6 +161,12 @@
                 this.pageSize = pageSize
                 this.getTestList()
             },
+            seeMonthReport(row){
+                console.log(row.homeworkId)
+                this.$router.push({
+                    path: `/Home/SeeMonthReport/${row.homeworkId}`
+                })
+            }
         }
     }
 </script>
