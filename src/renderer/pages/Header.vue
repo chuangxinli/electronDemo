@@ -1,9 +1,10 @@
 <template>
     <div class="header">
         <div class="title">欢迎使用有谱报告下载客户端</div>
-        <div class="signOut" @click="signOut()">退出登录</div>
+        <div class="signOut mLeft40 mRight20" @click="signOut()">退出登录</div>
         <div class="user">
-            <span>当前用户：{{user}}，当前角色：{{role}}</span>
+            <span>当前用户：{{user}}</span>
+            <span class="mLeft40">当前角色：{{role}}</span>
         </div>
     </div>
 </template>
@@ -61,11 +62,9 @@
     }
     .user{
         float: right;
-        margin-right: 20px;
     }
     .signOut{
         cursor: pointer;
         float: right;
-        margin-right: 20px;
     }
 </style>

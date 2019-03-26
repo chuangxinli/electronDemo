@@ -9,13 +9,13 @@
         <div class="page nextPage" @click="changePage({type: 'num', page: Number(currentPage) + 1})">下一页</div>
       </div>
       <div class="inline mLeft40 skipPart">
-        <span>到第</span>
+        <span class="mTop4">到第</span>
         <input type="text" v-model="childCurrentPage" class="input" @keyup="inputPageChange()">
-        <span>页&nbsp;&nbsp;</span>
+        <span class="mTop4">页&nbsp;&nbsp;</span>
         <span @click="skip()" class="skip">跳转</span>
       </div>
       <div class="inline mLeft40">
-        <div class="fLeft">每页的条数 <input type="text" class="input" v-model="inputPageSize" @keyup="inputSize()"></div><div class="fLeft skip" @click="confirmPageSize()">确定</div>
+        <div class="fLeft"><span class="mTop4">每页的条数</span> <input type="text" class="input" v-model="inputPageSize" @keyup="inputSize()"></div><div class="fLeft skip" @click="confirmPageSize()">确定</div>
       </div>
     </div>
   </div>
@@ -120,7 +120,7 @@
 
 <style scoped>
   *{
-    font-size: 14px;
+    font-size: 16px;
   }
   .inline{
     display: inline-block;
@@ -135,7 +135,7 @@
   }
   .page {
     float: left;
-    border: 1px solid #41C0BC;
+    border: 1px solid #0188EF;
     padding: 2px 8px;
     margin: 0 10px;
     cursor: pointer;
@@ -146,9 +146,9 @@
     background-color: #cdcdcd;
   }
   .skip{
-    background-color: #41C0BC;
-    width: 60px;
-    height: 24px;
+    background-color: #0188EF;
+    width: 66px;
+    height: 26px;
     text-align: center;
     line-height: 24px;
     border-radius: 14px;
@@ -156,17 +156,17 @@
     color: #ffffff;
   }
   .skip:hover,.prePage:hover,.nextPage:hover{
-    color: #41C0BC;
+    color: #0188EF;
     background: rgba(187,232,231,1);
     cursor: pointer;
     animation: color-change-delay-blue 0.2s 1 backwards;
   }
   .prePage, .nextPage{
     color: #ffffff;
-    background-color: #41C0BC;
+    background-color: #0188EF;
   }
   .curPage {
-    background-color: #41C0BC;
+    background-color: #0188EF;
     color: #ffffff;
   }
   .right{
@@ -182,11 +182,14 @@
   .input {
     box-sizing: border-box;
     width: 50px;
-    height: 24px;
+    height: 26px;
     text-align: center;
     outline: none;
-    border: 1px solid #41C0BC;
+    border: 1px solid #0188EF;
     border-radius: 14px;
     margin: 0 8px;
+  }
+  .mTop4{
+    margin-top: 4px;
   }
 </style>

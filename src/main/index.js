@@ -31,7 +31,7 @@ function createWindow() {
         mainWindow = null
     })
 
-    //require('./app')
+    require('./app')
 
     /*const { execFile } = require('child_process');
     const child = execFile('exe/wkhtmltopdf.exe', ['http://www.baidu.com', 'F:/test/1.pdf'], (error, stdout, stderr) => {

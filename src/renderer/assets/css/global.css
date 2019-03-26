@@ -68,6 +68,49 @@ table {
 .mLeft20{
     margin-left: 20px !important;
 }
+.mLeft40{
+    margin-left: 40px !important;
+}
+.mLeft60{
+    margin-left: 60px !important;
+}
 .mRight20{
     margin-right: 20px !important;
+}
+.el-table thead tr th{
+    background-color: #0188EF !important;
+    color: #ffffff;
+}
+
+
+::-webkit-scrollbar {  /* 滚动条整体部分 */
+    width:10px;
+    margin-right:2px
+}
+::-webkit-scrollbar-button { /* 滚动条两端的按钮 */
+    width:10px;
+    background-color: #cdcdcd;
+}
+::-webkit-scrollbar:horizontal {
+    height:20px;
+    margin-bottom:2px
+}
+::-webkit-scrollbar-track {  /* 外层轨道 */
+    border-radius: 10px;
+}
+::-webkit-scrollbar-track-piece {  /*内层轨道，滚动条中间部分 */
+    background-color: #333333;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {  /* 滑块 */
+    width:10px;
+    border-radius: 5px;
+    background: #CBCBCB;
+}
+::-webkit-scrollbar-corner { /* 边角 */
+    width: 10px;
+    background-color: red;
+}
+::-webkit-scrollbar-thumb:hover { /* 鼠标移入滑块 */
+    background: #909090;
 }

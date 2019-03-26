@@ -2,18 +2,18 @@
     <div class="aside">
         <div class="mTop20"></div>
         <el-menu
-                default-active="2"
+                default-active="1"
                 class="el-menu-vertical-demo"
                 background-color="#333333"
                 text-color="#fff"
-                active-text-color="#ffd04b">
+                active-text-color="#0188EF">
+            <el-menu-item index="1" @click="$router.push({path: '/Home/MonthReport'})">
+                <i class="el-icon-document"></i>
+                <span slot="title">月考报告</span>
+            </el-menu-item>
             <el-menu-item index="2" @click="goWeekReport()">
                 <i class="el-icon-menu"></i>
                 <span slot="title">周测报告</span>
-            </el-menu-item>
-            <el-menu-item index="4" @click="$router.push({path: '/Home/MonthReport'})">
-                <i class="el-icon-setting"></i>
-                <span slot="title">月考报告</span>
             </el-menu-item>
         </el-menu>
     </div>

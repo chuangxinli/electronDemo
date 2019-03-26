@@ -63,6 +63,8 @@
                     console.log(data)
                     this.global.uid = data.uid
                     this.global.sid = data.sid
+                    sessionStorage.setItem('sid', data.sid)
+                    sessionStorage.setItem('uid', data.uid)
                     console.log(this.formLabelAlign.remember)
                     if(!this.formLabelAlign.remember){
                         localStorage.removeItem('remember')
@@ -93,6 +95,9 @@
                     this.global.roleId = roleObj.roleId
                     this.global.roleName = roleObj.roleName
                     this.global.nickName = roleObj.nickName
+                    sessionStorage.setItem('roleId', roleObj.roleId)
+                    sessionStorage.setItem('roleName', roleObj.roleName)
+                    sessionStorage.setItem('nickName', roleObj.nickName)
                     this.$router.push({
                         path: '/Home'
                     })
@@ -110,6 +115,8 @@
                     console.log(data)
                     this.global.schoolName = data.infoList[0].schoolName
                     this.global.schoolId = data.infoList[0].schoolId
+                    sessionStorage.setItem('schoolName', data.infoList[0].schoolName)
+                    sessionStorage.setItem('schoolId', data.infoList[0].schoolId)
                 }
             }
         }
