@@ -164,7 +164,7 @@
             seeMonthReport(row){
                 console.log(row.homeworkId)
                 this.$router.push({
-                    path: `/Home/SeeMonthReport/${row.homeworkId}`
+                    path: `/Home/SeeMonthReport/${row.homeworkId}/${row.subjectName}/${row.gradeName}`
                 })
             }
         }

@@ -6,7 +6,7 @@ let batchDown = function (reportIdList) {
     reportIdList.forEach((item) => {
         let id = item.id
         console.log('id', id)
-        let studentName = item.studentName
+        let studentName = item.studentName.replace(/[^\u4e00-\u9fa5a-zA-Z0-9\s*]/g, '')
         let pdfName = `public/${id}(${studentName}).pdf`;
         let params = {
             footer: `${pdfServerBasePath}/${reportModel}/Footer2.html?id=${id}`,

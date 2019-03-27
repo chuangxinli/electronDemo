@@ -176,7 +176,7 @@
 
 <script>
     const batchDown = require('@/assets/js/batchDown')
-    batchDown([{id: 200946, studentName: '赵军谊'}, {id: 200942, studentName: '赵超凡'}])
+    //batchDown([{id: 200946, studentName: '赵军谊'}, {id: 200942, studentName: '赵超凡'}])
     export default {
         data() {
             return{
