@@ -217,13 +217,17 @@
 </template>
 
 <script>
+    const singleNoScreen = require('@/assets/js/singleNoScreen')
+    //const batchNoScreen = require('@/assets/js/batchNoScreen')
     const { dialog } = require('electron').remote
     export default {
         data() {
             return{
+                rpType: 6,
                 subjectName: '',
                 gradeName: '',
                 taskId: '',
+                subjectId: '',
                 allDownDialogVisible: false,
                 gradeReportList: [],
                 classReportList: [],
@@ -256,6 +260,7 @@
             this.taskId = this.$route.params.taskId
             this.gradeName = this.$route.params.gradeName
             this.subjectName = this.$route.params.subjectName
+            this.subjectId = this.$route.params.subjectId
             this.getPaperTestGradeDetail()
             this.getPaperTestClassDetail()
             this.getClassList()
@@ -335,7 +340,14 @@
                 this.allDownDialogVisible = true
             },
             confirmDown(){
-
+                if(this.checkedReport_grade.length > 0){
+                    console.log(this.checkedReport_grade)
+                    singleNoScreen(this.checkedReport_grade, {gradeName: this.gradeName, subjectName: this.subjectName, savePath: this.savePath, rpType: this.rpType, type: 4, isBatch: true})
+                }
+                if(this.checkedReport_class.length > 0){
+                    console.log(this.checkedReport_class)
+                    singleNoScreen(this.checkedReport_class, {gradeName: this.gradeName, subjectName: this.subjectName, savePath: this.savePath, rpType: this.rpType, type: 6, isBatch: true})
+                }
             },
             handleCheckAllChange_grade(val) {
                 console.log(val)
