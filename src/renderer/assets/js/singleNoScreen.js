@@ -1,4 +1,4 @@
-const {execFile} = require('child_process')
+const {execFile, exec} = require('child_process')
 const axios = require("axios")
 const fse = require('fs-extra')
 
@@ -8,7 +8,12 @@ let pdfServerBasePath = 'http://localhost:13004/report'
 let baseURL = 'http://das.51youpu.com'
 
 let singleNoScreen = function (reportIdList, obj) {
-    let correctIdList = [], errIdList = []
+    let correctIdList = [], errIdList = [], failIdList =[], successIdList = [], time = new Date().getTime(), index = 0
+    let {header, footer, cover, content} = getPart(obj.type)
+    let reportModel = getReportModel(obj.type)
+    if(!fse.pathExistsSync(`public/export/${time}`)){
+        fse.mkdirsSync(`public/export/${time}`)
+    }
     if(obj.type == 1 || obj.type == 2){
         reportIdList.forEach((item) => {
             getReportData({id: item.id}, function (id) {
@@ -19,8 +24,69 @@ let singleNoScreen = function (reportIdList, obj) {
             })
         })
     } else {
-        console.log(reportIdList)
         getPdf(reportIdList, obj)
+    }
+    function getPdf(correctIdList, obj) {
+        if(index < correctIdList.length){
+            let id = correctIdList[index].id
+            let pdfName = `public/export/${time}/${id}.pdf`;
+            let params = {
+                footer: `${pdfServerBasePath}/${reportModel}/${footer}?id=${id}`,
+                header: `${pdfServerBasePath}/${reportModel}/${header}?id=${id}`,
+                cover: `${pdfServerBasePath}/${reportModel}/${cover}?id=${id}`,
+                content: `${pdfServerBasePath}/${reportModel}/${content}?id=${id}`,
+                pdfName: pdfName
+            }
+            /*let params = {
+                footer: `http://localhost:8081/DownLoadReport/reportModal/report/classsReport_M/classReportFooter.html?id=200655`,
+                header: `http://localhost:8081/DownLoadReport/reportModal/report/classsReport_M/classReportHeader.html?id=200655`,
+                cover: `http://localhost:8081/DownLoadReport/reportModal/report/classsReport_M/classReportCover.html?id=200655`,
+                content: `http://localhost:8081/DownLoadReport/reportModal/report/classsReport_M/classReport.html?id=200655`,
+                pdfName: '333.pdf'
+            }*/
+            console.log(params)
+            /*exec('wkhtmltopdf --outline-depth 2 --footer-html http://localhost:13004/report/classsReport_M/classReportFooter.html?id=200713 --header-html http://localhost:13004/report/classsReport_M/classReportHeader.html?id=200713 cover http://localhost:13004/report/classsReport_M/classReportCover.html?id=200713 http://localhost:13004/report/classsReport_M/classReport.html?id=200713 f:/test/000.pdf', function (err, stout, sterr) {
+                if(err){
+                    console.log(err)
+                    return
+                }
+                console.log('success')
+            })*/
+            //--no-stop-slow-scripts  --javascript-delay 100000
+            execFile('exe/wkhtmltopdf.exe', ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], (error, stdout, stderr) => {
+                if (error) {
+                    failIdList.push(correctIdList[index])
+                    index++
+                    console.error(`${id}报告生成失败`, stderr);
+                    setTimeout(() => {
+                        getPdf(reportIdList, obj)
+                    }, 50)
+                    return;
+                }
+                if(stderr){
+                    console.log(stderr)
+                    console.log('stderr', id)
+                }
+                successIdList.push(correctIdList[index])
+                index++
+                console.log(`${id}报告生成成功`);
+                setTimeout(() => {
+                    getPdf(reportIdList, obj)
+                }, 50)
+            })
+        }else{
+            console.log('complete')
+            if(obj.isBatch){
+                let reportType
+                if(obj.type == 5 || obj.type == 6){
+                    reportType = '班级报告'
+                }else if(obj.type == 3 || obj.type == 4){
+                    reportType = '年级报告'
+                }
+                fse.moveSync(`public/export/${time}`, `${obj.savePath}/${obj.gradeName}${obj.subjectName}/${reportType}`, {overwrite: true })
+                console.log('move success')
+            }
+        }
     }
 }
 
@@ -115,54 +181,5 @@ function getPart(type) {
     return part
 }
 
-function getPdf(correctIdList, obj) {
-    let failIdList =[], successIdList = []
-    let time = new Date().getTime()
-    if(!fse.pathExistsSync(`public/export/${time}`)){
-        fse.mkdirsSync(`public/export/${time}`)
-    }
-    let reportModel = getReportModel(obj.type)
-    correctIdList.forEach((item) => {
-        let {header, footer, cover, content} = getPart(obj.type)
-        let id = item.id
-        let pdfName = `public/export/${time}/${id}.pdf`;
-        let params = {
-            footer: `${pdfServerBasePath}/${reportModel}/${footer}?id=${id}`,
-            header: `${pdfServerBasePath}/${reportModel}/${header}?id=${id}`,
-            cover: `${pdfServerBasePath}/${reportModel}/${cover}?id=${id}`,
-            content: `${pdfServerBasePath}/${reportModel}/${content}?id=${id}`,
-            pdfName: pdfName
-        }
-        console.log(params)
-        execFile('exe/wkhtmltopdf.exe', ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], (error, stdout, stderr) => {
-            if (error) {
-                failIdList.push(id)
-                console.error(`${id}报告生成失败`, stderr);
-                if(successIdList.length + failIdList.length == correctIdList.length){
-                    console.log('complete')
-                }
-                return;
-            }
-            successIdList.push(id)
-            console.log(successIdList)
-            console.log(failIdList)
-            console.log(correctIdList)
-            console.log(`${id}报告生成成功`);
-            if(successIdList.length + failIdList.length == correctIdList.length){
-                if(obj.isBatch){
-                    let reportType
-                    if(obj.type == 5 || obj.type == 6){
-                        reportType = '班级报告'
-                    }else if(obj.type == 3 || obj.type == 4){
-                        reportType = '年级报告'
-                    }
-                    fse.moveSync(`public/export/${time}`, `${obj.savePath}/${obj.gradeName}${obj.subjectName}/${reportType}`, {overwrite: true })
-                    console.log('move success')
-                }
-                console.log('complete')
-            }
-        })
-    })
-}
 
 module.exports = singleNoScreen
