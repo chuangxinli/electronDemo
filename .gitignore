@@ -3,6 +3,7 @@ dist/electron/*
 dist/web/*
 build/*
 exe/*
+.idea
 public/*
 !build/icons
 node_modules/
