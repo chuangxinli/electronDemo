@@ -1,7 +1,7 @@
 const {execFile} = require('child_process')
 let pdfServerBasePath = 'http://localhost:13004'
 let reportModel = 'report/studentReport_M'
-let batchDown = function (reportIdList) {
+let batchNoScreen = function (reportIdList) {
     console.log(reportIdList)
     reportIdList.forEach((item) => {
         let id = item.id
@@ -30,4 +30,4 @@ let batchDown = function (reportIdList) {
     })
 }
 
-module.exports = batchDown
+module.exports = batchNoScreen

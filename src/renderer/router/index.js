@@ -32,7 +32,7 @@ export default new Router({
                     component: require('@/pages/SeeWeekReport').default
                 },
                 {
-                    path: '/Home/SeeMonthReport/:taskId/:subjectName/:gradeName',
+                    path: '/Home/SeeMonthReport/:taskId/:subjectName/:gradeName/:subjectId',
                     name: 'SeeMonthReport',
                     component: require('@/pages/SeeMonthReport').default
                 }
