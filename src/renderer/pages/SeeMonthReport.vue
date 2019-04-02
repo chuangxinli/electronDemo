@@ -6,8 +6,11 @@
             <el-breadcrumb-item>查看报告</el-breadcrumb-item>
         </el-breadcrumb>
         <div class="mTop20">
-            <el-button :type="curActive == 'person' ? 'primary' : ''" size="small" @click="getClassList()">个人报告</el-button>
-            <el-select v-model="classId" placeholder="请选择" size="small" class="mLeft20" @change="getPaperTestStuDetail()" v-show="curActive == 'person'">
+            <el-button :type="curActive == 'person' ? 'primary' : ''" size="small" @click="getClassList()">个人报告
+            </el-button>
+            <el-select v-model="classId" placeholder="请选择" size="small" class="mLeft20"
+                       @change="getPaperTestStuDetail()"
+                       v-show="curActive == 'person'">
                 <el-option
                         v-for="item in classList"
                         :key="item.classId"
@@ -15,8 +18,12 @@
                         :value="item.classId">
                 </el-option>
             </el-select>
-            <el-button :type="curActive == 'class' ? 'primary' : ''" size="small" class="mLeft20" @click="getPaperTestClassDetail()">班级报告</el-button>
-            <el-button :type="curActive == 'grade' ? 'primary' : ''" size="small" class="mLeft20" @click="getPaperTestGradeDetail()">年级报告</el-button>
+            <el-button :type="curActive == 'class' ? 'primary' : ''" size="small" class="mLeft20"
+                       @click="getPaperTestClassDetail()">班级报告
+            </el-button>
+            <el-button :type="curActive == 'grade' ? 'primary' : ''" size="small" class="mLeft20"
+                       @click="getPaperTestGradeDetail()">年级报告
+            </el-button>
             <el-button type="primary" size="small" class="mLeft20" @click="allDown()">批量下载</el-button>
             <el-button type="primary" size="small" class="mLeft20" @click="setSavePath()">下载路径设置</el-button>
         </div>
@@ -172,7 +179,7 @@
                         label="操作"
                         width="200">
                     <template slot-scope="scope">
-                        <el-button @click="downClassReport(scope.row)" type="text" size="small">下载报告</el-button>
+                        <el-button @click="downPersonReport(scope.row)" type="text" size="small">下载报告</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -186,25 +193,34 @@
             <h2>请根据需要选择</h2>
             <div class="allDown" v-show="gradeReportList.length > 0">
                 <p class="reportType"><span>年级报告</span></p>
-                <el-checkbox :indeterminate="isIndeterminate_grade" v-model="checkAll_grade" @change="handleCheckAllChange_grade">全选</el-checkbox>
+                <el-checkbox :indeterminate="isIndeterminate_grade" v-model="checkAll_grade"
+                             @change="handleCheckAllChange_grade">全选
+                </el-checkbox>
                 <el-checkbox-group v-model="checkedReport_grade" @change="handleCheckedChange_grade">
-                    <el-checkbox v-for="item in gradeReportList" :label="item" :key="item.id">{{item.name}}</el-checkbox>
+                    <el-checkbox v-for="item in gradeReportList" :label="item" :key="item.id">{{item.name}}
+                    </el-checkbox>
                 </el-checkbox-group>
 
             </div>
             <div class="allDown" v-show="classReportList.length > 0">
                 <p class="reportType"><span>班级报告</span></p>
-                <el-checkbox :indeterminate="isIndeterminate_class" v-model="checkAll_class" @change="handleCheckAllChange_class">全选</el-checkbox>
+                <el-checkbox :indeterminate="isIndeterminate_class" v-model="checkAll_class"
+                             @change="handleCheckAllChange_class">全选
+                </el-checkbox>
                 <el-checkbox-group v-model="checkedReport_class" @change="handleCheckedChange_class">
-                    <el-checkbox v-for="item in classReportList" :label="item" :key="item.id">{{item.name}}</el-checkbox>
+                    <el-checkbox v-for="item in classReportList" :label="item" :key="item.id">{{item.name}}
+                    </el-checkbox>
                 </el-checkbox-group>
 
             </div>
             <div class="allDown" v-show="classList.length > 0">
                 <p class="reportType"><span>个人报告</span></p>
-                <el-checkbox :indeterminate="isIndeterminate_person" v-model="checkAll_person" @change="handleCheckAllChange_person">全选</el-checkbox>
+                <el-checkbox :indeterminate="isIndeterminate_person" v-model="checkAll_person"
+                             @change="handleCheckAllChange_person">全选
+                </el-checkbox>
                 <el-checkbox-group v-model="checkedReport_person" @change="handleCheckedChange_person">
-                    <el-checkbox v-for="item in classList" :label="item" :key="item.classId">{{item.className}}</el-checkbox>
+                    <el-checkbox v-for="item in classList" :label="item" :key="item.classId">{{item.className}}
+                    </el-checkbox>
                 </el-checkbox-group>
 
             </div>
@@ -217,13 +233,15 @@
 </template>
 
 <script>
+    const EventEmitter = require('events');
+    class MyEmitter extends EventEmitter {}
+    const myEmitter = new MyEmitter();
     const singleNoScreen = require('@/assets/js/singleNoScreen')
     //const batchNoScreen = require('@/assets/js/batchNoScreen')
-    const { dialog } = require('electron').remote
+    const {dialog} = require('electron').remote
     export default {
         data() {
-            return{
-                rpType: 6,
+            return {
                 subjectName: '',
                 gradeName: '',
                 taskId: '',
@@ -248,15 +266,25 @@
                 //个人报告
                 checkAll_person: false,
                 checkedReport_person: [],
-                isIndeterminate_person: false
+                isIndeterminate_person: false,
+                //报告临时位置
+                tempPath: ''
             }
         },
         computed: {
-          savePath() {
-              return this.$store.state.reportData.savePath
-          }
+            savePath() {
+                return this.$store.state.reportData.savePath
+            },
+            appPath() {
+                return this.$store.state.reportData.appPath
+            }
         },
         mounted() {
+            if(this.appPath.includes('downloadreport')){
+                this.tempPath = this.appPath.split('downloadreport')[0] + 'downloadreport'
+            }else{
+                this.tempPath = this.appPath.split('electronDemo')[0] + 'electronDemo'
+            }
             this.taskId = this.$route.params.taskId
             this.gradeName = this.$route.params.gradeName
             this.subjectName = this.$route.params.subjectName
@@ -264,9 +292,47 @@
             this.getPaperTestGradeDetail()
             this.getPaperTestClassDetail()
             this.getClassList()
+            myEmitter.on('complete', (data) => {
+                console.log(this)
+                console.log('触发事件');
+                console.log(data)
+                if(data.obj.isBatch){
+
+                }else{
+                    if(data.successIdList.length > 0){
+                        let ids = []
+                        data.successIdList.forEach((item) => {
+                            ids.push(item.id)
+                        })
+                        ids = ids.join('，')
+                        this.$notify({
+                            title: '提示',
+                            message: `报告ID${ids}生成成功！`,
+                            duration: 0,
+                            type: 'success'
+
+                        });
+                    }
+                    if(data.failIdList.length > 0){
+                        let ids = []
+                        data.failIdList.forEach((item) => {
+                            ids.push(item.id)
+                        })
+                        ids = ids.join('，')
+                        this.$notify({
+                            title: '提示',
+                            message: `报告ID${ids}生成失败！`,
+                            duration: 0,
+                            type: 'error'
+
+                        });
+                    }
+                }
+
+            });
         },
         methods: {
-            async getPaperTestGradeDetail(){
+            async getPaperTestGradeDetail() {
                 this.curActive = 'grade'
                 let url = '/das/testManager/getPaperTestGradeDetail'
                 let params = {
@@ -276,12 +342,12 @@
                     type: 4
                 }
                 let data = await this.api.get(url, params, {loading: true})
-                if(data){
+                if (data) {
                     this.gradeReportList = data.reportList
                     console.log(data)
                 }
             },
-            async getPaperTestClassDetail(){
+            async getPaperTestClassDetail() {
                 this.curActive = 'class'
                 let url = '/das/testManager/getPaperTestClassDetail'
                 let params = {
@@ -290,13 +356,13 @@
                     taskId: this.taskId,
                     type: 5
                 }
-                let data = await this.api.get(url, params, {loading:  true})
-                if(data){
+                let data = await this.api.get(url, params, {loading: true})
+                if (data) {
                     this.classReportList = data.reportList
                     console.log(data)
                 }
             },
-            async getClassList(){
+            async getClassList() {
                 this.curActive = 'person'
                 let url = '/das/scanExam/getClassList'
                 let params = {
@@ -305,14 +371,14 @@
                     homeworkId: this.taskId
                 }
                 let data = await this.api.get(url, params, {loading: true})
-                if(data){
+                if (data) {
                     this.classList = data.infoList
                     this.classId = this.classList[0].classId
                     this.getPaperTestStuDetail()
                     console.log(data)
                 }
             },
-            async getPaperTestStuDetail(){
+            async getPaperTestStuDetail() {
                 let url = '/das/testManager/getPaperTestStuDetail'
                 let params = {
                     sid: this.global.sid,
@@ -322,31 +388,70 @@
                     type: 6
                 }
                 let data = await this.api.get(url, params, {loading: true})
-                if(data){
+                if (data) {
                     this.personReportList = data.reportList
                     console.log(data)
                 }
             },
-            downGradeReport(row){
-               console.log(row)
-            },
-            downClassReport(row){
+            downGradeReport(row) {
                 console.log(row)
+                singleNoScreen([row], {
+                    gradeName: this.gradeName,
+                    subjectName: this.subjectName,
+                    savePath: this.savePath,
+                    type: 4,
+                    isBatch: false,  //true是批量下载（下载后会自动整合到一个文件加）  false不是批量下载直接放在了文件夹的根目录
+                    appPath: this.tempPath
+                }, myEmitter)
             },
-            dealScore(row){
+            downClassReport(row) {
+                console.log(row)
+                singleNoScreen([row], {
+                    gradeName: this.gradeName,
+                    subjectName: this.subjectName,
+                    savePath: this.savePath,
+                    type: 6,
+                    isBatch: false,
+                    appPath: this.tempPath
+                }, myEmitter)
+            },
+            downPersonReport(row) {
+                console.log(row)
+                singleNoScreen([row], {
+                    gradeName: this.gradeName,
+                    subjectName: this.subjectName,
+                    savePath: this.savePath,
+                    type: 1,
+                    isBatch: false,
+                    appPath: this.tempPath
+                }, myEmitter)
+            },
+            dealScore(row) {
                 return row.maxScore + '/' + row.totalScore
             },
-            allDown(){
+            allDown() {
                 this.allDownDialogVisible = true
             },
-            confirmDown(){
-                if(this.checkedReport_grade.length > 0){
-                    console.log(this.checkedReport_grade)
-                    singleNoScreen(this.checkedReport_grade, {gradeName: this.gradeName, subjectName: this.subjectName, savePath: this.savePath, rpType: this.rpType, type: 4, isBatch: true})
+            confirmDown() {
+                if (this.checkedReport_grade.length > 0) {
+                    singleNoScreen(this.checkedReport_grade, {
+                        gradeName: this.gradeName,
+                        subjectName: this.subjectName,
+                        savePath: this.savePath,
+                        type: 4,
+                        isBatch: true,
+                        appPath: this.tempPath
+                    })
                 }
-                if(this.checkedReport_class.length > 0){
-                    console.log(this.checkedReport_class)
-                    singleNoScreen(this.checkedReport_class, {gradeName: this.gradeName, subjectName: this.subjectName, savePath: this.savePath, rpType: this.rpType, type: 6, isBatch: true})
+                if (this.checkedReport_class.length > 0) {
+                    singleNoScreen(this.checkedReport_class, {
+                        gradeName: this.gradeName,
+                        subjectName: this.subjectName,
+                        savePath: this.savePath,
+                        type: 6,
+                        isBatch: true,
+                        appPath: this.tempPath
+                    })
                 }
             },
             handleCheckAllChange_grade(val) {
@@ -385,11 +490,11 @@
                 this.checkAll_person = checkedCount === this.classList.length;
                 this.isIndeterminate_person = checkedCount > 0 && checkedCount < this.classList.length;
             },
-            setSavePath(){
+            setSavePath() {
                 let that = this
-                dialog.showOpenDialog({properties: ['openDirectory']},function (path) {
+                dialog.showOpenDialog({properties: ['openDirectory']}, function (path) {
                     console.log(path)
-                    if(path){
+                    if (path) {
                         that.$store.dispatch('GET_SAVE_PATH', {savePath: path[0]})
                     }
                 })
@@ -399,7 +504,7 @@
 </script>
 
 <style scoped>
-    .reportType{
+    .reportType {
         text-align: center;
         margin-top: 20px;
         height: 40px;

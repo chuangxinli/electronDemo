@@ -1,24 +1,31 @@
-const {execFile, exec} = require('child_process')
+const {execFile} = require('child_process')
 const axios = require("axios")
-const fse = require('fs-extra')
+//const fse = require('fs-extra')
 
 
-
-let pdfServerBasePath = 'http://localhost:13004/report'
 let baseURL = 'http://das.51youpu.com'
 
-let singleNoScreen = function (reportIdList, obj) {
-    let correctIdList = [], errIdList = [], failIdList =[], successIdList = [], time = new Date().getTime(), index = 0
+let singleNoScreen = function (reportIdList, obj, myEmitter) {
+    let pdfServerBasePath = obj.appPath, savePath = obj.savePath, correctIdList = [], errIdList = [], failIdList = [],
+        successIdList = [], index = 0
     let {header, footer, cover, content} = getPart(obj.type)
     let reportModel = getReportModel(obj.type)
-    if(!fse.pathExistsSync(`public/export/${time}`)){
-        fse.mkdirsSync(`public/export/${time}`)
+    if (obj.isBatch) {
+        let reportType
+        if (obj.type == 5 || obj.type == 6) {
+            reportType = '班级报告'
+        } else if (obj.type == 3 || obj.type == 4) {
+            reportType = '年级报告'
+        }
+        savePath = `${obj.savePath}/${obj.gradeName}${obj.subjectName}/${reportType}`
+    } else {
+        savePath = `${obj.savePath}`
     }
-    if(obj.type == 1 || obj.type == 2){
+    if (obj.type == 1 || obj.type == 2) {
         reportIdList.forEach((item) => {
-            getReportData({id: item.id}, function (id) {
-                correctIdList.push(id)
-                if(correctIdList.length + errIdList.length == reportIdList.length){
+            getReportData(item, function (item) {
+                correctIdList.push(item)
+                if (correctIdList.length + errIdList.length == reportIdList.length) {
                     getPdf(correctIdList, obj)
                 }
             })
@@ -26,89 +33,67 @@ let singleNoScreen = function (reportIdList, obj) {
     } else {
         getPdf(reportIdList, obj)
     }
+
+    function getReportData(params, callback) {
+        axios({
+            url: '/das/learningreport/getReportContent',
+            method: 'get',
+            baseURL: baseURL,
+            params: {id: params.id},
+        }).then(function (response) {
+            console.log(response)
+            if (response.data.contentType === 'all') {
+                callback(params);
+            } else {
+                errIdList.push(params)
+            }
+        })
+            .catch(function (error) {
+                errIdList.push(params)
+                console.log(params.id + ' 报告调取api失败：');
+                console.log(error);
+            });
+    }
+
     function getPdf(correctIdList, obj) {
-        if(index < correctIdList.length){
+        if (index < correctIdList.length) {
+            console.log('index', index)
             let id = correctIdList[index].id
-            let pdfName = `public/export/${time}/${id}.pdf`;
+            let name = correctIdList[index].studentName ? correctIdList[index].studentName : correctIdList[index].name
+            console.log('name', name)
+            let pdfName = `${savePath}/${id}(${name}).pdf`;
             let params = {
-                footer: `${pdfServerBasePath}/${reportModel}/${footer}?id=${id}`,
-                header: `${pdfServerBasePath}/${reportModel}/${header}?id=${id}`,
-                cover: `${pdfServerBasePath}/${reportModel}/${cover}?id=${id}`,
-                content: `${pdfServerBasePath}/${reportModel}/${content}?id=${id}`,
+                footer: `file:///${pdfServerBasePath}/public/report/${reportModel}/${footer}?id=${id}`,
+                header: `file:///${pdfServerBasePath}/public/report/${reportModel}/${header}?id=${id}`,
+                cover: `file:///${pdfServerBasePath}/public/report/${reportModel}/${cover}?id=${id}`,
+                content: `file:///${pdfServerBasePath}/public/report/${reportModel}/${content}?id=${id}`,
                 pdfName: pdfName
             }
-            /*let params = {
-                footer: `http://localhost:8081/DownLoadReport/reportModal/report/classsReport_M/classReportFooter.html?id=200655`,
-                header: `http://localhost:8081/DownLoadReport/reportModal/report/classsReport_M/classReportHeader.html?id=200655`,
-                cover: `http://localhost:8081/DownLoadReport/reportModal/report/classsReport_M/classReportCover.html?id=200655`,
-                content: `http://localhost:8081/DownLoadReport/reportModal/report/classsReport_M/classReport.html?id=200655`,
-                pdfName: '333.pdf'
-            }*/
             console.log(params)
-            /*exec('wkhtmltopdf --outline-depth 2 --footer-html http://localhost:13004/report/classsReport_M/classReportFooter.html?id=200713 --header-html http://localhost:13004/report/classsReport_M/classReportHeader.html?id=200713 cover http://localhost:13004/report/classsReport_M/classReportCover.html?id=200713 http://localhost:13004/report/classsReport_M/classReport.html?id=200713 f:/test/000.pdf', function (err, stout, sterr) {
-                if(err){
-                    console.log(err)
-                    return
-                }
-                console.log('success')
-            })*/
-            //--no-stop-slow-scripts  --javascript-delay 100000
             execFile('exe/wkhtmltopdf.exe', ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], (error, stdout, stderr) => {
+                console.log('execFile')
                 if (error) {
                     failIdList.push(correctIdList[index])
                     index++
                     console.error(`${id}报告生成失败`, stderr);
-                    setTimeout(() => {
-                        getPdf(reportIdList, obj)
-                    }, 50)
-                    return;
-                }
-                if(stderr){
-                    console.log(stderr)
-                    console.log('stderr', id)
-                }
-                successIdList.push(correctIdList[index])
-                index++
-                console.log(`${id}报告生成成功`);
-                setTimeout(() => {
+                    if (stderr.includes("Error: Unable to write to destination")) {
+                        console.log("文件操作失败，请确保同样名称的文件没有没打开！")
+                    }
                     getPdf(reportIdList, obj)
-                }, 50)
-            })
-        }else{
-            console.log('complete')
-            if(obj.isBatch){
-                let reportType
-                if(obj.type == 5 || obj.type == 6){
-                    reportType = '班级报告'
-                }else if(obj.type == 3 || obj.type == 4){
-                    reportType = '年级报告'
+                } else {
+                    successIdList.push(correctIdList[index])
+                    index++
+                    console.log(`${id}报告生成成功`);
+                    getPdf(reportIdList, obj)
                 }
-                fse.moveSync(`public/export/${time}`, `${obj.savePath}/${obj.gradeName}${obj.subjectName}/${reportType}`, {overwrite: true })
-                console.log('move success')
-            }
+            })
+        } else {
+            console.log('complete')
+            myEmitter.emit('complete', {failIdList, successIdList, obj})
         }
     }
 }
 
-function getReportData(params,callback) {
-    axios({
-        url:'/das/learningreport/getReportContent',
-        method:'get',
-        baseURL: baseURL,
-        params: params,
-    }).then(function (response) {
-        if(response.data.contentType === 'all') {
-            callback(params.id);
-        } else {
-            errIdList.push(params.id)
-        }
-    })
-        .catch(function (error) {
-            errIdList.push(params.id)
-            console.log(params.id + ' 报告调取api失败：');
-            console.log(error);
-        });
-}
 
 function getReportModel(type) {
     let reportModel;
@@ -140,7 +125,7 @@ function getReportModel(type) {
 
 function getPart(type) {
     let part = {}
-    switch (type){
+    switch (type) {
         case 1:
             part.header = 'studentHeader.html'
             part.footer = 'studentFooter.html'

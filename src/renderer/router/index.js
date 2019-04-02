@@ -14,7 +14,7 @@ export default new Router({
             path: '/Home',
             name: 'Home',
             component: require('@/pages/Home').default,
-            redirect: '/Home/WeekReport',
+            redirect: '/Home/MonthReport',
             children: [
                 {
                     path: '/Home/MonthReport',

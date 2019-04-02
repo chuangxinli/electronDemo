@@ -4,6 +4,8 @@ import store from '../renderer/store'
 
 console.log(store.state.reportData.savePath)
 
+store.dispatch('GET_APP_PATH', {appPath: app.getAppPath()})
+
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -35,16 +37,7 @@ function createWindow() {
     mainWindow = null
   })
 
-  require('./app')
-
-  /*const { execFile } = require('child_process');
-   const child = execFile('exe/wkhtmltopdf.exe', ['http://www.baidu.com', 'F:/test/1.pdf'], (error, stdout, stderr) => {
-   if (error) {
-   throw error;
-   }
-   console.log(stdout);
-   });*/
-
+  //require('./app')
 }
 
 app.on('ready', createWindow)
