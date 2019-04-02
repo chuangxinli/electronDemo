@@ -1,5 +1,5 @@
 export default {
-    api_url: 'http://das.51youpu.com',
+    api_url: '',
     sid: '',
     uid: '',
     roleId: '',
