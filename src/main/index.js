@@ -4,6 +4,8 @@ import store from '../renderer/store'
 
 console.log(store.state.reportData.savePath)
 
+store.dispatch('GET_APP_PATH', {appPath: app.getAppPath()})
+
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html

@@ -10,7 +10,7 @@ if(!fs.existsSync('public')){
 
 app.use(express.static('public'))
 
-app.get('/', function (req, res) {
+app.get('/hello', function (req, res) {
     res.send('Hello World!');
 });
 
