@@ -234,10 +234,14 @@
 
 <script>
     const EventEmitter = require('events');
-    class MyEmitter extends EventEmitter {}
+
+    class MyEmitter extends EventEmitter {
+    }
+
     const myEmitter = new MyEmitter();
     const singleNoScreen = require('@/assets/js/singleNoScreen')
-    //const batchNoScreen = require('@/assets/js/batchNoScreen')
+    const singleScreen = require('@/assets/js/singleScreen')
+    console.log(singleScreen)
     const {dialog} = require('electron').remote
     export default {
         data() {
@@ -280,9 +284,9 @@
             }
         },
         mounted() {
-            if(this.appPath.includes('downloadreport')){
+            if (this.appPath.includes('downloadreport')) {
                 this.tempPath = this.appPath.split('downloadreport')[0] + 'downloadreport'
-            }else{
+            } else {
                 this.tempPath = this.appPath.split('electronDemo')[0] + 'electronDemo'
             }
             this.taskId = this.$route.params.taskId
@@ -293,13 +297,12 @@
             this.getPaperTestClassDetail()
             this.getClassList()
             myEmitter.on('complete', (data) => {
-                console.log(this)
-                console.log('触发事件');
+                console.log('complete 触发事件');
                 console.log(data)
-                if(data.obj.isBatch){
+                if (data.obj.isBatch) {
 
-                }else{
-                    if(data.successIdList.length > 0){
+                } else {
+                    if (data.successIdList.length > 0) {
                         let ids = []
                         data.successIdList.forEach((item) => {
                             ids.push(item.id)
@@ -313,7 +316,7 @@
 
                         });
                     }
-                    if(data.failIdList.length > 0){
+                    if (data.failIdList.length > 0) {
                         let ids = []
                         data.failIdList.forEach((item) => {
                             ids.push(item.id)
@@ -329,7 +332,17 @@
                     }
                 }
 
-            });
+            })
+            myEmitter.on('warn', (data) => {
+                console.log('warn 触发事件');
+                console.log(data)
+                this.$notify({
+                    title: '提示',
+                    message: data.text,
+                    duration: 0,
+                    type: 'warning'
+                });
+            })
         },
         methods: {
             async getPaperTestGradeDetail() {
@@ -406,7 +419,15 @@
             },
             downClassReport(row) {
                 console.log(row)
-                singleNoScreen([row], {
+                /*singleNoScreen([row], {
+                  gradeName: this.gradeName,
+                  subjectName: this.subjectName,
+                  savePath: this.savePath,
+                  type: 6,
+                  isBatch: false,
+                  appPath: this.tempPath
+                }, myEmitter)*/
+                singleScreen([row], {
                     gradeName: this.gradeName,
                     subjectName: this.subjectName,
                     savePath: this.savePath,
@@ -491,11 +512,10 @@
                 this.isIndeterminate_person = checkedCount > 0 && checkedCount < this.classList.length;
             },
             setSavePath() {
-                let that = this
-                dialog.showOpenDialog({properties: ['openDirectory']}, function (path) {
+                dialog.showOpenDialog({properties: ['openDirectory']}, (path) => {
                     console.log(path)
                     if (path) {
-                        that.$store.dispatch('GET_SAVE_PATH', {savePath: path[0]})
+                        this.$store.dispatch('GET_SAVE_PATH', {savePath: path[0]})
                     }
                 })
             }
