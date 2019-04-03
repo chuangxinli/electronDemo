@@ -6,6 +6,5 @@ export default {
     roleName: '',
     nickName: '',
     schoolName: '',
-    schoolId: '',
-    pdfServerBasePath: 'http://localhost:13004/report',
+    schoolId: ''
 }

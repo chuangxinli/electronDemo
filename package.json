@@ -1,5 +1,5 @@
 {
-  "name": "my-project01",
+  "name": "downloadreport",
   "version": "0.0.1",
   "author": "chuangxinli <1358601985@qq.com>",
   "description": "An electron-vue project",
@@ -17,8 +17,8 @@
     "postinstall": ""
   },
   "build": {
-    "productName": "my-project01",
-    "appId": "com.example.yourapp",
+    "productName": "DownloadReport",
+    "appId": "com.lcx-example.yourapp",
     "directories": {
       "output": "build"
     },
@@ -52,13 +52,9 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
-    "body-parser": "^1.18.3",
     "element-ui": "^2.4.11",
-    "express": "^4.16.4",
     "fs-extra": "^7.0.1",
-    "jquery": "^3.3.1",
-    "jsdom": "^13.1.0",
-    "mammoth": "^1.4.7",
+    "pug": "^2.0.3",
     "qs": "^6.6.0",
     "vue": "^2.5.16",
     "vue-electron": "^1.0.6",
