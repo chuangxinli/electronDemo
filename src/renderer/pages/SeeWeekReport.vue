@@ -17,6 +17,7 @@
             </el-select>
             <el-button :type="curActive == 'class' ? 'primary' : ''" size="small" class="mLeft20" @click="getPaperTestClassDetail()" v-show="testObject == 1">班级报告</el-button>
             <el-button :type="curActive == 'grade' ? 'primary' : ''" size="small" class="mLeft20" @click="getPaperTestGradeDetail()" v-show="testObject == 1">年级报告</el-button>
+            <el-button type="primary" size="small" class="mLeft20" @click="$router.go(-1)">返回</el-button>
         </div>
         <div class="mTop20" v-show="curActive == 'grade'">
             <el-table
@@ -107,7 +108,7 @@
                         align="center"
                         fixed="right"
                         label="操作"
-                        width="200">
+                        width="100">
                     <template slot-scope="scope">
                         <el-button @click="downClassReport(scope.row)" type="text" size="small">下载报告</el-button>
                     </template>

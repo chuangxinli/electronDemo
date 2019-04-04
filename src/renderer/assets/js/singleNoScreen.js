@@ -4,8 +4,11 @@ const {getReportModel, getPart, baseURL} = require('./common')
 
 
 let singleNoScreen = function (reportIdList, obj, myEmitter) {
-    let pdfServerBasePath = obj.appPath, savePath = obj.savePath, correctIdList = [], errIdList = [], failIdList = [],
-        successIdList = [], index = 0
+    if(!obj.savePath){
+        myEmitter.emit('warn', {text: '请先设置报告的下载路径！'})
+        return
+    }
+    let pdfServerBasePath = obj.appPath, savePath = obj.savePath, correctIdList = [], errIdList = [], failIdList = [], successIdList = [], index = 0
     let {header, footer, cover, content} = getPart(obj.type)
     let reportModel = getReportModel(obj.type)
     if (obj.isBatch) {
@@ -68,7 +71,7 @@ let singleNoScreen = function (reportIdList, obj, myEmitter) {
                 pdfName: pdfName
             }
             console.log(params)
-            execFile('exe/wkhtmltopdf.exe', ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], (error, stdout, stderr) => {
+            execFile('public/exe/wkhtmltopdf.exe', ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], (error, stdout, stderr) => {
                 console.log('execFile')
                 if (error) {
                     failIdList.push(correctIdList[index])

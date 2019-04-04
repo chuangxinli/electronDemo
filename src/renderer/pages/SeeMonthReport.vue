@@ -26,10 +26,12 @@
       </el-button>
       <el-button type="primary" size="small" class="mLeft20" @click="allDown()">批量下载</el-button>
       <el-button type="primary" size="small" class="mLeft20" @click="setSavePath()">下载路径设置</el-button>
+      <el-button type="primary" size="small" class="mLeft20" @click="$router.go(-1)">返回</el-button>
     </div>
     <div class="mTop20" v-show="savePath">
       <span>报告下载位置：</span>
       <el-tag>{{savePath}}</el-tag>
+      <el-button type="primary" size="small" class="mLeft20" @click="openSavePath()">查看下载的报告</el-button>
     </div>
     <div class="mTop20" v-show="curActive == 'grade'">
       <el-table
@@ -120,7 +122,7 @@
           align="center"
           fixed="right"
           label="操作"
-          width="200">
+          width="100">
           <template slot-scope="scope">
             <el-button @click="downClassReport(scope.row)" type="text" size="small">下载报告</el-button>
           </template>
@@ -234,13 +236,14 @@
 
 <script>
   const EventEmitter = require('events');
+
   class MyEmitter extends EventEmitter {
   }
+
   const myEmitter = new MyEmitter();
   const singleNoScreen = require('@/assets/js/singleNoScreen')
   const singleScreen = require('@/assets/js/singleScreen')
-  console.log(singleScreen)
-  const {dialog} = require('electron').remote
+  const {dialog,shell} = require('electron').remote
   export default {
     data() {
       return {
@@ -282,6 +285,7 @@
       }
     },
     mounted() {
+      console.log(this.appPath)
       if (this.appPath.includes('downloadreport')) {
         this.tempPath = this.appPath.split('downloadreport')[0] + 'downloadreport'
       } else {
@@ -295,8 +299,7 @@
       this.getPaperTestClassDetail()
       this.getClassList()
       myEmitter.on('complete', (data) => {
-        console.log(this)
-        console.log('触发事件');
+        console.log('complete 触发事件');
         console.log(data)
         if (data.obj.isBatch) {
 
@@ -330,10 +333,23 @@
             });
           }
         }
-
-      });
+      })
+      myEmitter.on('warn', (data) => {
+        console.log('warn 触发事件');
+        console.log(data)
+        this.$notify({
+          title: '提示',
+          message: data.text,
+          duration: 0,
+          type: 'warning'
+        });
+      })
     },
     methods: {
+      openSavePath(){
+        //shell.openExternal('https://github.com')
+        shell.openItem(this.savePath)
+      },
       async getPaperTestGradeDetail() {
         this.curActive = 'grade'
         let url = '/das/testManager/getPaperTestGradeDetail'
@@ -409,13 +425,13 @@
       downClassReport(row) {
         console.log(row)
         /*singleNoScreen([row], {
-          gradeName: this.gradeName,
-          subjectName: this.subjectName,
-          savePath: this.savePath,
-          type: 6,
-          isBatch: false,
-          appPath: this.tempPath
-        }, myEmitter)*/
+         gradeName: this.gradeName,
+         subjectName: this.subjectName,
+         savePath: this.savePath,
+         type: 6,
+         isBatch: false,
+         appPath: this.tempPath
+         }, myEmitter)*/
         singleScreen([row], {
           gradeName: this.gradeName,
           subjectName: this.subjectName,
@@ -501,11 +517,10 @@
         this.isIndeterminate_person = checkedCount > 0 && checkedCount < this.classList.length;
       },
       setSavePath() {
-        let that = this
-        dialog.showOpenDialog({properties: ['openDirectory']}, function (path) {
+        dialog.showOpenDialog({properties: ['openDirectory']}, (path) => {
           console.log(path)
           if (path) {
-            that.$store.dispatch('GET_SAVE_PATH', {savePath: path[0]})
+            this.$store.dispatch('GET_SAVE_PATH', {savePath: path[0]})
           }
         })
       }

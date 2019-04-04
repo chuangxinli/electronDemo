@@ -11,10 +11,24 @@
       <el-button type="primary" @click="onSubmit" class="signinBtn">登录</el-button>
     </el-form>
     <div class="box"></div>
+    <el-dialog
+      title="友情提示"
+      :visible.sync="downDialogVisible"
+      width="30%"
+      center>
+      <p class="center">首次使用需要初始化一些配置，为了不影响您的使用请耐心等待！</p>
+      <div class="center mTop20">
+        <el-progress type="circle" :percentage="downPer" color="#8e71c7"></el-progress>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+  const request = require('request')
+  const extract = require('extract-zip')
+  const path = require('path')
+  const fs = require('fs')
   export default {
     data() {
       return {
@@ -22,8 +36,15 @@
         formLabelAlign: {
           username: '',
           password: '',
-          remember: localStorage.getItem('remember') ? true : false
-        }
+          remember: localStorage.getItem('remember') ? true : false,
+        },
+        downDialogVisible: false,
+        downPer: 0
+      }
+    },
+    computed: {
+      appPath(){
+        return this.$store.state.reportData.appPath
       }
     },
     mounted() {
@@ -31,8 +52,47 @@
         this.formLabelAlign.username = localStorage.getItem('username')
         this.formLabelAlign.password = localStorage.getItem('password')
       }
+      if(!fs.existsSync('public/exe/wkhtmltopdf.exe')){
+        this.getPubilc()
+      }
     },
     methods: {
+      getPubilc(){
+        this.downDialogVisible = true
+        let that = this, totalSize = 0, curSize = 0
+        request
+          .get(this.global.static_url)
+          .on('error', function(err) {
+            console.log(err)
+          })
+          .on('response', function(response) {
+            console.log(response.statusCode) // 200
+            totalSize = response.headers['content-length']
+          })
+          .on('data', function(data) {
+            curSize += data.length
+            that.downPer = parseInt(curSize / totalSize * 100)
+          })
+          .on('end', function () {
+            console.log('结束了！')
+            setTimeout(() => {
+              extract('public.zip', {dir: that.appPath.split('downloadreport')[0] + 'downloadreport'}, function (err) {
+                if(err){
+                  return console.log(err)
+                }
+                console.log('unzip success')
+                fs.unlink('public.zip', function(err){
+                  if(err){
+                    throw err;
+                  }
+                  console.log('文件:删除成功！');
+                })
+                that.downDialogVisible = false
+              })
+            }, 500)
+          })
+          .pipe(fs.createWriteStream('public.zip'))
+      },
       async onSubmit() {
         if (!this.formLabelAlign.username) {
           this.$message({
@@ -134,7 +194,7 @@
     bottom: 0;
     margin: auto;
     text-align: center;
-    z-index: 9999;
+    z-index: 22;
   }
 
   .box {
