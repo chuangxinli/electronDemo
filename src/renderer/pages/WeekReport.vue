@@ -69,7 +69,7 @@
                         align="center"
                         fixed="right"
                         label="操作"
-                        width="200">
+                        width="100">
                     <template slot-scope="scope">
                         <el-button @click="seeWeekReport(scope.row)" type="text" size="small">查看报告</el-button>
                     </template>

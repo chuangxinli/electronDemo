@@ -44,7 +44,7 @@
       "icon": "build/icons/icon.icns"
     },
     "win": {
-      "icon": "build/icons/icon.ico"
+      "icon": "build/icons/logowin.ico"
     },
     "linux": {
       "icon": "build/icons"
@@ -54,9 +54,11 @@
     "axios": "^0.18.0",
     "del": "^3.0.0",
     "element-ui": "^2.4.11",
+    "extract-zip": "^1.6.7",
     "fs-extra": "^7.0.1",
     "pug": "^2.0.3",
     "qs": "^6.6.0",
+    "request": "^2.88.0",
     "vue": "^2.5.16",
     "vue-electron": "^1.0.6",
     "vue-router": "^3.0.1",
