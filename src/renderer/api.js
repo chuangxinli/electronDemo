@@ -12,13 +12,13 @@ let loadOptions = {
   background: 'rgba(0, 0, 0, 0.5)'
 }
 axios.defaults.baseURL = global.api_url
-//axios.defaults.withCredentials = true
 axios.defaults.timeout = 30000
 axios.defaults.headers = {
   'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
 }
 axios.interceptors.request.use(config => {
   if (obj_options instanceof Object && obj_options.loading) {
+    loadOptions.text = obj_options.loadingText ? obj_options.loadingText : 'Loading...'
     loadingInstance = Loading.service(loadOptions)
   }
   return config
@@ -85,7 +85,6 @@ export default {
     if (obj instanceof Object) {
       obj_options = obj
     }
-    console.log(obj_options)
     if (obj_options.headers && !obj_options.headers['Content-Type'].includes('application/x-www-form-urlencoded')) {
       return axios.post(url, data, obj_options).then(checkStatus).then(checkCode)
     } else {

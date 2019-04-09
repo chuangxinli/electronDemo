@@ -448,6 +448,20 @@ asap@~2.0.3:
   resolved "http://r.cnpmjs.org/asap/download/asap-2.0.6.tgz#e50347611d7e690943208bbdafebcbc2fb866d46"
   integrity sha1-5QNHYR1+aQlDIIu9r+vLwvuGbUY=
 
+asar@^1.0.0:
+  version "1.0.0"
+  resolved "http://r.cnpmjs.org/asar/download/asar-1.0.0.tgz#5624ffa1369aa929871dfc036de02c20871bdc2e"
+  integrity sha1-ViT/oTaaqSmHHfwDbeAsIIcb3C4=
+  dependencies:
+    chromium-pickle-js "^0.2.0"
+    commander "^2.19.0"
+    cuint "^0.2.2"
+    glob "^7.1.3"
+    minimatch "^3.0.4"
+    mkdirp "^0.5.1"
+    pify "^4.0.1"
+    tmp-promise "^1.0.5"
+
 asn1.js@^4.0.0:
   version "4.10.1"
   resolved "https://registry.yarnpkg.com/asn1.js/-/asn1.js-4.10.1.tgz#b9c2bf5805f1e64aadeed6df3a2bfafb5a73f5a0"
@@ -2588,6 +2602,11 @@ csso@~2.3.1:
   dependencies:
     clap "^1.0.9"
     source-map "^0.5.3"
+
+cuint@^0.2.2:
+  version "0.2.2"
+  resolved "http://r.cnpmjs.org/cuint/download/cuint-0.2.2.tgz#408086d409550c2631155619e9fa7bcadc3b991b"
+  integrity sha1-QICG1AlVDCYxFVYZ6fp7ytw7mRs=
 
 currently-unhandled@^0.4.1:
   version "0.4.1"
@@ -5722,9 +5741,9 @@ os-locale@^3.0.0, os-locale@^3.1.0:
     lcid "^2.0.0"
     mem "^4.0.0"
 
-os-tmpdir@^1.0.0, os-tmpdir@^1.0.1:
+os-tmpdir@^1.0.0, os-tmpdir@^1.0.1, os-tmpdir@~1.0.2:
   version "1.0.2"
-  resolved "https://registry.yarnpkg.com/os-tmpdir/-/os-tmpdir-1.0.2.tgz#bbe67406c79aa85c5cfec766fe5734555dfa1274"
+  resolved "http://r.cnpmjs.org/os-tmpdir/download/os-tmpdir-1.0.2.tgz#bbe67406c79aa85c5cfec766fe5734555dfa1274"
   integrity sha1-u+Z0BseaqFxc/sdm/lc0VV36EnQ=
 
 osenv@^0.1.4:
@@ -7727,6 +7746,21 @@ title-case@^2.1.0:
   dependencies:
     no-case "^2.2.0"
     upper-case "^1.0.3"
+
+tmp-promise@^1.0.5:
+  version "1.0.5"
+  resolved "http://r.cnpmjs.org/tmp-promise/download/tmp-promise-1.0.5.tgz#3208d7fa44758f86a2a4c4060f3c33fea30e8038"
+  integrity sha1-MgjX+kR1j4aipMQGDzwz/qMOgDg=
+  dependencies:
+    bluebird "^3.5.0"
+    tmp "0.0.33"
+
+tmp@0.0.33:
+  version "0.0.33"
+  resolved "http://r.cnpmjs.org/tmp/download/tmp-0.0.33.tgz#6d34335889768d21b2bcda0aa277ced3b1bfadf9"
+  integrity sha1-bTQzWIl2jSGyvNoKonfO07G/rfk=
+  dependencies:
+    os-tmpdir "~1.0.2"
 
 to-arraybuffer@^1.0.0:
   version "1.0.1"

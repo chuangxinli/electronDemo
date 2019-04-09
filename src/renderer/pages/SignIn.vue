@@ -8,7 +8,7 @@
         <el-input v-model="formLabelAlign.password" type="password"></el-input>
       </el-form-item>
       <el-checkbox v-model="formLabelAlign.remember" class="remember">记住密码</el-checkbox>
-      <el-button type="primary" @click="onSubmit" class="signinBtn">登录</el-button>
+      <el-button type="primary" @click="onSubmit" class="onSubmit">登录</el-button>
     </el-form>
     <div class="box"></div>
     <el-dialog
@@ -29,6 +29,10 @@
   const extract = require('extract-zip')
   const path = require('path')
   const fs = require('fs')
+  const asar = require('asar')
+  const del = require('del')
+  import {Loading} from 'element-ui'
+  import {app, ipcRenderer} from 'electron'
   export default {
     data() {
       return {
@@ -39,7 +43,9 @@
           remember: localStorage.getItem('remember') ? true : false,
         },
         downDialogVisible: false,
-        downPer: 0
+        downPer: 0,
+        tips: '',
+        downloadPercent: 0
       }
     },
     computed: {
@@ -48,15 +54,34 @@
       }
     },
     mounted() {
+      console.log(this.appPath)
       if (this.formLabelAlign.remember) {
         this.formLabelAlign.username = localStorage.getItem('username')
         this.formLabelAlign.password = localStorage.getItem('password')
       }
-      if(!fs.existsSync('public/exe/wkhtmltopdf.exe')){
-        this.getPubilc()
-      }
+      this.detectionVersion()
     },
     methods: {
+      async detectionVersion(){
+        let data = await this.api.get(`${this.global.version_url}/data.json`, {})
+        if(data){
+          console.log(data)
+          ipcRenderer.send("update");
+          ipcRenderer.on("message", (event, text) => {
+            console.log(arguments);
+            this.tips = text;
+          });
+          ipcRenderer.on("downloadProgress", (event, progressObj)=> {
+            console.log(progressObj);
+            this.downloadPercent = progressObj.percent || 0;
+          });
+          ipcRenderer.on("isUpdateNow", () => {
+            if(confirm('确认下载？')){
+              ipcRenderer.send("isUpdateNow");
+            }
+          });
+        }
+      },
       getPubilc(){
         this.downDialogVisible = true
         let that = this, totalSize = 0, curSize = 0
@@ -92,6 +117,29 @@
             }, 500)
           })
           .pipe(fs.createWriteStream('public.zip'))
+      },
+      beforeLogin(){
+        //首次登录处理
+        if(!fs.existsSync('public')){
+          let loadingInstance = Loading.service({
+            lock: true,
+            text: '首次登录配置中...',
+            spinner: 'el-icon-loading',
+            background: 'rgba(0, 0, 0, 0.5)'
+          })
+          setTimeout(() => {
+            console.log(111)
+            asar.extractAll(this.appPath, '')
+            console.log(222)
+            //del.sync('data.json', {force: true})
+            //del.sync('dist/**', {force: true})
+            //del.sync('node_modules/**', {force: true})
+            loadingInstance.close()
+            this.onSubmit()
+          }, 500)
+        }else{
+          this.onSubmit()
+        }
       },
       async onSubmit() {
         if (!this.formLabelAlign.username) {

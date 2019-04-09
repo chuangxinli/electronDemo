@@ -2,13 +2,12 @@
 dist/electron/*
 dist/web/*
 build/*
-exe/*
 .idea
 public/*
+resources/*
 !build/icons
 node_modules/
 npm-debug.log
 npm-debug.log.*
 thumbs.db
-src/renderer/api/fileOfJsonAndHtml
 !.gitkeep

@@ -1,6 +1,6 @@
 {
   "name": "downloadreport",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "chuangxinli <1358601985@qq.com>",
   "description": "An electron-vue project",
   "license": null,
@@ -22,6 +22,15 @@
     "directories": {
       "output": "build"
     },
+    "asarUnpack": [
+      "./public"
+    ],
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "http://39.96.186.199/win"
+      }
+    ],
     "files": [
       "dist/electron/**/*"
     ],
@@ -44,15 +53,35 @@
       "icon": "build/icons/icon.icns"
     },
     "win": {
-      "icon": "build/icons/logowin.ico"
+      "icon": "build/icons/logowin.ico",
+      "target": [
+        "nsis"
+      ]
     },
     "linux": {
       "icon": "build/icons"
-    }
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "build/icons/logowin.ico",
+      "uninstallerIcon": "build/icons/logowin.ico",
+      "installerHeaderIcon": "build/icons/logowin.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "perMachine": true,
+      "unicode": true,
+      "license": "build/license.html",
+      "include": "build/installer.nsh"
+    },
+    "extends": null
   },
   "dependencies": {
+    "asar": "^1.0.0",
     "axios": "^0.18.0",
     "del": "^3.0.0",
+    "electron-updater": "^4.0.6",
     "element-ui": "^2.4.11",
     "extract-zip": "^1.6.7",
     "fs-extra": "^7.0.1",
