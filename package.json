@@ -1,6 +1,6 @@
 {
   "name": "downloadreport",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "author": "chuangxinli <1358601985@qq.com>",
   "description": "An electron-vue project",
   "license": null,
@@ -80,6 +80,7 @@
   "dependencies": {
     "asar": "^1.0.0",
     "axios": "^0.18.0",
+
     "del": "^3.0.0",
     "element-ui": "^2.4.11",
     "extract-zip": "^1.6.7",

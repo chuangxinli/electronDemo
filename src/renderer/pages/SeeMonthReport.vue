@@ -243,6 +243,7 @@
   const myEmitter = new MyEmitter();
   const singleNoScreen = require('@/assets/js/singleNoScreen')
   const singleScreen = require('@/assets/js/singleScreen')
+  const batchNoScreen = require('@/assets/js/batchNoScreen')
   const {dialog,shell} = require('electron').remote
   export default {
     data() {
@@ -259,6 +260,7 @@
         classId: '',
         curActive: 'grade',
         curType: 3, // 1：个人 2：班级 3：年级
+        reportType: 6, //3是月考  6是周测
         //批量下载
         //年级报告
         checkAll_grade: false,
@@ -298,6 +300,22 @@
       this.getPaperTestGradeDetail()
       this.getPaperTestClassDetail()
       this.getClassList()
+      myEmitter.on('complete_all', (data) => {
+        this.$notify({
+          title: '提示',
+          message: `所有报告下载完毕！`,
+          duration: 0,
+          type: 'success'
+        });
+      })
+      myEmitter.on('complete_single_class', (data) => {
+        this.$notify({
+          title: '提示',
+          message: `单个班级学生报告下载完毕！`,
+          duration: 0,
+          type: 'success'
+        });
+      })
       myEmitter.on('complete', (data) => {
         console.log('complete 触发事件');
         console.log(data)
@@ -466,8 +484,9 @@
             savePath: this.savePath,
             type: 4,
             isBatch: true,
-            appPath: this.tempPath
-          })
+            appPath: this.tempPath,
+            taskId: this.taskId
+          }, myEmitter)
         }
         if (this.checkedReport_class.length > 0) {
           singleNoScreen(this.checkedReport_class, {
@@ -476,8 +495,23 @@
             savePath: this.savePath,
             type: 6,
             isBatch: true,
-            appPath: this.tempPath
-          })
+            appPath: this.tempPath,
+            taskId: this.taskId
+          }, myEmitter)
+        }
+        if(this.checkedReport_person.length > 0){
+          console.log(this.checkedReport_person)
+          batchNoScreen(this.checkedReport_person, {
+            gradeName: this.gradeName,
+            subjectName: this.subjectName,
+            savePath: this.savePath,
+            type: 1,
+            isBatch: true,
+            appPath: this.tempPath,
+            taskId: this.taskId,
+            subjectId: this.subjectId,
+            reportType: this.reportType
+          }, myEmitter)
         }
       },
       handleCheckAllChange_grade(val) {

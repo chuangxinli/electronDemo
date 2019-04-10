@@ -2,10 +2,10 @@
     <div>
         <el-form :label-position="labelPosition" label-width="80px" :model="formLabelAlign" class="signin">
             <el-form-item label="账号：" class="mBot50 mTop80">
-                <el-input v-model="formLabelAlign.username"></el-input>
+                <el-input v-model="formLabelAlign.username" @keyup.native.enter="beforeLogin"></el-input>
             </el-form-item>
             <el-form-item label="密码：" class="mBot50">
-                <el-input v-model="formLabelAlign.password" type="password"></el-input>
+                <el-input v-model="formLabelAlign.password" type="password" @keyup.native.13="beforeLogin"></el-input>
             </el-form-item>
             <el-checkbox v-model="formLabelAlign.remember" class="remember">记住密码</el-checkbox>
             <el-button type="primary" @click="beforeLogin" class="onSubmit">登录</el-button>
