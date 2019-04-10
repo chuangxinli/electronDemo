@@ -10,6 +10,7 @@ store.dispatch('GET_APP_PATH', {appPath: app.getAppPath()})
 
 
 console.log('app.getAppPath:', app.getAppPath())
+console.log(app.getVersion())
 
 /**
  * Set `__static` path to static files in production
@@ -98,7 +99,6 @@ function updateHandle() {
     updateAva: '检测到新版本，正在下载……',
     updateNotAva: '现在使用的就是最新版本，不用更新',
   };
-  const os = require('os');
   // 这里的URL就是更新服务器的放置文件的地址
   autoUpdater.setFeedURL(uploadUrl);
   autoUpdater.on('error', function (error) {

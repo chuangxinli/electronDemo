@@ -1,33 +1,114 @@
 const {execFile} = require('child_process')
-let pdfServerBasePath = 'http://localhost:13004'
-let reportModel = 'report/studentReport_M'
-let batchNoScreen = function (reportIdList) {
-    console.log(reportIdList)
-    reportIdList.forEach((item) => {
-        let id = item.id
-        console.log('id', id)
-        let studentName = item.studentName.replace(/[^\u4e00-\u9fa5a-zA-Z0-9\s*]/g, '')
-        let pdfName = `public/${id}(${studentName}).pdf`;
-        let params = {
-            footer: `${pdfServerBasePath}/${reportModel}/Footer2.html?id=${id}`,
-            header: `${pdfServerBasePath}/${reportModel}/Header2.html?id=${id}`,
-            cover: `${pdfServerBasePath}/${reportModel}/Cover2.html?id=${id}`,
-            content: `${pdfServerBasePath}/${reportModel}/Report2.html?id=${id}`,
-            pdfName: pdfName
-        }
-        execFile('exe/wkhtmltopdf.exe', ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], (error, stdout, stderr) => {
-            /*setTimeout(function(){
-                getPdf2(pdfIdArray,routType,++index);
-            },20);*/
-            if(error) {
-                console.error(`${id}报告生成失败`,stderr);
-                //wrongPdfId.push(id);
-                return;
-            }
-            console.log(`${id}报告生成成功`);
-        })
+const axios = require("axios")
+const {getReportModel, getPart, baseURL, idURL} = require('./common')
+const fse = require('fs-extra')
 
+//批量下载报告下载的是每个班级里面的个人报告。下载班级报告和年级报告不走批量下载接口
+let batchNoScreen = function (classList, obj, myEmitter) {
+  if (!obj.savePath) {
+    myEmitter.emit('warn', {text: '请先设置报告的下载路径！'})
+    return
+  }
+  let pdfServerBasePath = obj.appPath, savePath = obj.savePath, errClassList = [], index = 0, classIndex = 0
+  let {header, footer, cover, content} = getPart(obj.type)
+  let reportModel = getReportModel(obj.type)
+  //先获取单个班级中学生的id
+  getPersonIds({classId: classList[classIndex].classId, testId: obj.taskId, subjectId: obj.subjectId, reportType: obj.reportType}, function (personList) {
+    let correctList = [], errList = [], noPayList = [], failPdfList = []
+    personList.forEach((item) => {
+      getReportData(item, correctList, errList, noPayList, personList, failPdfList)
     })
+  })
+  function getPersonIds(params, callback) {
+    axios({
+      url: '/detector/api/view/v4/getClassReportIds',
+      method: 'get',
+      baseURL: idURL,
+      params: params,
+    }).then(function (response) {
+      console.log(response)
+      classIndex++
+      if (response.data.recode == 0) {
+        callback(response.data.ids);
+      }
+    })
+      .catch(function (error) {
+        errClassList.push(params)
+        console.log(params.classId + ' 报告调取api失败：');
+        console.log(error);
+      });
+  }
+
+  function getReportData(id, correctList, errList, noPayList, personList, failPdfList) {
+    axios({
+      url: '/das/learningreport/getReportContent',
+      method: 'get',
+      baseURL: baseURL,
+      params: {id}
+    }).then(function (response) {
+      consolel.log('id:', id)
+      if (response.data.contentType === 'all') {
+        correctList.push({id: id, studentName: response.data.report.cover.studentName});
+      } else {
+        noPayList.push(id)
+      }
+      if(correctList.length + noPayList.length + errList.length === personList.length){
+        getPdf(correctList, obj, failPdfList)
+      }
+    })
+      .catch(function (error) {
+        errList.push(id)
+        console.log(id + ' 报告调取api失败：');
+        console.log(error);
+      });
+  }
+
+  function getPdf(correctList, obj, failPdfList) {
+    if (index < correctList.length) {
+      let id = correctList[index].id
+      let name = correctList[index].studentName
+      let pdfName = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${classList[classIndex - 1].className}/${id}(${name}).pdf`;
+      if(!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${classList[classIndex - 1].className}`)){
+        fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${classList[classIndex - 1].className}`)
+      }
+      let params = {
+        footer: `file:///${pdfServerBasePath}/public/report/${reportModel}/${footer}?id=${id}`,
+        header: `file:///${pdfServerBasePath}/public/report/${reportModel}/${header}?id=${id}`,
+        cover: `file:///${pdfServerBasePath}/public/report/${reportModel}/${cover}?id=${id}`,
+        content: `file:///${pdfServerBasePath}/public/report/${reportModel}/${content}?id=${id}`,
+        pdfName: pdfName
+      }
+      execFile('public/exe/wkhtmltopdf.exe', ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], {maxBuffer: 1000 * 1024}, (error, stdout, stderr) => {
+        if (error) {
+          failPdfList.push(correctList[index])
+          index++
+          console.error(`${id}报告生成失败`, stderr);
+          console.log(error)
+          if (stderr.includes("Error: Unable to write to destination")) {
+            console.log("文件操作失败，请确保同样名称的文件没有没打开！")
+          }
+          getPdf(correctList, obj)
+        } else {
+          index++
+          console.log(`${id}报告生成成功`);
+          getPdf(correctList, obj)
+        }
+      })
+    } else {
+      console.log('complete')
+      myEmitter.emit('complete_single_class', {failPdfList, obj})
+      if(classIndex < classList.length){
+        getPersonIds({classId: classList[classIndex].classId, testId: obj.taskId, subjectId: obj.subjectId, reportType: obj.reportType}, function (personList) {
+          let correctList = [], errList = [], noPayList = []
+          personList.forEach((item) => {
+            getReportData(item, correctList, errList, noPayList, personList, failPdfList)
+          })
+        })
+      }else{
+        myEmitter.emit('complete_all', {})
+      }
+    }
+  }
 }
 
 module.exports = batchNoScreen

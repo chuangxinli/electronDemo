@@ -1,6 +1,6 @@
 {
   "name": "downloadreport",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "chuangxinli <1358601985@qq.com>",
   "description": "An electron-vue project",
   "license": null,
@@ -81,7 +81,6 @@
     "asar": "^1.0.0",
     "axios": "^0.18.0",
     "del": "^3.0.0",
-    "electron-updater": "^4.0.6",
     "element-ui": "^2.4.11",
     "extract-zip": "^1.6.7",
     "fs-extra": "^7.0.1",
@@ -112,6 +111,7 @@
     "devtron": "^1.4.0",
     "electron": "^1.7.5",
     "electron-builder": "^20.19.2",
+    "electron-updater": "3.0.0",
     "electron-debug": "^1.5.0",
     "electron-devtools-installer": "^2.2.4",
     "file-loader": "^1.1.11",

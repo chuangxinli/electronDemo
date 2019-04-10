@@ -6,6 +6,8 @@ build/*
 public/*
 resources/*
 !build/icons
+!build/installer.nsh
+!build/license.html
 node_modules/
 npm-debug.log
 npm-debug.log.*
