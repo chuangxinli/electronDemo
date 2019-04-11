@@ -46,14 +46,14 @@ let batchNoScreen = function (classList, obj, myEmitter) {
       baseURL: baseURL,
       params: {id}
     }).then(function (response) {
-      consolel.log('id:', id)
+      console.log('id:', id)
       if (response.data.contentType === 'all') {
         correctList.push({id: id, studentName: response.data.report.cover.studentName});
       } else {
         noPayList.push(id)
       }
       if(correctList.length + noPayList.length + errList.length === personList.length){
-        getPdf(correctList, obj, failPdfList)
+        getPdf(correctList, errList, noPayList, failPdfList)
       }
     })
       .catch(function (error) {
@@ -63,10 +63,10 @@ let batchNoScreen = function (classList, obj, myEmitter) {
       });
   }
 
-  function getPdf(correctList, obj, failPdfList) {
+  function getPdf(correctList, errList, noPayList, failPdfList) {
     if (index < correctList.length) {
       let id = correctList[index].id
-      let name = correctList[index].studentName
+      let name = correctList[index].studentName.replace(/[^\u4e00-\u9fa5a-zA-Z0-9\(\)（）【】\[\]\s]*/g, '')
       let pdfName = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${classList[classIndex - 1].className}/${id}(${name}).pdf`;
       if(!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${classList[classIndex - 1].className}`)){
         fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${classList[classIndex - 1].className}`)
@@ -87,17 +87,18 @@ let batchNoScreen = function (classList, obj, myEmitter) {
           if (stderr.includes("Error: Unable to write to destination")) {
             console.log("文件操作失败，请确保同样名称的文件没有没打开！")
           }
-          getPdf(correctList, obj)
+          getPdf(correctList, errList, noPayList, failPdfList)
         } else {
           index++
           console.log(`${id}报告生成成功`);
-          getPdf(correctList, obj)
+          getPdf(correctList, errList, noPayList, failPdfList)
         }
       })
     } else {
       console.log('complete')
       myEmitter.emit('complete_single_class', {failPdfList, obj})
       if(classIndex < classList.length){
+        index = 0
         getPersonIds({classId: classList[classIndex].classId, testId: obj.taskId, subjectId: obj.subjectId, reportType: obj.reportType}, function (personList) {
           let correctList = [], errList = [], noPayList = []
           personList.forEach((item) => {

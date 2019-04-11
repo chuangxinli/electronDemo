@@ -63,6 +63,7 @@ let singleNoScreen = function (reportIdList, obj, myEmitter) {
       console.log('index', index)
       let id = correctIdList[index].id, pdfName
       let name = correctIdList[index].studentName ? correctIdList[index].studentName : correctIdList[index].name
+      name = name.replace(/[^\u4e00-\u9fa5a-zA-Z0-9\(\)（）【】\[\]\s]*/g, '')
       console.log('name', name)
       if(obj.isBatch && obj.type == 5 || obj.type == 6){
         pdfName = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告/${id}(${name}).pdf`

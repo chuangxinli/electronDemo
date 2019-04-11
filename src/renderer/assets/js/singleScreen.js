@@ -12,17 +12,17 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
     myEmitter.emit('warn', {text: '请先设置报告的下载路径！'})
     return
   }
-  let pdfServerBasePath = obj.appPath, savePath = obj.savePath, correctIdList = [], errIdList = [], noPayList = [],
-    failIdList = [], successIdList = [], index = 0
+  let pdfServerBasePath = obj.appPath, savePath = obj.savePath, correctList = [], errList = [], noPayList = [],
+    failPdfList = [], successList = [], index = 0
   let reportModel = getReportModel(obj.type)
   reportIdList.forEach((item) => {
-    getHtml(item, function (correctIdList) {
+    getHtml(item, function (correctList) {
       let correctIds = [], pathStrUrls = [], isStrs
-      correctIdList.forEach((item) => {
+      correctList.forEach((item) => {
         correctIds.push(item.id)
         pathStrUrls.push(path.normalize(`${obj.appPath}/public/html/${item.id}.html`))
       })
-      if (correctIdList.length === 1) {
+      if (correctList.length === 1) {
         correctIds.push(correctIds[0])
         pathStrUrls.push(pathStrUrls[0])
       }
@@ -37,7 +37,7 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
           console.error(`图片生成失败`, stderr)
           return;
         }
-        getPdf(correctIdList, obj)
+        getPdf(correctList, obj)
       })
     })
   })
@@ -54,38 +54,39 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
         if (obj.type == 1 || obj.type == 2) {
           if (response.data.contentType === 'all') {
             let temp = pug.renderFile('public/pug/report.pug', response.data)
-            fs.writeFileSync(`public/html/${params.id}/${params.id}.html`, temp)
-            correctIdList.push(params)
+            fs.writeFileSync(`public/html/${params.id}.html`, temp)
+            correctList.push(params)
           } else {
             noPayList.push(params)
           }
         } else if (obj.type == 5 || obj.type == 6) {
           let temp = pug.renderFile('public/pug/classReport.pug', response.data)
           fs.writeFileSync(`public/html/${params.id}.html`, temp)
-          correctIdList.push(params)
+          correctList.push(params)
         }
-        if (noPayList.length + errIdList.length + correctIdList.length === reportIdList.length) {
+        if (noPayList.length + errList.length + correctList.length === reportIdList.length) {
           console.log('完成了！')
-          callback(correctIdList)
+          callback(correctList)
         }
       } else {
-        errIdList.push(params)
+        errList.push(params)
         console.log(params.id + ' 报告调取api失败：');
         console.log(error);
       }
     })
       .catch(function (error) {
-        errIdList.push(params)
+        errList.push(params)
         console.log(params.id + ' 报告调取api失败：');
         console.log(error);
       });
   }
 
-  function getPdf(correctIdList, obj) {
-    if (index < correctIdList.length) {
+  function getPdf(correctList, obj) {
+    if (index < correctList.length) {
       console.log('index', index)
-      let id = correctIdList[index].id, pdfName
-      let name = correctIdList[index].studentName ? correctIdList[index].studentName : correctIdList[index].name
+      let id = correctList[index].id, pdfName
+      let name = correctList[index].studentName ? correctList[index].studentName : correctList[index].name
+      name = name.replace(/[^\u4e00-\u9fa5a-zA-Z0-9\(\)（）【】\[\]\s]*/g, '')
       console.log('name', name)
       if (obj.isBatch && obj.type == 5 || obj.type == 6) {
         pdfName = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告/${id}(${name}).pdf`
@@ -108,10 +109,10 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
         pdfName: pdfName
       }
       console.log(params)
-      execFile('public/exe/wkhtmltopdf.exe', ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], (error, stdout, stderr) => {
+      execFile('public/exe/wkhtmltopdf.exe', ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], {maxBuffer: 1000 * 1024}, (error, stdout, stderr) => {
         console.log('execFile')
         if (error) {
-          failIdList.push(correctIdList[index])
+          failPdfList.push(correctList[index])
           index++
           console.error(`${id}报告生成失败`, stderr);
           console.log(error)
@@ -120,7 +121,7 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
           }
           getPdf(reportIdList, obj)
         } else {
-          successIdList.push(correctIdList[index])
+          successList.push(correctList[index])
           index++
           console.log(`${id}报告生成成功`);
           getPdf(reportIdList, obj)
@@ -128,7 +129,7 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
       })
     } else {
       console.log('complete')
-      myEmitter.emit('complete', {failIdList, successIdList, obj})
+      myEmitter.emit('complete', {failPdfList, successList, obj})
     }
   }
 }

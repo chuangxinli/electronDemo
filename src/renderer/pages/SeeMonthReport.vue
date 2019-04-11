@@ -244,6 +244,7 @@
   const singleNoScreen = require('@/assets/js/singleNoScreen')
   const singleScreen = require('@/assets/js/singleScreen')
   const batchNoScreen = require('@/assets/js/batchNoScreen')
+  const batchScreen = require('@/assets/js/batchScreen')
   const {dialog,shell} = require('electron').remote
   export default {
     data() {
@@ -501,7 +502,7 @@
         }
         if(this.checkedReport_person.length > 0){
           console.log(this.checkedReport_person)
-          batchNoScreen(this.checkedReport_person, {
+          batchScreen(this.checkedReport_person, {
             gradeName: this.gradeName,
             subjectName: this.subjectName,
             savePath: this.savePath,

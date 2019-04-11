@@ -2,6 +2,8 @@ import {app, BrowserWindow, ipcMain} from 'electron'
 
 const {autoUpdater} = require('electron-updater')
 
+import global from '../renderer/global'
+
 import store from '../renderer/store'
 
 console.log('savePath:', store.state.reportData.savePath)
@@ -22,7 +24,7 @@ if (process.env.NODE_ENV !== 'development') {
 
 let mainWindow
 const winURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080`
+  ? `http://localhost:9081`
   : `file://${__dirname}/index.html`
 
 function createWindow() {
@@ -44,6 +46,8 @@ function createWindow() {
     mainWindow = null
   })
 
+  //清空生成报告时临时所需的html和img
+  global.delTemp()
   //require('./app')
 }
 
