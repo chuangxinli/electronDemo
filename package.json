@@ -1,6 +1,6 @@
 {
   "name": "downloadreport",
-  "version": "0.0.4",
+  "version": "0.0.2",
   "author": "chuangxinli <1358601985@qq.com>",
   "description": "An electron-vue project",
   "license": null,
@@ -22,9 +22,6 @@
     "directories": {
       "output": "build"
     },
-    "asarUnpack": [
-      "./public"
-    ],
     "publish": [
       {
         "provider": "generic",
@@ -32,7 +29,8 @@
       }
     ],
     "files": [
-      "dist/electron/**/*"
+      "dist/electron/**/*",
+      "public"
     ],
     "dmg": {
       "contents": [
@@ -72,7 +70,7 @@
       "createStartMenuShortcut": true,
       "perMachine": true,
       "unicode": true,
-      "license": "build/license.html",
+      "license": "build/license.txt",
       "include": "build/installer.nsh"
     },
     "extends": null

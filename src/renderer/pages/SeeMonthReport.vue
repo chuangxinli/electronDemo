@@ -289,8 +289,8 @@
     },
     mounted() {
       console.log(this.appPath)
-      if (this.appPath.includes('downloadreport')) {
-        this.tempPath = this.appPath.split('downloadreport')[0] + 'downloadreport'
+      if (this.appPath.includes('DownloadReport')) {
+        this.tempPath = this.appPath.split('DownloadReport')[0] + 'DownloadReport'
       } else {
         this.tempPath = this.appPath.split('electronDemo')[0] + 'electronDemo'
       }
@@ -320,6 +320,13 @@
       myEmitter.on('complete', (data) => {
         console.log('complete 触发事件');
         console.log(data)
+        this.$notify({
+          title: '提示',
+          message: `报告生成成功！`,
+          duration: 0,
+          type: 'success'
+        });
+        return
         if (data.obj.isBatch) {
 
         } else {
@@ -478,6 +485,7 @@
         this.allDownDialogVisible = true
       },
       confirmDown() {
+        this.allDownDialogVisible = false
         if (this.checkedReport_grade.length > 0) {
           singleNoScreen(this.checkedReport_grade, {
             gradeName: this.gradeName,

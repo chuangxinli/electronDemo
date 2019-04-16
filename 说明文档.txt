@@ -1,0 +1,1 @@
+1，license.txt文件的编码为ANSI编码

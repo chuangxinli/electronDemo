@@ -13,17 +13,6 @@ let singleNoScreen = function (reportIdList, obj, myEmitter) {
     successIdList = [], index = 0
   let {header, footer, cover, content} = getPart(obj.type)
   let reportModel = getReportModel(obj.type)
-  if (obj.isBatch) {
-    let reportType
-    if (obj.type == 5 || obj.type == 6) {
-      reportType = '班级报告'
-    } else if (obj.type == 3 || obj.type == 4) {
-      reportType = '年级报告'
-    }
-    savePath = `${obj.savePath}/${obj.gradeName}${obj.subjectName}/${reportType}`
-  } else {
-    savePath = `${obj.savePath}`
-  }
   if (obj.type == 1 || obj.type == 2) {
     reportIdList.forEach((item) => {
       getReportData(item, function (item) {
@@ -36,7 +25,6 @@ let singleNoScreen = function (reportIdList, obj, myEmitter) {
   } else {
     getPdf(reportIdList, obj)
   }
-
   function getReportData(params, callback) {
     axios({
       url: '/das/learningreport/getReportContent',
@@ -66,14 +54,14 @@ let singleNoScreen = function (reportIdList, obj, myEmitter) {
       name = name.replace(/[^\u4e00-\u9fa5a-zA-Z0-9\(\)（）【】\[\]\s]*/g, '')
       console.log('name', name)
       if(obj.isBatch && obj.type == 5 || obj.type == 6){
-        pdfName = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告/${id}(${name}).pdf`
-        if(!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告`)){
-          fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告`)
-        }
-      }else if(obj.isBatch && obj.type == 3 || obj.type == 4){
         pdfName = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/班级报告/${id}(${name}).pdf`
         if(!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/班级报告`)){
           fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/班级报告`)
+        }
+      }else if(obj.isBatch && obj.type == 3 || obj.type == 4){
+        pdfName = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告/${id}(${name}).pdf`
+        if(!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告`)){
+          fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告`)
         }
       }else{
         pdfName = `${savePath}/${id}(${name}).pdf`;

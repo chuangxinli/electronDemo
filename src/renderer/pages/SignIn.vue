@@ -64,6 +64,7 @@
             }
         },
         mounted() {
+            console.log('哈哈')
             console.log(this.appPath)
             console.log(require('../../../package.json').version)
             if (this.formLabelAlign.remember) {
@@ -83,7 +84,7 @@
                 });
                 ipcRenderer.on("downloadProgress", (event, progressObj) => {
                     console.log(progressObj);
-                    this.downloadPercent = progressObj.percent || 0;
+                    this.downloadPercent = parseInt(progressObj.percent || 0);
                 });
                 ipcRenderer.on("isUpdateNow", () => {
                     ipcRenderer.send("isUpdateNow");
@@ -124,6 +125,9 @@
                     setTimeout(() => {
                         console.log(111)
                         asar.extractAll(this.appPath, '')
+                        if(!fs.existsSync('public/html')){
+                            fs.mkdirSync('public/html')
+                        }
                         console.log(222)
                         del.sync('data.json', {force: true})
                         del.sync('dist/**', {force: true})
