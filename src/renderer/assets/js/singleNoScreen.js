@@ -48,6 +48,7 @@ let singleNoScreen = function (reportIdList, obj, myEmitter) {
 
   function getPdf(correctIdList, obj) {
     if (index < correctIdList.length) {
+      myEmitter.emit('begin', correctIdList[index])
       console.log('index', index)
       let id = correctIdList[index].id, pdfName
       let name = correctIdList[index].studentName ? correctIdList[index].studentName : correctIdList[index].name
