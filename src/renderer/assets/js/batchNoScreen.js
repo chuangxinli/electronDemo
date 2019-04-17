@@ -4,22 +4,33 @@ const {getReportModel, getPart, baseURL, idURL} = require('./common')
 const fse = require('fs-extra')
 
 //批量下载报告下载的是每个班级里面的个人报告。下载班级报告和年级报告不走批量下载接口
-let batchNoScreen = function (classList, obj, myEmitter) {
+let batchNoScreen = function (classInfo, obj, myEmitter) {
   if (!obj.savePath) {
     myEmitter.emit('warn', {text: '请先设置报告的下载路径！'})
     return
   }
+  let classList = classInfo[0].children
+  console.log(classList)
   let pdfServerBasePath = obj.appPath, savePath = obj.savePath, errClassList = [], index = 0, classIndex = 0
   let {header, footer, cover, content} = getPart(obj.type)
   let reportModel = getReportModel(obj.type)
   //先获取单个班级中学生的id
-  getPersonIds({classId: classList[classIndex].classId, testId: obj.taskId, subjectId: obj.subjectId, reportType: obj.reportType}, function (personList) {
-    let correctList = [], errList = [], noPayList = [], failPdfList = []
-    personList.forEach((item) => {
-      getReportData(item, correctList, errList, noPayList, personList, failPdfList)
-    })
-  })
+
+  for(let i = classIndex; i < classList.length; i++){
+    if(classList[i].isDown){
+      classIndex = i
+      getPersonIds({classId: classList[classIndex].classId, testId: obj.taskId, subjectId: obj.subjectId, reportType: obj.reportType}, function (personList) {
+        let correctList = [], errList = [], noPayList = [], failPdfList = []
+        personList.forEach((item) => {
+          getReportData(item, correctList, errList, noPayList, personList, failPdfList)
+        })
+      })
+      break;
+    }
+  }
+
   function getPersonIds(params, callback) {
+    classList[classIndex].status = 2
     axios({
       url: '/detector/api/view/v4/getClassReportIds',
       method: 'get',
@@ -95,16 +106,30 @@ let batchNoScreen = function (classList, obj, myEmitter) {
         }
       })
     } else {
+      classList[classIndex - 1].status = 3
       console.log('complete')
       myEmitter.emit('complete_single_class', {failPdfList, obj})
       if(classIndex < classList.length){
-        index = 0
+        /*index = 0
         getPersonIds({classId: classList[classIndex].classId, testId: obj.taskId, subjectId: obj.subjectId, reportType: obj.reportType}, function (personList) {
           let correctList = [], errList = [], noPayList = []
           personList.forEach((item) => {
             getReportData(item, correctList, errList, noPayList, personList, failPdfList)
           })
-        })
+        })*/
+        for(let i = classIndex; i < classList.length; i++){
+          if(classList[i].isDown){
+            index = 0
+            classIndex = i
+            getPersonIds({classId: classList[classIndex].classId, testId: obj.taskId, subjectId: obj.subjectId, reportType: obj.reportType}, function (personList) {
+              let correctList = [], errList = [], noPayList = []
+              personList.forEach((item) => {
+                getReportData(item, correctList, errList, noPayList, personList, failPdfList)
+              })
+            })
+            break
+          }
+        }
       }else{
         myEmitter.emit('complete_all', {})
       }

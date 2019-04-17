@@ -26,7 +26,7 @@
             </el-button>
             <el-button type="primary" size="small" class="mLeft20" @click="allDown()">批量下载</el-button>
             <el-button type="primary" size="small" class="mLeft20" @click="setSavePath()">下载路径设置</el-button>
-            <down-list :downList="downList"></down-list>
+            <down-list :downList="downList" @showChange="handleShowChange"></down-list>
             <el-button type="primary" size="small" class="mLeft20" @click="$router.go(-1)">返回</el-button>
         </div>
         <div class="mTop20" v-show="savePath">
@@ -235,6 +235,7 @@
 </template>
 
 <script>
+    const uuid = require('uuid/v4')
     const EventEmitter = require('events');
 
     class MyEmitter extends EventEmitter {
@@ -314,9 +315,17 @@
                 });
             })
             myEmitter.on('begin', (data) => {
+                console.log(data.localId)
                 for(let i = 0; i < this.global.downTaskList.length; i++){
                     if(this.global.downTaskList[i].localId == data.localId){
                         this.global.downTaskList[i].status = 2
+                    }
+                }
+            })
+            myEmitter.on('singleReportComplete', (data) => {
+                for(let i = 0; i < this.global.downTaskList.length; i++){
+                    if(this.global.downTaskList[i].localId == data.localId){
+                        this.global.downTaskList[i].status = 3
                     }
                 }
             })
@@ -389,6 +398,13 @@
           }
         },
         methods: {
+            handleShowChange(row){
+                for(let i = 0, len = this.downList.length; i < len; i++){
+                    if(this.downList[i].localId == row.localId){
+                        this.downList[i].isShow = false
+                    }
+                }
+            },
             openSavePath() {
                 //shell.openExternal('https://github.com')
                 shell.openItem(this.savePath)
@@ -490,7 +506,7 @@
                 }
                 let tempRow = []
                 row.forEach((item) => {
-                    tempRow.push({name: item.name, id: item.id, studentName: item.studentName,type: 1, isDown: true, isShow: true, isDelete: false, localId: new Date().getTime(), status: 1})
+                    tempRow.push({name: item.name, id: item.id, studentName: item.studentName,type: 1, isDown: true, isShow: true, isDelete: false, localId: uuid(), status: 1})
                 })
                 this.downList.push(...tempRow)
                 singleNoScreen(tempRow, {
@@ -511,7 +527,12 @@
             confirmDown() {
                 this.allDownDialogVisible = false
                 if (this.checkedReport_grade.length > 0) {
-                    singleNoScreen(this.checkedReport_grade, {
+                    let tempRow = []
+                    this.checkedReport_grade.forEach((item) => {
+                        tempRow.push({name: item.name, id: item.id, studentName: item.studentName,type: 4, isDown: true, isShow: true, isDelete: false, localId: uuid(), status: 1})
+                    })
+                    this.downList.push(...tempRow)
+                    singleNoScreen(tempRow, {
                         gradeName: this.gradeName,
                         subjectName: this.subjectName,
                         savePath: this.savePath,
@@ -522,7 +543,12 @@
                     }, myEmitter)
                 }
                 if (this.checkedReport_class.length > 0) {
-                    singleNoScreen(this.checkedReport_class, {
+                    let tempRow = []
+                    this.checkedReport_class.forEach((item) => {
+                        tempRow.push({name: item.name, id: item.id, studentName: item.studentName,type: 6, isDown: true, isShow: true, isDelete: false, localId: uuid(), status: 1})
+                    })
+                    this.downList.push(...tempRow)
+                    singleNoScreen(tempRow, {
                         gradeName: this.gradeName,
                         subjectName: this.subjectName,
                         savePath: this.savePath,
@@ -534,7 +560,22 @@
                 }
                 if (this.checkedReport_person.length > 0) {
                     console.log(this.checkedReport_person)
-                    batchScreen(this.checkedReport_person, {
+                    let tempRow = [{name: `${this.gradeName}${this.subjectName}`, id: '', type: 1, isDown: true, isShow: true, isDelete: false, localId: uuid(), status: 1, children: []}]
+                    this.checkedReport_person.forEach((item) => {
+                        tempRow[0].children.push({
+                            classId: item.classId,
+                            className: item.className,
+                            id: item.classId,
+                            name: item.className,
+                            type: 1,
+                            isDown: true,
+                            isDelete: false,
+                            localId: uuid(),
+                            status: 1,
+                        })
+                    })
+                    this.downList.push(...tempRow)
+                    batchNoScreen(tempRow, {
                         gradeName: this.gradeName,
                         subjectName: this.subjectName,
                         savePath: this.savePath,

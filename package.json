@@ -78,7 +78,6 @@
   "dependencies": {
     "asar": "^1.0.0",
     "axios": "^0.18.0",
-
     "del": "^3.0.0",
     "element-ui": "^2.4.11",
     "extract-zip": "^1.6.7",
@@ -86,6 +85,7 @@
     "pug": "^2.0.3",
     "qs": "^6.6.0",
     "request": "^2.88.0",
+    "uuid": "^3.3.2",
     "vue": "^2.5.16",
     "vue-electron": "^1.0.6",
     "vue-router": "^3.0.1",
