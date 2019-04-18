@@ -8,45 +8,59 @@ const fse = require("fs-extra")
 
 
 //批量下载报告下载的是每个班级里面的个人报告。下载班级报告和年级报告不走批量下载接口
-let batchScreen = function (classList, obj, myEmitter) {
+let batchScreen = function (classInfo, obj, myEmitter) {
   if (!obj.savePath) {
     myEmitter.emit('warn', {text: '请先设置报告的下载路径！'})
     return
+  } else if (!fs.existsSync(obj.savePath)){
+    myEmitter.emit('warn', {text: '报告的下载路径不存在，请重新设置！'})
+    return
   }
+  let classList = classInfo[0].children
+  console.log(classList)
   let pdfServerBasePath = obj.appPath, savePath = obj.savePath, successList = [], index = 0, classIndex = 0, errClassList = []
   let reportModel = getReportModel(obj.type)
-  
-  getPersonIds({classId: classList[classIndex].classId, testId: obj.taskId, subjectId: obj.subjectId, reportType: obj.reportType}, function (reportList) {
-    let correctList = [], errList = [], noPayList = [], failPdfList = []
-    reportList.forEach((item) => {
-      getHtml({id: item}, reportList, correctList, errList, noPayList, failPdfList, function (correctList, errList, noPayList, failPdfList) {
-        let correctIds = [], pathStrUrls = [], isStrs
-        correctList.forEach((item) => {
-          correctIds.push(item.id)
-          pathStrUrls.push(path.normalize(`${obj.appPath}/public/html/${item.id}.html`))
-        })
-        if (correctList.length === 1) {
-          correctIds.push(correctIds[0])
-          pathStrUrls.push(pathStrUrls[0])
-        }
-        console.log(pathStrUrls)
-        isStrs = correctIds.toString()
-        pathStrUrls = pathStrUrls.toString()
-        console.log('正确id：' + correctIds)
-        console.log('image 生成中...');
-        execFile('public/exe/phantomjs.exe', ['public/pug/screen_shot.js', pathStrUrls, isStrs], function (err, stdout, stderr) {
-          console.log('image 生成结束...')
-          if (err) {
-            console.error(`图片生成失败`, stderr)
-            return;
-          }
-          getPdf(correctList, errList, noPayList, failPdfList)
+
+
+  for(let i = classIndex; i < classList.length; i++){
+    if(classList[i].isDown){
+      classIndex = i
+      getPersonIds({classId: classList[classIndex].classId, testId: obj.taskId, subjectId: obj.subjectId, reportType: obj.reportType}, function (reportList) {
+        let correctList = [], errList = [], noPayList = [], failPdfList = []
+        reportList.forEach((item) => {
+          getHtml({id: item}, reportList, correctList, errList, noPayList, failPdfList, function (correctList, errList, noPayList, failPdfList) {
+            let correctIds = [], pathStrUrls = [], isStrs
+            correctList.forEach((item) => {
+              correctIds.push(item.id)
+              pathStrUrls.push(path.normalize(`${obj.appPath}/public/html/${item.id}.html`))
+            })
+            if (correctList.length === 1) {
+              correctIds.push(correctIds[0])
+              pathStrUrls.push(pathStrUrls[0])
+            }
+            console.log(pathStrUrls)
+            isStrs = correctIds.toString()
+            pathStrUrls = pathStrUrls.toString()
+            console.log('正确id：' + correctIds)
+            console.log('image 生成中...');
+            execFile('public/exe/phantomjs.exe', ['public/pug/screen_shot.js', pathStrUrls, isStrs], function (err, stdout, stderr) {
+              console.log('image 生成结束...')
+              if (err) {
+                console.error(`图片生成失败`, stderr)
+                return;
+              }
+              getPdf(correctList, errList, noPayList, failPdfList)
+            })
+          })
         })
       })
-    })
-  })
+      break;
+    }
+  }
+
 
   function getPersonIds(params, callback) {
+    classList[classIndex].status = 2
     axios({
       url: '/detector/api/view/v4/getClassReportIds',
       method: 'get',
@@ -60,6 +74,7 @@ let batchScreen = function (classList, obj, myEmitter) {
       }
     })
       .catch(function (error) {
+        classList[classIndex].status = 4
         errClassList.push(params)
         console.log(params.classId + ' 报告调取api失败：');
         console.log(error);
@@ -140,39 +155,47 @@ let batchScreen = function (classList, obj, myEmitter) {
         }
       })
     } else {
+      classList[classIndex - 1].status = 3
+      classList[classIndex - 1].savePath = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${classList[classIndex - 1].className}`
       console.log('complete')
       myEmitter.emit('complete_single_class', {failPdfList, obj})
       if(classIndex < classList.length){
-        index = 0
-        getPersonIds({classId: classList[classIndex].classId, testId: obj.taskId, subjectId: obj.subjectId, reportType: obj.reportType}, function (reportList) {
-          let correctList = [], errList = [], noPayList = [], failPdfList = []
-          reportList.forEach((item) => {
-            getHtml({id: item}, reportList, correctList, errList, noPayList, failPdfList, function (correctList, errList, noPayList, failPdfList) {
-              let correctIds = [], pathStrUrls = [], isStrs
-              correctList.forEach((item) => {
-                correctIds.push(item.id)
-                pathStrUrls.push(path.normalize(`${obj.appPath}/public/html/${item.id}.html`))
-              })
-              if (correctList.length === 1) {
-                correctIds.push(correctIds[0])
-                pathStrUrls.push(pathStrUrls[0])
-              }
-              console.log(pathStrUrls)
-              isStrs = correctIds.toString()
-              pathStrUrls = pathStrUrls.toString()
-              console.log('正确id：' + correctIds)
-              console.log('image 生成中...');
-              execFile('public/exe/phantomjs.exe', ['public/pug/screen_shot.js', pathStrUrls, isStrs], function (err, stdout, stderr) {
-                console.log('image 生成结束...')
-                if (err) {
-                  console.error(`图片生成失败`, stderr)
-                  return;
-                }
-                getPdf(correctList, errList, noPayList, failPdfList)
+        for (let i = classIndex; i < classList.length; i++) {
+          if (classList[i].isDown) {
+            index = 0
+            classIndex = i
+            getPersonIds({classId: classList[classIndex].classId, testId: obj.taskId, subjectId: obj.subjectId, reportType: obj.reportType}, function (reportList) {
+              let correctList = [], errList = [], noPayList = [], failPdfList = []
+              reportList.forEach((item) => {
+                getHtml({id: item}, reportList, correctList, errList, noPayList, failPdfList, function (correctList, errList, noPayList, failPdfList) {
+                  let correctIds = [], pathStrUrls = [], isStrs
+                  correctList.forEach((item) => {
+                    correctIds.push(item.id)
+                    pathStrUrls.push(path.normalize(`${obj.appPath}/public/html/${item.id}.html`))
+                  })
+                  if (correctList.length === 1) {
+                    correctIds.push(correctIds[0])
+                    pathStrUrls.push(pathStrUrls[0])
+                  }
+                  console.log(pathStrUrls)
+                  isStrs = correctIds.toString()
+                  pathStrUrls = pathStrUrls.toString()
+                  console.log('正确id：' + correctIds)
+                  console.log('image 生成中...');
+                  execFile('public/exe/phantomjs.exe', ['public/pug/screen_shot.js', pathStrUrls, isStrs], function (err, stdout, stderr) {
+                    console.log('image 生成结束...')
+                    if (err) {
+                      console.error(`图片生成失败`, stderr)
+                      return;
+                    }
+                    getPdf(correctList, errList, noPayList, failPdfList)
+                  })
+                })
               })
             })
-          })
-        })
+            break
+          }
+        }
       }else{
         myEmitter.emit('complete_all', {})
       }

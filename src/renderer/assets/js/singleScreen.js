@@ -11,6 +11,9 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
   if (!obj.savePath) {
     myEmitter.emit('warn', {text: '请先设置报告的下载路径！'})
     return
+  } else if (!fs.existsSync(obj.savePath)){
+    myEmitter.emit('warn', {text: '报告的下载路径不存在，请重新设置！'})
+    return
   }
   let pdfServerBasePath = obj.appPath, savePath = obj.savePath, correctList = [], errList = [], noPayList = [],
     failPdfList = [], successList = [], index = 0
@@ -83,50 +86,59 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
 
   function getPdf(correctList, obj) {
     if (index < correctList.length) {
-      console.log('index', index)
-      let id = correctList[index].id, pdfName
-      let name = correctList[index].studentName ? correctList[index].studentName : correctList[index].name
-      name = name.replace(/[^\u4e00-\u9fa5a-zA-Z0-9\(\)（）【】\[\]\s]*/g, '')
-      console.log('name', name)
-      if (obj.isBatch && obj.type == 5 || obj.type == 6) {
-        pdfName = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/班级报告/${id}(${name}).pdf`
-        if (!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/班级报告`)) {
-          fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/班级报告`)
-        }
-      } else if (obj.isBatch && obj.type == 3 || obj.type == 4) {
-        pdfName = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告/${id}(${name}).pdf`
-        if (!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告`)) {
-          fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告`)
-        }
-      } else {
-        pdfName = `${savePath}/${id}(${name}).pdf`;
-      }
-      let params = {
-        footer: `file:///${pdfServerBasePath}/public/report/${reportModel}/Footer.html?id=${id}`,
-        header: `file:///${pdfServerBasePath}/public/report/${reportModel}/Header.html?id=${id}`,
-        cover: `file:///${pdfServerBasePath}/public/report/${reportModel}/Cover.html?id=${id}`,
-        content: `file:///${pdfServerBasePath}/public/report/${reportModel}/Report.html?id=${id}`,
-        pdfName: pdfName
-      }
-      console.log(params)
-      execFile('public/exe/wkhtmltopdf.exe', ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], {maxBuffer: 1000 * 1024}, (error, stdout, stderr) => {
-        console.log('execFile')
-        if (error) {
-          failPdfList.push(correctList[index])
-          index++
-          console.error(`${id}报告生成失败`, stderr);
-          console.log(error)
-          if (stderr.includes("Error: Unable to write to destination")) {
-            console.log("文件操作失败，请确保同样名称的文件没有没打开！")
+      if(correctList[index].isDown){
+        console.log('index', index)
+        correctList[index].status = 2
+        let id = correctList[index].id, pdfName
+        let name = correctList[index].studentName ? correctList[index].studentName : correctList[index].name
+        name = name.replace(/[^\u4e00-\u9fa5a-zA-Z0-9\(\)（）【】\[\]\s]*/g, '')
+        console.log('name', name)
+        if (obj.isBatch && obj.type == 5 || obj.type == 6) {
+          pdfName = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/班级报告/${id}(${name}).pdf`
+          if (!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/班级报告`)) {
+            fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/班级报告`)
           }
-          getPdf(reportIdList, obj)
+        } else if (obj.isBatch && obj.type == 3 || obj.type == 4) {
+          pdfName = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告/${id}(${name}).pdf`
+          if (!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告`)) {
+            fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告`)
+          }
         } else {
-          successList.push(correctList[index])
-          index++
-          console.log(`${id}报告生成成功`);
-          getPdf(reportIdList, obj)
+          pdfName = `${savePath}/${id}(${name}).pdf`;
         }
-      })
+        let params = {
+          footer: `file:///${pdfServerBasePath}/public/report/${reportModel}/Footer.html?id=${id}`,
+          header: `file:///${pdfServerBasePath}/public/report/${reportModel}/Header.html?id=${id}`,
+          cover: `file:///${pdfServerBasePath}/public/report/${reportModel}/Cover.html?id=${id}`,
+          content: `file:///${pdfServerBasePath}/public/report/${reportModel}/Report.html?id=${id}`,
+          pdfName: pdfName
+        }
+        console.log(params)
+        execFile('public/exe/wkhtmltopdf.exe', ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], {maxBuffer: 1000 * 1024}, (error, stdout, stderr) => {
+          console.log('execFile')
+          if (error) {
+            failPdfList.push(correctList[index])
+            correctList[index].status = 4
+            index++
+            console.error(`${id}报告生成失败`, stderr);
+            console.log(error)
+            if (stderr.includes("Error: Unable to write to destination")) {
+              console.log("文件操作失败，请确保同样名称的文件没有没打开！")
+            }
+            getPdf(reportIdList, obj)
+          } else {
+            successList.push(correctList[index])
+            correctList[index].status = 3
+            correctList[index].savePath = pdfName
+            index++
+            console.log(`${id}报告生成成功`);
+            getPdf(reportIdList, obj)
+          }
+        })
+      }else{
+        index++
+        getPdf(reportIdList, obj)
+      }
     } else {
       console.log('complete')
       myEmitter.emit('complete', {failPdfList, successList, obj})

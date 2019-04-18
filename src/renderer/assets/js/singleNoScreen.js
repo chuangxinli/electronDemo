@@ -8,6 +8,9 @@ let singleNoScreen = function (reportIdList, obj, myEmitter) {
   if (!obj.savePath) {
     myEmitter.emit('warn', {text: '请先设置报告的下载路径！'})
     return
+  } else if (!fs.existsSync(obj.savePath)){
+    myEmitter.emit('warn', {text: '报告的下载路径不存在，请重新设置！'})
+    return
   }
   let pdfServerBasePath = obj.appPath, savePath = obj.savePath, correctIdList = [], errIdList = [], failIdList = [],
     successIdList = [], index = 0
@@ -91,6 +94,7 @@ let singleNoScreen = function (reportIdList, obj, myEmitter) {
             getPdf(reportIdList, obj)
           } else {
             reportIdList[index].status = 3
+            reportIdList[index].savePath = pdfName
             //myEmitter.emit('singleReportComplete', reportIdList[index])
             successIdList.push(correctIdList[index])
             index++

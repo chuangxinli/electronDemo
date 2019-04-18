@@ -26,7 +26,7 @@
             </el-button>
             <el-button type="primary" size="small" class="mLeft20" @click="allDown()">批量下载</el-button>
             <el-button type="primary" size="small" class="mLeft20" @click="setSavePath()">下载路径设置</el-button>
-            <down-list :downList="downList" @showChange="handleShowChange"></down-list>
+            <down-list></down-list>
             <el-button type="primary" size="small" class="mLeft20" @click="$router.go(-1)">返回</el-button>
         </div>
         <div class="mTop20" v-show="savePath">
@@ -277,9 +277,7 @@
                 checkedReport_person: [],
                 isIndeterminate_person: false,
                 //报告临时位置
-                tempPath: '',
-                //下载任务列表
-                downList: []
+                tempPath: ''
             }
         },
         computed: {
@@ -291,7 +289,6 @@
             }
         },
         mounted() {
-            this.downList = this.global.downTaskList
             console.log(this.global.downTaskList)
             console.log(this.appPath)
             if (this.appPath.includes('DownloadReport')) {
@@ -391,20 +388,7 @@
                 });
             })
         },
-        watch: {
-          downList: function () {
-            console.log(this.global.downTaskList)
-            console.log(this.global.downTaskList.length)
-          }
-        },
         methods: {
-            handleShowChange(row){
-                for(let i = 0, len = this.downList.length; i < len; i++){
-                    if(this.downList[i].localId == row.localId){
-                        this.downList[i].isShow = false
-                    }
-                }
-            },
             openSavePath() {
                 //shell.openExternal('https://github.com')
                 shell.openItem(this.savePath)
@@ -471,8 +455,15 @@
                 }
             },
             downGradeReport(row) {
-                console.log(row)
-                singleNoScreen([row], {
+                if(!(row instanceof Array)){
+                    row = [row]
+                }
+                let tempRow = []
+                row.forEach((item) => {
+                    tempRow.push({name: item.name, id: item.id, studentName: item.studentName,type: 4, isDown: true, isShow: true, isDelete: false, localId: uuid(), status: 1})
+                })
+                this.global.downTaskList.push(...tempRow)
+                singleNoScreen(tempRow, {
                     gradeName: this.gradeName,
                     subjectName: this.subjectName,
                     savePath: this.savePath,
@@ -482,8 +473,15 @@
                 }, myEmitter)
             },
             downClassReport(row) {
-                console.log(row)
-                /*singleNoScreen([row], {
+                if(!(row instanceof Array)){
+                    row = [row]
+                }
+                let tempRow = []
+                row.forEach((item) => {
+                    tempRow.push({name: item.name, id: item.id, studentName: item.studentName,type: 6, isDown: true, isShow: true, isDelete: false, localId: uuid(), status: 1})
+                })
+                this.global.downTaskList.push(...tempRow)
+                /*singleNoScreen(tempRow, {
                  gradeName: this.gradeName,
                  subjectName: this.subjectName,
                  savePath: this.savePath,
@@ -491,7 +489,7 @@
                  isBatch: false,
                  appPath: this.tempPath
                  }, myEmitter)*/
-                singleScreen([row], {
+                singleScreen(tempRow, {
                     gradeName: this.gradeName,
                     subjectName: this.subjectName,
                     savePath: this.savePath,
@@ -508,7 +506,7 @@
                 row.forEach((item) => {
                     tempRow.push({name: item.name, id: item.id, studentName: item.studentName,type: 1, isDown: true, isShow: true, isDelete: false, localId: uuid(), status: 1})
                 })
-                this.downList.push(...tempRow)
+                this.global.downTaskList.push(...tempRow)
                 singleNoScreen(tempRow, {
                     gradeName: this.gradeName,
                     subjectName: this.subjectName,
@@ -531,7 +529,7 @@
                     this.checkedReport_grade.forEach((item) => {
                         tempRow.push({name: item.name, id: item.id, studentName: item.studentName,type: 4, isDown: true, isShow: true, isDelete: false, localId: uuid(), status: 1})
                     })
-                    this.downList.push(...tempRow)
+                    this.global.downTaskList.push(...tempRow)
                     singleNoScreen(tempRow, {
                         gradeName: this.gradeName,
                         subjectName: this.subjectName,
@@ -547,7 +545,7 @@
                     this.checkedReport_class.forEach((item) => {
                         tempRow.push({name: item.name, id: item.id, studentName: item.studentName,type: 6, isDown: true, isShow: true, isDelete: false, localId: uuid(), status: 1})
                     })
-                    this.downList.push(...tempRow)
+                    this.global.downTaskList.push(...tempRow)
                     singleNoScreen(tempRow, {
                         gradeName: this.gradeName,
                         subjectName: this.subjectName,
@@ -559,8 +557,7 @@
                     }, myEmitter)
                 }
                 if (this.checkedReport_person.length > 0) {
-                    console.log(this.checkedReport_person)
-                    let tempRow = [{name: `${this.gradeName}${this.subjectName}`, id: '', type: 1, isDown: true, isShow: true, isDelete: false, localId: uuid(), status: 1, children: []}]
+                    let tempRow = [{name: `${this.gradeName}${this.subjectName}`, id: '', type: 1, isDown: true, isShow: true, isOpen: false, isDelete: false, localId: uuid(), status: 1, children: []}]
                     this.checkedReport_person.forEach((item) => {
                         tempRow[0].children.push({
                             classId: item.classId,
@@ -568,14 +565,16 @@
                             id: item.classId,
                             name: item.className,
                             type: 1,
+                            isShow: true,
                             isDown: true,
+                            isOpen: true,
                             isDelete: false,
                             localId: uuid(),
                             status: 1,
                         })
                     })
-                    this.downList.push(...tempRow)
-                    batchNoScreen(tempRow, {
+                    this.global.downTaskList.push(...tempRow)
+                    batchScreen(tempRow, {
                         gradeName: this.gradeName,
                         subjectName: this.subjectName,
                         savePath: this.savePath,

@@ -60,7 +60,7 @@ function checkCode(res) {
       showClose: true
     })
     return ''
-  } else if (res.data.recode == 1006) {
+  } else if (res.data.recode == 99) {
     Message({
       message: '用户为登录或会话已经失效!',
       type: 'warning',
