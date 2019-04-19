@@ -12,6 +12,11 @@
                 width="60%"
                 center>
             <div>
+                <div v-show="downList.length > 0" class="taskTip">
+                    <span>下载任务是否已经全部完成：</span>
+                    <span v-show="checkDownTask">是</span>
+                    <span v-show="!checkDownTask">否</span>
+                </div>
                 <ul class="taskTable taskTableSup">
                     <li class="thead">
                         <div class="parent">
@@ -76,75 +81,6 @@
                         </ul>
                     </li>
                 </ul>
-                <!--<table class="taskTable">
-                    <th>
-                        <td>任务名称</td>
-                        <td>任务类型</td>
-                        <td>任务状态</td>
-                        <td>操作</td>
-                    </th>
-                    <tr v-for="item in downList">
-                        <td>{{item.name}}</td>
-                        <td>{{getType(item)}}</td>
-                        <td>{{getStatus(item)}}</td>
-                        <td>
-                            <span v-show="item.status == 3" @click="noShow(item)">不再显示</span>
-                            <span v-show="item.status == 1" @click="deleteTask(item)">删除任务</span>
-                            <span v-show="item.status == 2">&#45;&#45;&#45;&#45;&#45;&#45;</span>
-                        </td>
-                        <table v-show="item.children && item.children.length > 0">
-                            <tr v-for="subItem, subIndex in item.children"></tr>
-                            <td>{{subItem.name}}</td>
-                            <td>{{getType(subItem)}}</td>
-                            <td>{{getStatus(subItem)}}</td>
-                            <td>
-                                <span v-show="subItem.status == 3" @click="noShow(subItem)">不再显示</span>
-                                <span v-show="subItem.status == 1" @click="deleteTask(subItem)">删除任务</span>
-                                <span v-show="subItem.status == 2">&#45;&#45;&#45;&#45;&#45;&#45;</span>
-                            </td>
-                        </table>
-                    </tr>
-                </table>-->
-                <!--<el-table
-                        :data="downList"
-                        border
-                        row-key="localId"
-                        style="width: 100%">
-                    <el-table-column
-                            align="center"
-                            type="index"
-                            width="50">
-                    </el-table-column>
-                    <el-table-column
-                            align="center"
-                            property="name"
-                            label="报告名称">
-                    </el-table-column>
-                    <el-table-column
-                            align="center"
-                            :formatter="getType"
-                            label="报告类型">
-                    </el-table-column>
-                    <el-table-column
-                            align="center"
-                            :formatter="getStatus"
-                            label="任务状态">
-                    </el-table-column>
-                    <el-table-column
-                            label="操作"
-                            align="center"
-                            width="100">
-                        <template slot-scope="scope">
-                            <el-button type="text" size="small" @click="deleteTask(scope.row)"
-                                       v-show="scope.row.status == 1">删除任务
-                            </el-button>
-                            <el-button type="text" size="small" @click="noShow(scope.row)"
-                                       v-show="scope.row.status == 3">不再显示
-                            </el-button>
-                            <el-button type="text" size="small" v-show="scope.row.status == 2">&#45;&#45;&#45;&#45;&#45;&#45;</el-button>
-                        </template>
-                    </el-table-column>
-                </el-table>-->
             </div>
         </el-dialog>
     </div>
@@ -162,6 +98,38 @@
         },
         created(){
             this.downList = this.global.downTaskList
+        },
+        computed: {
+            checkDownTask() {
+                //检测任务列表中需要下载的报告是否已经下载完毕
+                for(let i = 0, len = this.downList.length; i < len; i++){
+                    if(this.downList[i].isDown && [1, 2, 5, 6].includes(this.downList[i].status)){
+                        //说明还有下载任务正在进行
+                        console.log(false)
+                        this.global.siDownTaskComplete = false
+                        return false
+                    }
+                }
+                this.global.isDownTaskComplete = true
+                console.log(true)
+                return true
+            }
+        },
+        watch: {
+             downList(curV, oldV){
+                 console.log('curV', curV)
+                 console.log('oldV', oldV)
+                 if(oldV.length != 0){
+                     if(this.downList.length > 0 && this.checkDownTask){
+                         this.$notify({
+                             title: '提示',
+                             message: `所有报告均已下载完毕！`,
+                             duration: 0,
+                             type: 'success'
+                         });
+                     }
+                 }
+             }
         },
         methods: {
             deleteTask(index, subIndex) {
@@ -220,6 +188,10 @@
                         return '下载完成'
                     } else if (row.status == 4) {
                         return '下载失败'
+                    } else if(row.status == 5) {
+                        return '下载出现异常'
+                    } else if(row.status == 6) {
+                        return '正在重新下载'
                     }
                 }else{
                     return '------'
@@ -300,5 +272,9 @@
         height: 30px;
         line-height: 30px;
         text-align: center;
+    }
+    .taskTip{
+        height: 40px;
+        line-height: 40px;
     }
 </style>

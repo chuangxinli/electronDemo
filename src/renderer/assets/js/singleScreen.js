@@ -40,6 +40,7 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
           console.error(`图片生成失败`, stderr)
           return;
         }
+        console.log(correctList)
         getPdf(correctList, obj)
       })
     })
@@ -52,7 +53,6 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
       baseURL: baseURL,
       params: {id: params.id},
     }).then(function (response) {
-      console.log(response)
       if (response.data.recode == 0) {
         if (obj.type == 1 || obj.type == 2) {
           if (response.data.contentType === 'all') {
@@ -87,12 +87,19 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
   function getPdf(correctList, obj) {
     if (index < correctList.length) {
       if(correctList[index].isDown){
-        console.log('index', index)
-        correctList[index].status = 2
+        if(correctList[index].repeatCount == undefined){
+          correctList[index].repeatCount = 0
+          correctList[index].status = 2 //正在下载
+        }else{
+          correctList[index].repeatCount++
+          correctList[index].status = 6  //正在重新下载
+        }
         let id = correctList[index].id, pdfName
         let name = correctList[index].studentName ? correctList[index].studentName : correctList[index].name
         name = name.replace(/[^\u4e00-\u9fa5a-zA-Z0-9\(\)（）【】\[\]\s]*/g, '')
-        console.log('name', name)
+        console.log(correctList)
+        console.log('index:', index)
+        console.log('id:', id)
         if (obj.isBatch && obj.type == 5 || obj.type == 6) {
           pdfName = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/班级报告/${id}(${name}).pdf`
           if (!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/班级报告`)) {
@@ -115,33 +122,38 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
         }
         console.log(params)
         execFile('public/exe/wkhtmltopdf.exe', ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], {maxBuffer: 1000 * 1024}, (error, stdout, stderr) => {
-          console.log('execFile')
           if (error) {
-            failPdfList.push(correctList[index])
-            correctList[index].status = 4
-            index++
             console.error(`${id}报告生成失败`, stderr);
             console.log(error)
             if (stderr.includes("Error: Unable to write to destination")) {
-              console.log("文件操作失败，请确保同样名称的文件没有没打开！")
+              console.log("文件操作失败，请确保报告Id为${id}的文件没有被打开！")
+              myEmitter.emit('warn', {text: `文件操作失败，请确保报告Id为${id}的文件没有被打开！`})
             }
-            getPdf(reportIdList, obj)
+            if(correctList[index].repeatCount < 3){
+              correctList[index].status = 5 //下载异常
+              getPdf(reportIdList, obj)
+            }else{
+              correctList[index].status = 4 //下载失败
+              failPdfList.push(correctList[index])
+              index++
+              getPdf(correctList, obj)
+            }
           } else {
             successList.push(correctList[index])
-            correctList[index].status = 3
+            correctList[index].status = 3 //下载成功
             correctList[index].savePath = pdfName
             index++
             console.log(`${id}报告生成成功`);
-            getPdf(reportIdList, obj)
+            getPdf(correctList, obj)
           }
         })
       }else{
         index++
-        getPdf(reportIdList, obj)
+        getPdf(correctList, obj)
       }
     } else {
       console.log('complete')
-      myEmitter.emit('complete', {failPdfList, successList, obj})
+      myEmitter.emit('complete', {})
     }
   }
 }

@@ -5,7 +5,7 @@ function delTemp() {
   del.sync('public/report/clip_tool/images/*')
 }
 export default {
-  api_url: '',
+  api_url: 'http://das.51youpu.com',
   static_url: 'http://39.96.186.199/static/public.zip',
   version_url: 'http://39.96.186.199/win',
   dev,
@@ -17,5 +17,9 @@ export default {
   schoolName: '',
   schoolId: '',
   delTemp,
-  downTaskList: []
+  downTaskList: [],
+  downErrInfo: {
+    failPdfList: []
+  },
+  isDownTaskComplete: false
 }
