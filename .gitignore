@@ -8,6 +8,7 @@ resources/*
 !build/icons
 !build/installer.nsh
 !build/license.html
+!build/license.txt
 node_modules/
 npm-debug.log
 npm-debug.log.*
