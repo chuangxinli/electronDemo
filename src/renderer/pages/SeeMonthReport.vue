@@ -639,7 +639,8 @@
                             isOpen: true,
                             isDelete: false,
                             localId: uuid(),
-                            status: 1
+                            status: 1,
+                            children: []
                         })
                     })
                     this.global.downTaskList.push(...tempRow)

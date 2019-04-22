@@ -9,6 +9,10 @@
                width="60%"
                center>
            <div>
+               <div class="searchTips">
+                   <el-tag size="small">小提示：如果搜索的报告超过两个，每个报告ID用‘；’隔开。例如(209963
+                       ；209964；209965)</el-tag>
+               </div>
                <div class="searchBox">
                    <el-input placeholder="请输入报告ID" v-model="searchReportIds" class="input-with-select" size="small">
                        <el-button slot="append" icon="el-icon-search" @click="getSearchList"></el-button>
@@ -39,7 +43,6 @@
                    </el-table-column>
                    <el-table-column
                            align="center"
-                           fixed="right"
                            label="操作"
                            width="">
                        <template slot-scope="scope">
@@ -103,11 +106,11 @@
                     status: 1
                 }
                 if(row.type == 1 || row.type == 2){
-                    tempRow.name = row.data.report.cover.studentName
+                    tempRow.name = row.data.report.cover.studentName + '（报告ID' + tempRow.id + '）'
                 }else if(row.type == 3 || row.type == 4){
-                    tempRow.name = row.data.report.cover.gradeName
+                    tempRow.name = row.data.report.cover.gradeName + '（报告ID' + tempRow.id + '）'
                 }else if(row.type == 5 || row.type == 6){
-                    tempRow.name = row.data.report.covermap.classname
+                    tempRow.name = row.data.report.covermap.classname + '（报告ID' + tempRow.id + '）'
                 }
                 this.global.downTaskList.push(tempRow)
                 if(this.qualityType == 1){
@@ -146,13 +149,21 @@
                 }
             },
             async getSearchList(){
+                if(!this.searchReportIds){
+                    this.$message({
+                        message: '搜索内容不能为空！',
+                        type: 'warning',
+                        duration: 2000
+                    })
+                    return
+                }
                 this.searchList = []
                 let arr, that = this
                 function getAxiosArr(searchReportIds){
                     let returnArr = []
                     arr = searchReportIds.replace(/；/g,';').split(';')
                     arr.forEach((item) => {
-                        returnArr.push(axios.get(`${baseURL}/das/learningreport/getReportContent?id=${item}`))
+                        returnArr.push(axios.get(`${baseURL}/das/learningreport/getReportContent?id=${item.replace(/[^0-9]/g, '')}`))
                     })
                     return returnArr
                 }
@@ -189,5 +200,9 @@
     .searchBox{
         max-width: 60%;
         margin: auto;
+    }
+    .searchTips{
+        margin: 20px;
+        text-align: center;
     }
 </style>
