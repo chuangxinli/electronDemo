@@ -1,9 +1,9 @@
 <template>
-    <div style="float: right">
+    <div class="inlineBlock">
         <el-button type="primary" size="small" class="mLeft20" @click="taskDialogVisible = !taskDialogVisible">
             <span>查看下载任务</span>
-            <!--<span>(暂无任务)</span>
-            <span>(正在下载)</span>-->
+            <span v-show="checkDownTask">(暂无任务)</span>
+            <span v-show="!checkDownTask">(正在下载...)</span>
         </el-button>
         <!--下载任务列表弹框-->
         <el-dialog
@@ -114,22 +114,6 @@
                 console.log(true)
                 return true
             }
-        },
-        watch: {
-             downList(curV, oldV){
-                 console.log('curV', curV)
-                 console.log('oldV', oldV)
-                 if(oldV.length != 0){
-                     if(this.downList.length > 0 && this.checkDownTask){
-                         this.$notify({
-                             title: '提示',
-                             message: `所有报告均已下载完毕！`,
-                             duration: 0,
-                             type: 'success'
-                         });
-                     }
-                 }
-             }
         },
         methods: {
             deleteTask(index, subIndex) {

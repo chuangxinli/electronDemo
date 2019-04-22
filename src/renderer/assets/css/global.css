@@ -85,6 +85,19 @@ table {
     color: #ffffff;
 }
 
+.fLeft{
+    float: left;
+}
+.fRight{
+    float: right;
+}
+.inlineBlock{
+    display: inline-block;
+}
+
+.searchDialog .el-dialog__body{
+    min-height: 200px;
+}
 
 /*::-webkit-scrollbar {  !* 滚动条整体部分 *!
     width:10px;

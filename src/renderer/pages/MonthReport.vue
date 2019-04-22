@@ -79,7 +79,6 @@
                 </el-table-column>
                 <el-table-column
                         align="center"
-                        fixed="right"
                         label="操作"
                         width="100">
                     <template slot-scope="scope">

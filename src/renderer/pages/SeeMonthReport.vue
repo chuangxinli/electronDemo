@@ -26,6 +26,7 @@
             </el-button>
             <el-button type="primary" size="small" class="mLeft20" @click="allDown()">批量下载</el-button>
             <el-button type="primary" size="small" class="mLeft20" @click="setSavePath()">下载路径设置</el-button>
+            <search-down class="mLeft20" :qualityType="qualityType"></search-down>
             <el-button type="primary" size="small" class="mLeft20" @click="$router.go(-1)">返回</el-button>
         </div>
         <div class="mTop20" v-show="savePath">
@@ -35,21 +36,31 @@
             <down-list></down-list>
         </div>
         <div class="mTop20">
-            <span>报告质量选择：</span>
+            <span>报告质量选择（方案一和方案二都只针对个人报告和班级报告）：</span>
             <el-radio-group v-model="qualityType">
                 <el-radio :label="1">方案一（质量较好，较耗时）</el-radio>
                 <el-radio :label="2">方案二（质量一般，较省时）</el-radio>
             </el-radio-group>
         </div>
-        <div class="mTop20" v-show="curActive == 'grade'">
+        <div class="mTop20">
+            <el-button type="primary" size="small" @click="downSelectGrade()" v-show="curActive == 'grade' && gradeReportList.length > 0">下载所选年级报告
+            </el-button>
+        </div>
+        <div class="mTop20" v-show="curActive == 'grade'" >
             <el-table
                     :data="gradeReportList"
                     border
+                    @selection-change="handleGradeSelectionChange"
                     style="width: 100%">
                 <el-table-column
                         align="center"
                         type="index"
                         width="50">
+                </el-table-column>
+                <el-table-column
+                        align="center"
+                        type="selection"
+                        width="55">
                 </el-table-column>
                 <el-table-column
                         align="center"
@@ -86,15 +97,25 @@
                 </el-table-column>
             </el-table>
         </div>
+        <div class="mTop20">
+            <el-button type="primary" size="small" @click="downSelectClass()" v-show="curActive == 'class' && classReportList.length > 0">下载所选班级报告
+            </el-button>
+        </div>
         <div class="mTop20" v-show="curActive == 'class'">
             <el-table
                     :data="classReportList"
                     border
+                    @selection-change="handleClassSelectionChange"
                     style="width: 100%">
                 <el-table-column
                         align="center"
                         type="index"
                         width="50">
+                </el-table-column>
+                <el-table-column
+                        align="center"
+                        type="selection"
+                        width="55">
                 </el-table-column>
                 <el-table-column
                         align="center"
@@ -137,15 +158,24 @@
                 </el-table-column>
             </el-table>
         </div>
+        <div class="mTop20">
+            <el-button type="primary" size="small" @click="downSelectPerson()" v-show="curActive == 'person' && personReportList.length > 0">下载所选个人报告
+            </el-button>
+        </div>
         <div class="mTop20" v-show="curActive == 'person'">
             <el-table
                     :data="personReportList"
                     border
+                    @selection-change="handlePersonSelectionChange"
                     style="width: 100%">
                 <el-table-column
                         align="center"
                         type="index"
                         width="50">
+                </el-table-column>
+                <el-table-column
+                        type="selection"
+                        width="55">
                 </el-table-column>
                 <el-table-column
                         align="center"
@@ -243,12 +273,6 @@
 
 <script>
     const uuid = require('uuid/v4')
-    const EventEmitter = require('events');
-
-    class MyEmitter extends EventEmitter {
-    }
-
-    const myEmitter = new MyEmitter();
     const singleNoScreen = require('@/assets/js/singleNoScreen')
     const singleScreen = require('@/assets/js/singleScreen')
     const batchNoScreen = require('@/assets/js/batchNoScreen')
@@ -286,7 +310,13 @@
                 //报告临时位置
                 tempPath: '',
                 //报告质量选择
-                qualityType: 1
+                qualityType: 1,
+                //个人报告选择下载
+                person_arr: [],
+                //班级报告选择下载
+                class_arr: [],
+                //年级报告选择下载
+                grade_arr: []
             }
         },
         computed: {
@@ -310,49 +340,51 @@
             this.getPaperTestGradeDetail()
             this.getPaperTestClassDetail()
             this.getClassList()
-            myEmitter.on('complete_all', (data) => {
-                if(this.global.isDownTaskComplete){
-                    this.$notify({
-                        title: '提示',
-                        message: `所有报告均已下载完毕！`,
-                        duration: 0,
-                        type: 'success'
-                    });
-                }
-            })
-            myEmitter.on('complete_single_class', (data) => {
-                if(this.global.isDownTaskComplete){
-                    this.$notify({
-                        title: '提示',
-                        message: `所有报告均已下载完毕！`,
-                        duration: 0,
-                        type: 'success'
-                    });
-                }
-            })
-            myEmitter.on('complete', (data) => {
-                console.log('complete 触发事件');
-                console.log(this.global.isDownTaskComplete)
-                if(this.global.isDownTaskComplete){
-                    this.$notify({
-                        title: '提示',
-                        message: `所有报告均已下载完毕！`,
-                        duration: 0,
-                        type: 'success'
-                    });
-                }
-            })
-            myEmitter.on('warn', (data) => {
-                console.log('warn 触发事件');
-                this.$notify({
-                    title: '提示',
-                    message: data.text,
-                    duration: 0,
-                    type: 'warning'
-                });
-            })
         },
         methods: {
+            handlePersonSelectionChange(val) {
+                console.log(val)
+                this.person_arr = val
+            },
+            handleClassSelectionChange(val){
+               this.class_arr = val
+            },
+            handleGradeSelectionChange(val){
+              this.grade_arr = val
+            },
+            downSelectGrade(){
+                if(this.grade_arr.length == 0){
+                    this.$message({
+                        message: '所选年级报告不能为空！',
+                        type: 'warning',
+                        duration: 2000
+                    })
+                    return
+                }
+                this.downGradeReport(this.grade_arr)
+            },
+            downSelectClass(){
+                if(this.class_arr.length == 0){
+                    this.$message({
+                        message: '所选班级报告不能为空！',
+                        type: 'warning',
+                        duration: 2000
+                    })
+                    return
+                }
+                this.downClassReport(this.class_arr)
+            },
+            downSelectPerson() {
+                if(this.person_arr.length == 0){
+                    this.$message({
+                        message: '所选个人报告不能为空！',
+                        type: 'warning',
+                        duration: 2000
+                    })
+                    return
+                }
+                this.downPersonReport(this.person_arr)
+            },
             openSavePath() {
                 //shell.openExternal('https://github.com')
                 shell.openItem(this.savePath)
@@ -414,43 +446,75 @@
                     this.personReportList = data.reportList
                 }
             },
-            dealDownQuality(isTotalClass, row, obj, myEmitter){ //isTotalClass 是否批量下载下载每个班级的个人报告，早这里只有 批量下载每个班级里面的个人报告时为true，其它情况都为false
-                if(this.qualityType == 1 && !isTotalClass){
+            dealDownQuality(isWholeClass, row, obj, myEmitter) { //isWholeClass 是否批量下载下载每个班级的个人报告，早这里只有 批量下载每个班级里面的个人报告时为true，其它情况都为false
+                this.$message({
+                    message: '正在下载请耐心等待,可点击查看下载任务，查看下载进度！',
+                    type: 'info',
+                    duration: 3000,
+                    showClose: true
+                })
+                if (this.qualityType == 1 && !isWholeClass) {
                     singleScreen(row, obj, myEmitter)
-                }else if(this.qualityType == 1 && isTotalClass){
+                } else if (this.qualityType == 1 && isWholeClass) {
                     batchScreen(row, obj, myEmitter)
-                }else if(this.qualityType == 2 && !isTotalClass){
+                } else if (this.qualityType == 2 && !isWholeClass) {
                     singleNoScreen(row, obj, myEmitter)
-                }else if(this.qualityType == 2 && isTotalClass){
+                } else if (this.qualityType == 2 && isWholeClass) {
                     batchNoScreen(row, obj, myEmitter)
                 }
             },
             downGradeReport(row) {
                 //年级报告没有都不截图
-                if(!(row instanceof Array)){
+                if (!(row instanceof Array)) {
                     row = [row]
                 }
+                this.$message({
+                    message: '正在下载请耐心等待,可点击查看下载任务，查看下载进度！',
+                    type: 'info',
+                    duration: 3000,
+                    showClose: true
+                })
                 let tempRow = []
                 row.forEach((item) => {
-                    tempRow.push({name: item.name, id: item.id, studentName: item.studentName,type: 4, isDown: true, isShow: true, isDelete: false, localId: uuid(), status: 1})
+                    tempRow.push({
+                        name: item.name,
+                        id: item.id,
+                        studentName: item.studentName,
+                        type: 4,
+                        isDown: true,
+                        isShow: true,
+                        isDelete: false,
+                        localId: uuid(),
+                        status: 1
+                    })
                 })
                 this.global.downTaskList.push(...tempRow)
-                this.singleNoScreen(tempRow, {
+                singleNoScreen(tempRow, {
                     gradeName: this.gradeName,
                     subjectName: this.subjectName,
                     savePath: this.savePath,
                     type: 4,
                     isBatch: false,  //true是批量下载（下载后会自动整合到一个文件夹）  false不是批量下载直接放在了文件夹的根目录
                     appPath: this.tempPath
-                }, myEmitter)
+                }, this.global.myEmitter)
             },
             downClassReport(row) {
-                if(!(row instanceof Array)){
+                if (!(row instanceof Array)) {
                     row = [row]
                 }
                 let tempRow = []
                 row.forEach((item) => {
-                    tempRow.push({name: item.name, id: item.id, studentName: item.studentName,type: 6, isDown: true, isShow: true, isDelete: false, localId: uuid(), status: 1})
+                    tempRow.push({
+                        name: item.name,
+                        id: item.id,
+                        studentName: item.studentName,
+                        type: 6,
+                        isDown: true,
+                        isShow: true,
+                        isDelete: false,
+                        localId: uuid(),
+                        status: 1
+                    })
                 })
                 this.global.downTaskList.push(...tempRow)
                 this.dealDownQuality(false, tempRow, {
@@ -460,15 +524,25 @@
                     type: 6,
                     isBatch: false,
                     appPath: this.tempPath
-                }, myEmitter)
+                }, this.global.myEmitter)
             },
             downPersonReport(row) {
-                if(!(row instanceof Array)){
+                if (!(row instanceof Array)) {
                     row = [row]
                 }
                 let tempRow = []
                 row.forEach((item) => {
-                    tempRow.push({name: item.name, id: item.id, studentName: item.studentName,type: 1, isDown: true, isShow: true, isDelete: false, localId: uuid(), status: 1})
+                    tempRow.push({
+                        name: item.name,
+                        id: item.id,
+                        studentName: item.studentName,
+                        type: 1,
+                        isDown: true,
+                        isShow: true,
+                        isDelete: false,
+                        localId: uuid(),
+                        status: 1
+                    })
                 })
                 this.global.downTaskList.push(...tempRow)
                 this.dealDownQuality(false, tempRow, {
@@ -478,7 +552,7 @@
                     type: 1,
                     isBatch: false,
                     appPath: this.tempPath
-                }, myEmitter)
+                }, this.global.myEmitter)
             },
             dealScore(row) {
                 return row.maxScore + '/' + row.totalScore
@@ -491,7 +565,17 @@
                 if (this.checkedReport_grade.length > 0) {
                     let tempRow = []
                     this.checkedReport_grade.forEach((item) => {
-                        tempRow.push({name: item.name, id: item.id, studentName: item.studentName,type: 4, isDown: true, isShow: true, isDelete: false, localId: uuid(), status: 1})
+                        tempRow.push({
+                            name: item.name,
+                            id: item.id,
+                            studentName: item.studentName,
+                            type: 4,
+                            isDown: true,
+                            isShow: true,
+                            isDelete: false,
+                            localId: uuid(),
+                            status: 1
+                        })
                     })
                     this.global.downTaskList.push(...tempRow)
                     singleNoScreen(tempRow, {
@@ -502,15 +586,24 @@
                         isBatch: true,
                         appPath: this.tempPath,
                         taskId: this.taskId
-                    }, myEmitter)
+                    }, this.global.myEmitter)
                 }
                 if (this.checkedReport_class.length > 0) {
                     let tempRow = []
                     this.checkedReport_class.forEach((item) => {
-                        tempRow.push({name: item.name, id: item.id, studentName: item.studentName,type: 6, isDown: true, isShow: true, isDelete: false, localId: uuid(), status: 1})
+                        tempRow.push({
+                            name: item.name,
+                            id: item.id,
+                            studentName: item.studentName,
+                            type: 6,
+                            isDown: true,
+                            isShow: true,
+                            isDelete: false,
+                            localId: uuid(),
+                            status: 1
+                        })
                     })
                     this.global.downTaskList.push(...tempRow)
-                    console.log(tempRow)
                     this.dealDownQuality(false, tempRow, {
                         gradeName: this.gradeName,
                         subjectName: this.subjectName,
@@ -519,10 +612,21 @@
                         isBatch: true,
                         appPath: this.tempPath,
                         taskId: this.taskId
-                    }, myEmitter)
+                    }, this.global.myEmitter)
                 }
                 if (this.checkedReport_person.length > 0) {
-                    let tempRow = [{name: `${this.gradeName}${this.subjectName}`, id: '', type: 1, isDown: true, isShow: true, isOpen: false, isDelete: false, localId: uuid(), status: 1, children: []}]
+                    let tempRow = [{
+                        name: `${this.gradeName}${this.subjectName}`,
+                        id: '',
+                        type: 1,
+                        isDown: true,
+                        isShow: true,
+                        isOpen: false,
+                        isDelete: false,
+                        localId: uuid(),
+                        status: 1,
+                        children: []
+                    }]
                     this.checkedReport_person.forEach((item) => {
                         tempRow[0].children.push({
                             classId: item.classId,
@@ -535,7 +639,7 @@
                             isOpen: true,
                             isDelete: false,
                             localId: uuid(),
-                            status: 1,
+                            status: 1
                         })
                     })
                     this.global.downTaskList.push(...tempRow)
@@ -549,7 +653,7 @@
                         taskId: this.taskId,
                         subjectId: this.subjectId,
                         reportType: this.reportType
-                    }, myEmitter)
+                    }, this.global.myEmitter)
                 }
             },
             handleCheckAllChange_grade(val) {

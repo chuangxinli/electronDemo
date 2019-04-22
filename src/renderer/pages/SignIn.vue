@@ -8,13 +8,13 @@
                 <el-input v-model="formLabelAlign.password" type="password" @keyup.native.13="beforeLogin"></el-input>
             </el-form-item>
             <el-checkbox v-model="formLabelAlign.remember" class="remember">记住密码</el-checkbox>
-            <el-button type="primary" @click="beforeLogin" class="onSubmit">登录</el-button>
+            <el-button type="primary" @click="beforeLogin" class="onSubmit mLeft40">登录</el-button>
         </el-form>
         <div class="box"></div>
         <el-dialog
                 title="友情提示"
                 :visible.sync="isDownDialogVisible"
-                width="30%"
+                width="40%"
                 center>
             <p class="center">检测到了新的版本是否下载！</p>
             <span slot="footer" class="dialog-footer">
@@ -25,7 +25,7 @@
         <el-dialog
                 title="友情提示"
                 :visible.sync="downDialogVisible"
-                width="30%"
+                width="40%"
                 center>
             <p class="center">正在下载中。。。。。。请耐心等待！</p>
             <div class="center mTop20">
@@ -38,10 +38,13 @@
 <script>
     const fs = require('fs')
     const asar = require('asar')
-    const del = require('del')
     import {Loading} from 'element-ui'
-
+    const fse = require('fs-extra')
     const {ipcRenderer} = require('electron')
+    const EventEmitter = require('events');
+
+    class MyEmitter extends EventEmitter {
+    }
 
     export default {
         data() {
@@ -64,7 +67,48 @@
             }
         },
         mounted() {
-            console.log('哈哈')
+            if(!this.global.myEmitter){
+                this.global.myEmitter = new MyEmitter()
+                this.global.myEmitter.on('complete_all', (data) => {
+                    if (this.global.isDownTaskComplete) {
+                        this.$notify({
+                            title: '提示',
+                            message: `当前所有报告下载任务均已下载完毕！`,
+                            duration: 0,
+                            type: 'success'
+                        });
+                    }
+                })
+                this.global.myEmitter.on('complete_single_class', (data) => {
+                    if (this.global.isDownTaskComplete) {
+                        this.$notify({
+                            title: '提示',
+                            message: `当前所有报告下载任务均已下载完毕！！`,
+                            duration: 0,
+                            type: 'success'
+                        });
+                    }
+                })
+                this.global.myEmitter.on('complete', (data) => {
+                    if (this.global.isDownTaskComplete) {
+                        this.$notify({
+                            title: '提示',
+                            message: `当前所有报告下载任务均已下载完毕！！`,
+                            duration: 0,
+                            type: 'success'
+                        });
+                    }
+                })
+                this.global.myEmitter.on('warn', (data) => {
+                    console.log('warn 触发事件');
+                    this.$notify({
+                        title: '提示',
+                        message: data.text,
+                        duration: 0,
+                        type: 'warning'
+                    });
+                })
+            }
             console.log(this.appPath)
             console.log(require('../../../package.json').version)
             if (this.formLabelAlign.remember) {
@@ -123,18 +167,16 @@
                         background: 'rgba(0, 0, 0, 0.5)'
                     })
                     setTimeout(() => {
-                        console.log(111)
                         asar.extractAll(this.appPath, '')
                         if(!fs.existsSync('public/html')){
                             fs.mkdirSync('public/html')
                         }
-                        console.log(222)
-                        del.sync('data.json', {force: true})
-                        del.sync('dist/**', {force: true})
-                        del.sync('node_modules/**', {force: true})
+                        fse.removeSync('node_modules')
+                        fse.removeSync('data.json')
+                        fse.removeSync('dist')
                         loadingInstance.close()
                         this.onSubmit()
-                    }, 500)
+                    },500)
                 } else {
                     this.onSubmit()
                 }
