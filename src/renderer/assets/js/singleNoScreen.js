@@ -5,7 +5,7 @@ const fse = require('fs-extra')
 const fs = require('fs')
 
 
-let singleNoScreen = function (reportIdList, obj, myEmitter) {
+let singleNoScreen = function (reportIdList, obj, myEmitter, err) {
     if (!obj.savePath) {
         myEmitter.emit('warn', {text: '请先设置报告的下载路径！'})
         return
@@ -98,14 +98,26 @@ let singleNoScreen = function (reportIdList, obj, myEmitter) {
                             correctList[index].status = 5 //下载异常
                             getPdf(reportIdList, obj)
                         } else {
+                            let belongTo = ''
+                            if([3, 4, 5, 6].includes(obj.type)){
+                                belongTo = obj.gradeName
+                            }else{
+                                belongTo = obj.gradeName + '（' + obj.className + '）'
+                            }
+                            myEmitter.emit('pdf_error', {
+                                id,
+                                belongTo,
+                                type: obj.type,
+                                subjectName: obj.subjectName,
+                            })
                             correctList[index].status = 4 //下载失败
                             failPdfList.push(correctList[index])
                             index++
                             getPdf(correctList, obj)
                         }
                     } else {
-                        reportIdList[index].status = 3  //下载成功
-                        reportIdList[index].savePath = pdfName
+                        correctList[index].status = 3  //下载成功
+                        correctList[index].savePath = pdfName
                         successPdfList.push(correctList[index])
                         index++
                         console.log(`${id}报告生成成功`);
@@ -117,8 +129,8 @@ let singleNoScreen = function (reportIdList, obj, myEmitter) {
                 getPdf(correctList, obj)
             }
         } else {
-            console.log('complete')
-            myEmitter.emit('complete', {})
+            console.log('complete_single')
+            myEmitter.emit('complete_single', {})
         }
     }
 }

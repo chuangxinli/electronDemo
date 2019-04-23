@@ -34,6 +34,7 @@
             <el-tag>{{savePath}}</el-tag>
             <el-button type="primary" size="small" class="mLeft20" @click="openSavePath()">查看下载的报告</el-button>
             <down-list></down-list>
+            <el-button type="primary" size="small" class="mLeft20" @click="errorPdfDialogVisible = true">查看下载失败的报告</el-button>
         </div>
         <div class="mTop20">
             <span>报告质量选择（方案一和方案二都只针对个人报告和班级报告）：</span>
@@ -175,6 +176,7 @@
                 </el-table-column>
                 <el-table-column
                         type="selection"
+                        align="center"
                         width="55">
                 </el-table-column>
                 <el-table-column
@@ -268,6 +270,50 @@
         <el-button type="primary" @click="confirmDown()" size="small">确 定</el-button>
       </span>
         </el-dialog>
+        <!--错误报告弹框-->
+        <el-dialog
+                title="错误报告列表"
+                :visible.sync="errorPdfDialogVisible"
+                width="40%"
+                center>
+            <el-table
+                    :data="errReportList"
+                    border
+                    size="small"
+                    @selection-change="handlePersonSelectionChange"
+                    style="width: 100%">
+                <el-table-column
+                        align="center"
+                        type="index"
+                        width="50">
+                </el-table-column>
+                <el-table-column
+                        align="center"
+                        prop="id"
+                        label="报告编号"
+                        width="100">
+                </el-table-column>
+                <el-table-column
+                        align="center"
+                        prop="belongTo"
+                        label="报告所属"
+                        width="">
+                </el-table-column>
+                <el-table-column
+                        align="center"
+                        prop="subjectName"
+                        label="报告学科"
+                        width="120">
+                </el-table-column>
+                <el-table-column
+                        align="center"
+                        :formatter="getType"
+                        label="报告类型"
+                        width="120">
+                </el-table-column>
+            </el-table>
+        </el-dialog>
+
     </div>
 </template>
 
@@ -283,6 +329,7 @@
             return {
                 subjectName: '',
                 gradeName: '',
+                className: '',
                 taskId: '',
                 subjectId: '',
                 allDownDialogVisible: false,
@@ -316,7 +363,10 @@
                 //班级报告选择下载
                 class_arr: [],
                 //年级报告选择下载
-                grade_arr: []
+                grade_arr: [],
+                //错误报告数据
+                errorPdfDialogVisible: false,
+                errReportList: []
             }
         },
         computed: {
@@ -333,6 +383,7 @@
             } else {
                 this.tempPath = this.appPath.split('electronDemo')[0] + 'electronDemo'
             }
+            this.errReportList = this.global.errReportList
             this.taskId = this.$route.params.taskId
             this.gradeName = this.$route.params.gradeName
             this.subjectName = this.$route.params.subjectName
@@ -342,6 +393,21 @@
             this.getClassList()
         },
         methods: {
+            getType(row){
+              if(row.type == 1){
+                  return '月考个人'
+              }else if(row.type == 2){
+                  return '周测个人'
+              }else if(row.type == 3){
+                  return '周测年级'
+              }else if(row.type == 4){
+                  return '月考年级'
+              }else if(row.type == 5){
+                  return '周测班级'
+              }else if(row.type == 6){
+                  return '月考班级'
+              }
+            },
             handlePersonSelectionChange(val) {
                 console.log(val)
                 this.person_arr = val
@@ -429,6 +495,7 @@
                 if (data) {
                     this.classList = data.infoList
                     this.classId = this.classList[0].classId
+                    this.className = this.classList[0].className
                     this.getPaperTestStuDetail()
                 }
             },
@@ -443,6 +510,11 @@
                 }
                 let data = await this.api.get(url, params, {loading: true})
                 if (data) {
+                    for(let i = 0, len = this.classList.length; i < len; i++){
+                        if(this.classList[i].classId == this.classId){
+                            this.className = this.classList[i].className
+                        }
+                    }
                     this.personReportList = data.reportList
                 }
             },
@@ -548,6 +620,7 @@
                 this.dealDownQuality(false, tempRow, {
                     gradeName: this.gradeName,
                     subjectName: this.subjectName,
+                    className: this.className,
                     savePath: this.savePath,
                     type: 1,
                     isBatch: false,
@@ -636,7 +709,7 @@
                             type: 1,
                             isShow: true,
                             isDown: true,
-                            isOpen: true,
+                            isOpen: false,
                             isDelete: false,
                             localId: uuid(),
                             status: 1,

@@ -79,17 +79,13 @@
                         });
                     }
                 })
-                this.global.myEmitter.on('complete_single_class', (data) => {
-                    if (this.global.isDownTaskComplete) {
-                        this.$notify({
-                            title: '提示',
-                            message: `当前所有报告下载任务均已下载完毕！！`,
-                            duration: 0,
-                            type: 'success'
-                        });
-                    }
+                this.global.myEmitter.on('pdf_error', (data) => {
+                    this.global.errReportList.push(data)
                 })
-                this.global.myEmitter.on('complete', (data) => {
+                this.global.myEmitter.on('complete_single_class', (data) => {
+
+                })
+                this.global.myEmitter.on('complete_single', (data) => {
                     if (this.global.isDownTaskComplete) {
                         this.$notify({
                             title: '提示',

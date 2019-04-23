@@ -43,9 +43,9 @@
                     <div v-show="downList.length == 0" class="noDataTip"><span>暂无任务</span></div>
                     <li v-for="item,index in downList" v-show="item.isShow" class="tbody">
                         <div class="parent">
-                            <i class="el-icon-arrow-right pointer" v-show="item.children && item.children.length > 0 && !item.isOpen" @click="handleIsOpen(item)" title="点击展开"></i>
+                            <i class="el-icon-arrow-right pointer" v-show="item.children && item.children.length > 0 && !item.isOpen" @click="handleIsOpen(index)" title="点击展开"></i>
                             <i class="el-icon-arrow-down pointer
-" v-show="item.children && item.children.length > 0 && item.isOpen" @click="handleIsOpen(item)" title="点击关闭"></i>
+" v-show="item.children && item.children.length > 0 && item.isOpen" @click="handleIsOpen(index)" title="点击关闭"></i>
                             <span :title="item.name">{{item.name}}</span>
                         </div>
                         <div class="parent">
@@ -56,13 +56,16 @@
                         </div>
                         <div class="parent">
                             <span v-show="item.status == 3 && !item.children" @click="goCheck(index)" class="success pointer">本地查看</span>
-                            <span v-show="item.status == 3 && !item.children" @click="noShow(index)" class="success pointer">不再显示</span>
+                            <span v-show="item.status == 3" @click="noShow(index)" class="success pointer">不再显示</span>
                             <span v-show="item.status == 1 && !item.children" @click="deleteTask(index)" class="danger pointer">删除任务</span>
-                            <span v-show="item.status == 2 || item.children">&#45;&#45;&#45;&#45;&#45;&#45;</span>
+                            <span v-show="item.status == 2">&#45;&#45;&#45;&#45;&#45;&#45;</span>
                         </div>
                         <ul v-show="item.children && item.children.length > 0 && item.isOpen" class="taskTable taskTableSub">
                             <li v-for="subItem,subIndex in item.children" v-show="subItem.isShow" class="tbody subTbody">
                                 <div class="parent">
+                                    <i class="el-icon-arrow-right pointer" v-show="subItem.children && subItem.children.length > 0 && !subItem.isOpen" @click="handleIsOpen(index, subIndex)" title="点击展开"></i>
+                                    <i class="el-icon-arrow-down pointer
+" v-show="subItem.children && subItem.children.length > 0 && subItem.isOpen" @click="handleIsOpen(index, subIndex)" title="点击关闭"></i>
                                     <span :title="subItem.name">{{subItem.name}}</span>
                                 </div>
                                 <div class="parent">
@@ -77,6 +80,25 @@
                                     <span v-show="subItem.status == 1" @click="deleteTask(index, subIndex)" class="danger pointer">删除任务</span>
                                     <span v-show="subItem.status == 2">&#45;&#45;&#45;&#45;&#45;&#45;</span>
                                 </div>
+                                <ul v-show="subItem.children && subItem.children.length > 0 && subItem.isOpen" class="taskTable taskTableSub">
+                                    <li v-for="gradeChildItem,gradeChildIndex in subItem.children" v-show="gradeChildItem.isShow" class="tbody subTbody">
+                                        <div class="parent">
+                                            <span :title="gradeChildItem.name">{{gradeChildItem.name}}</span>
+                                        </div>
+                                        <div class="parent">
+                                            <span>{{getType(gradeChildItem)}}</span>
+                                        </div>
+                                        <div class="parent">
+                                            <span>{{getStatus(gradeChildItem)}}</span>
+                                        </div>
+                                        <div class="parent">
+                                            <span v-show="gradeChildItem.status == 3" @click="goCheck(index, subIndex, gradeChildIndex)" class="success pointer">本地查看</span>
+                                            <span v-show="gradeChildItem.status == 3" @click="noShow(index, subIndex, gradeChildIndex)" class="success pointer">不再显示</span>
+                                            <span v-show="gradeChildItem.status == 1" @click="deleteTask(index, subIndex, gradeChildIndex)" class="danger pointer">删除任务</span>
+                                            <span v-show="gradeChildItem.status == 2">&#45;&#45;&#45;&#45;&#45;&#45;</span>
+                                        </div>
+                                    </li>
+                                </ul>
                             </li>
                         </ul>
                     </li>
@@ -103,7 +125,7 @@
             checkDownTask() {
                 //检测任务列表中需要下载的报告是否已经下载完毕
                 for(let i = 0, len = this.downList.length; i < len; i++){
-                    if(this.downList[i].isDown && [1, 2, 5, 6].includes(this.downList[i].status)){
+                    if(this.downList[i].isDown && [1, 2, 5, 6, 7, 8].includes(this.downList[i].status)){
                         //说明还有下载任务正在进行
                         console.log(false)
                         this.global.siDownTaskComplete = false
@@ -116,8 +138,11 @@
             }
         },
         methods: {
-            deleteTask(index, subIndex) {
-                if(index != undefined && subIndex != undefined){
+            deleteTask(index, subIndex, gradeChildIndex) {
+                if(index != undefined && subIndex != undefined && gradeChildIndex != undefined){
+                    this.global.downTaskList[index].children[subIndex].children[gradeChildIndex].isDown = false
+                    this.global.downTaskList[index].children[subIndex].children[gradeChildIndex].isShow = false
+                }else if(index != undefined && subIndex != undefined){
                     this.global.downTaskList[index].children[subIndex].isDown = false
                     this.global.downTaskList[index].children[subIndex].isShow = false
                 }else{
@@ -125,15 +150,20 @@
                     this.global.downTaskList[index].isShow = false
                 }
             },
-            goCheck(index, subIndex) {
-                if(index != undefined && subIndex != undefined){
+            goCheck(index, subIndex, gradeChildIndex) {
+                if(index != undefined && subIndex != undefined && gradeChildIndex != undefined){
+                    console.log(this.global.downTaskList[index].children[subIndex].children[gradeChildIndex].savePath)
+                    shell.openExternal(this.global.downTaskList[index].children[subIndex].children[gradeChildIndex].savePath)
+                }else if(index != undefined && subIndex != undefined){
                     shell.openItem(this.global.downTaskList[index].children[subIndex].savePath)
                 }else{
                     shell.openExternal(this.global.downTaskList[index].savePath)
                 }
             },
-            noShow(index, subIndex){
-                if(index != undefined && subIndex != undefined){
+            noShow(index, subIndex, gradeChildIndex){
+                if(index != undefined && subIndex != undefined && gradeChildIndex != undefined){
+                    this.global.downTaskList[index].children[subIndex].children[gradeChildIndex].isShow = false
+                }else if(index != undefined && subIndex != undefined){
                     this.global.downTaskList[index].children[subIndex].isShow = false
                 }else{
                     this.global.downTaskList[index].isShow = false
@@ -163,34 +193,29 @@
                 }
             },
             getStatus(row) {
-                if(!row.children){
-                    if (row.status == 1) {
-                        return '等待下载'
-                    } else if (row.status == 2) {
-                        return '正在下载'
-                    } else if (row.status == 3) {
-                        return '下载完成'
-                    } else if (row.status == 4) {
-                        return '下载失败'
-                    } else if(row.status == 5) {
-                        return '下载出现异常'
-                    } else if(row.status == 6) {
-                        return '正在重新下载'
-                    }
-                }else{
-                    return '------'
+                if (row.status == 1) {
+                    return '等待下载'
+                } else if (row.status == 2) {
+                    return '正在下载'
+                } else if (row.status == 3) {
+                    return '下载完成'
+                } else if (row.status == 4) {
+                    return '下载失败'
+                } else if(row.status == 5) {
+                    return '下载出现异常'
+                } else if(row.status == 6) {
+                    return '正在重新下载'
+                } else if(row.status == 7) {
+                    return '正在处理数据'
+                } else if(row.status == 8) {
+                    return '正在处理数据和图片'
                 }
             },
-            handleIsOpen(item){
-                console.log(item)
-                for(let i = 0, len = this.global.downTaskList.length; i < len; i++){
-                    if(item.localId == this.global.downTaskList[i].localId){
-                        console.log(item.localId)
-                        this.$nextTick(() => {
-                            this.global.downTaskList[i].isOpen = !this.global.downTaskList[i].isOpen
-                        })
-                        return
-                    }
+            handleIsOpen(index, subIndex){
+                if(index != undefined && subIndex != undefined){
+                    this.global.downTaskList[index].children[subIndex].isOpen = !this.global.downTaskList[index].children[subIndex].isOpen
+                }else{
+                    this.global.downTaskList[index].isOpen = !this.global.downTaskList[index].isOpen
                 }
             }
         }

@@ -18,16 +18,25 @@
                        <el-button slot="append" icon="el-icon-search" @click="getSearchList"></el-button>
                    </el-input>
                </div>
+               <div class="mTop20" v-show="searchList.length > 0">
+                   <el-button type="primary" size="small" @click="downSelectReport">下载所选报告</el-button>
+               </div>
                <el-table
                        class="mTop20"
                        :data="searchList"
                        border
                        size="small"
+                       @selection-change="handleSearchSelectionChange"
                        style="width: 100%">
                    <el-table-column
                            align="center"
                            type="index"
                            width="50">
+                   </el-table-column>
+                   <el-table-column
+                           type="selection"
+                           align="center"
+                           width="55">
                    </el-table-column>
                    <el-table-column
                            align="center"
@@ -67,6 +76,7 @@
                 searchReportIds: '',
                 searchDialogVisible: false,
                 searchList: [],
+                downList: [],
                 //报告临时位置
                 tempPath: ''
             }
@@ -94,44 +104,73 @@
             this.searchList = []
         },
         methods: {
+            downSelectReport(){
+                if(this.downList.length == 0){
+                    this.$message({
+                        message: '所选报告不能为空！',
+                        type: 'warning',
+                        duration: 2000
+                    })
+                    return
+                }
+                this.downReport(this.downList)
+            },
+            handleSearchSelectionChange(val){
+                console.log(val)
+                this.downList = val
+            },
             downReport(row){
                 console.log(row)
-                let tempRow = {
-                    id: row.id,
-                    type: row.type,
-                    isDown: true,
-                    isShow: true,
-                    isDelete: false,
-                    localId: uuid(),
-                    status: 1
+                if(!(row instanceof Array)){
+                    row = [row]
                 }
-                if(row.type == 1 || row.type == 2){
-                    tempRow.name = row.data.report.cover.studentName + '（报告ID' + tempRow.id + '）'
-                }else if(row.type == 3 || row.type == 4){
-                    tempRow.name = row.data.report.cover.gradeName + '（报告ID' + tempRow.id + '）'
-                }else if(row.type == 5 || row.type == 6){
-                    tempRow.name = row.data.report.covermap.classname + '（报告ID' + tempRow.id + '）'
-                }
-                this.global.downTaskList.push(tempRow)
-                if(this.qualityType == 1){
-                    singleScreen([tempRow], {
-                        gradeName: '',
-                        subjectName: '',
-                        savePath: this.savePath,
-                        type: tempRow.type,
-                        isBatch: false,  //true是批量下载（下载后会自动整合到一个文件夹）  false不是批量下载直接放在了文件夹的根目录
-                        appPath: this.tempPath
-                    }, this.global.myEmitter)
-                }else if(this.qualityType == 2){
-                    singleNoScreen([tempRow], {
-                        gradeName: '',
-                        subjectName: '',
-                        savePath: this.savePath,
-                        type: tempRow.type,
-                        isBatch: false,  //true是批量下载（下载后会自动整合到一个文件夹）  false不是批量下载直接放在了文件夹的根目录
-                        appPath: this.tempPath
-                    }, this.global.myEmitter)
-                }
+                row.forEach((item) => {
+                    let tempRow = {
+                        id: item.id,
+                        type: item.type,
+                        isDown: true,
+                        isShow: true,
+                        isDelete: false,
+                        localId: uuid(),
+                        status: 1
+                    }
+                    let subjectName = '', gradeName = '', className = ''
+                    if(item.type == 1 || item.type == 2){
+                        tempRow.name = item.data.report.cover.studentName + '（报告ID' + tempRow.id + '）'
+                        subjectName = item.data.report.cover.subjectName
+                        className = item.data.report.cover.className
+                    }else if(item.type == 3 || item.type == 4){
+                        tempRow.name = item.data.report.cover.gradeName + '（报告ID' + tempRow.id + '）'
+                        subjectName = item.data.report.cover.subjectName
+                        gradeName = item.data.report.cover.gradename
+                    }else if(item.type == 5 || item.type == 6){
+                        tempRow.name = item.data.report.covermap.classname + '（报告ID' + tempRow.id + '）'
+                        subjectName = item.data.report.covermap.subjectname
+                        className = item.data.report.covermap.classname
+                        gradeName = item.data.report.covermap.gradename
+                    }
+                    this.global.downTaskList.push(tempRow)
+                    if(this.qualityType == 1){
+                        singleScreen([tempRow], {
+                            gradeName,
+                            subjectName,
+                            className,
+                            savePath: this.savePath,
+                            type: tempRow.type,
+                            isBatch: false,  //true是批量下载（下载后会自动整合到一个文件夹）  false不是批量下载直接放在了文件夹的根目录
+                            appPath: this.tempPath
+                        }, this.global.myEmitter)
+                    }else if(this.qualityType == 2){
+                        singleNoScreen([tempRow], {
+                            gradeName: '',
+                            subjectName: '',
+                            savePath: this.savePath,
+                            type: tempRow.type,
+                            isBatch: false,  //true是批量下载（下载后会自动整合到一个文件夹）  false不是批量下载直接放在了文件夹的根目录
+                            appPath: this.tempPath
+                        }, this.global.myEmitter)
+                    }
+                })
             },
             getReportType(row){
                 if(row.type == 1){
@@ -186,7 +225,7 @@
                                 }else if(item.data.testType == 3 && item.data.report.cover && item.data.report.cover.gradeName){
                                     item.type = 4
                                 }
-                                item.id = arr[index]
+                                item.id = arr[index].replace(/[^0-9]/g, '')
                                 that.searchList.push(item)
                             }
                         })
