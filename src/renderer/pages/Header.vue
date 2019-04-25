@@ -1,5 +1,5 @@
 <template>
-    <div class="header">
+    <div class="header" style="-webkit-app-region: drag">
         <div class="title">欢迎使用有谱报告下载客户端</div>
         <div class="signOut mLeft40 mRight20" @click="signOut()">退出登录</div>
         <div class="user">

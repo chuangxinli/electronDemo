@@ -128,7 +128,7 @@
                     if(this.downList[i].isDown && [1, 2, 5, 6, 7, 8].includes(this.downList[i].status)){
                         //说明还有下载任务正在进行
                         console.log(false)
-                        this.global.siDownTaskComplete = false
+                        this.global.isDownTaskComplete = false
                         return false
                     }
                 }
@@ -247,8 +247,8 @@
     }
     .taskTable > li > div{
         box-sizing: border-box;
-        min-height: 30px;
-        line-height: 30px;
+        min-height: 40px;
+        line-height: 40px;
         float: left;
         width: 25%;
         overflow: hidden;

@@ -34,7 +34,8 @@
             <el-tag>{{savePath}}</el-tag>
             <el-button type="primary" size="small" class="mLeft20" @click="openSavePath()">查看下载的报告</el-button>
             <down-list></down-list>
-            <el-button type="primary" size="small" class="mLeft20" @click="errorPdfDialogVisible = true">查看下载失败的报告</el-button>
+            <err-report-list></err-report-list>
+            <!--<el-button type="primary" size="small" class="mLeft20" @click="errorPdfDialogVisible = true">查看下载失败的报告</el-button>-->
         </div>
         <div class="mTop20">
             <span>报告质量选择（方案一和方案二都只针对个人报告和班级报告）：</span>
@@ -271,7 +272,7 @@
       </span>
         </el-dialog>
         <!--错误报告弹框-->
-        <el-dialog
+        <!--<el-dialog
                 title="错误报告列表"
                 :visible.sync="errorPdfDialogVisible"
                 width="40%"
@@ -312,7 +313,7 @@
                         width="120">
                 </el-table-column>
             </el-table>
-        </el-dialog>
+        </el-dialog>-->
 
     </div>
 </template>
@@ -363,10 +364,10 @@
                 //班级报告选择下载
                 class_arr: [],
                 //年级报告选择下载
-                grade_arr: [],
-                //错误报告数据
+                grade_arr: []
+                /*//错误报告数据
                 errorPdfDialogVisible: false,
-                errReportList: []
+                errReportList: []*/
             }
         },
         computed: {
@@ -393,21 +394,6 @@
             this.getClassList()
         },
         methods: {
-            getType(row){
-              if(row.type == 1){
-                  return '月考个人'
-              }else if(row.type == 2){
-                  return '周测个人'
-              }else if(row.type == 3){
-                  return '周测年级'
-              }else if(row.type == 4){
-                  return '月考年级'
-              }else if(row.type == 5){
-                  return '周测班级'
-              }else if(row.type == 6){
-                  return '月考班级'
-              }
-            },
             handlePersonSelectionChange(val) {
                 console.log(val)
                 this.person_arr = val

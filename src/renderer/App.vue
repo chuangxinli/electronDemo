@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <close-tip></close-tip>
     <router-view></router-view>
   </div>
 </template>
@@ -11,5 +12,6 @@
 </script>
 
 <style>
+
   /* CSS */
 </style>

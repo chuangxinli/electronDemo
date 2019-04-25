@@ -18,8 +18,10 @@
     export default {
         data() {
             return {
-
+                getHeight: {}
             }
+        },
+        mounted(){
         },
         components: {
             Header,

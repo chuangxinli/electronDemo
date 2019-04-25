@@ -22,10 +22,23 @@ if (process.env.NODE_ENV !== 'development') {
   global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
 
-let mainWindow
+let mainWindow, isClose = false
 const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:9081`
   : `file://${__dirname}/index.html`
+
+//只能打开一个窗口
+const isSecondInstance = app.makeSingleInstance(() => {
+  // Someone tried to run a second instance, we should focus our window.
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) mainWindow.restore()
+    mainWindow.focus()
+  }
+})
+
+if (isSecondInstance) {
+  app.quit()
+}
 
 function createWindow() {
   /**
@@ -35,14 +48,23 @@ function createWindow() {
     height: 563,
     useContentSize: true,
     width: 1200,
-    webPreferences: {webSecurity: false}
+    webPreferences: {webSecurity: false},
+    title: '有谱报告下载小工具',
+    minWidth: 1200,
+    minHeight: 563
   })
 
   mainWindow.webContents.openDevTools()
 
   mainWindow.loadURL(winURL)
-
+  mainWindow.on('close', (e) => {
+    if(!isClose){
+      e.preventDefault()
+      mainWindow.webContents.send('close', 'close')
+    }
+  })
   mainWindow.on('closed', () => {
+    isClose = false
     mainWindow = null
   })
 
@@ -65,6 +87,10 @@ app.on('activate', () => {
   }
 })
 
+ipcMain.on('master-close', () => {
+  isClose = true
+  mainWindow.close()
+});
 
 /**
  * Auto Updater

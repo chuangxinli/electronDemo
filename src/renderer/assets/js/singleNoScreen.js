@@ -107,6 +107,8 @@ let singleNoScreen = function (reportIdList, obj, myEmitter, err) {
                             myEmitter.emit('pdf_error', {
                                 id,
                                 belongTo,
+                                className: obj.className,
+                                gradeName: obj.gradeName,
                                 type: obj.type,
                                 subjectName: obj.subjectName,
                             })

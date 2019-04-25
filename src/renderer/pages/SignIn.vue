@@ -67,7 +67,27 @@
             }
         },
         mounted() {
+            let that = this
+            window.addEventListener('online', function() {
+                that.$notify({
+                    title: '提示',
+                    message: `网络连接成功！`,
+                    duration: 0,
+                    type: 'success'
+                });
+                console.log('有网络了');
+            })
+            window.addEventListener('offline', function() {
+                that.$notify({
+                    title: '提示',
+                    message: `网络异常，请您检查一下网络问题！`,
+                    duration: 0,
+                    type: 'warning'
+                });
+                console.log('断网了');
+            })
             if(!this.global.myEmitter){
+                console.log('myEmitter')
                 this.global.myEmitter = new MyEmitter()
                 this.global.myEmitter.on('complete_all', (data) => {
                     if (this.global.isDownTaskComplete) {

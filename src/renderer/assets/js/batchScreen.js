@@ -230,6 +230,8 @@ let batchScreen = function (classInfo, obj, myEmitter) {
                       console.error(`图片生成失败`, stderr)
                       return;
                     }
+                    classList[classIndex - 1].children = correctList
+                    classList[classIndex - 1].status = 2
                     getPdf(correctList, errList, noPayList, failPdfList)
                   })
                 })

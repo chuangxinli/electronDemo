@@ -86,6 +86,7 @@ let batchNoScreen = function (classInfo, obj, myEmitter) {
                 classList[classIndex - 1].children = correctList
                 console.log('执行了！')
                 classList[classIndex - 1].status = 2
+                classList[classIndex - 1].children = correctList
                 getPdf(correctList, errList, noPayList, failPdfList)
             }
         })

@@ -5,7 +5,7 @@
             <el-breadcrumb-item>学情报告</el-breadcrumb-item>
         </el-breadcrumb>
         <div class="mTop20">
-            <span>学科：</span>
+            <span>年级：</span>
             <el-select v-model="selectGradeId" size="small" placeholder="请选择" @change="getTestList()">
                 <el-option
                         v-for="item in gradeList"
@@ -14,7 +14,7 @@
                         :value="item.gradeCode">
                 </el-option>
             </el-select>
-            <span class="mLeft20">年级：</span>
+            <span class="mLeft20">学科：</span>
             <el-select v-model="selectSubjectId" size="small" placeholder="请选择" class="mRight20" @change="getTestList()">
                 <el-option
                         v-for="item in subjectList"
@@ -109,14 +109,15 @@
                 }
                 let data = await this.api.get(url, params, {loading: true})
                 if (data) {
-                    console.log(data)
                     this.gradeList = data.gradeCode
+                    //暂时去掉全部的选项
                     this.gradeList.unshift({
                         gradeCode: 0,
                         gradeName: '全部'
                     })
                     this.selectGradeId = this.gradeList[0].gradeCode
                     this.subjectList = data.subjectCode
+                    //暂时去掉全部的选项
                     this.subjectList.unshift({
                         subjectName: '全部',
                         subjectCode: 0
@@ -152,7 +153,7 @@
             seeWeekReport(row){
                 console.log(row.id, row.testObject)
                 this.$router.push({
-                    path: `/Home/SeeWeekReport/${row.id}/${row.testObject}`
+                    path: `/Home/SeeWeekReport/${row.id}/${row.testObject}/${this.subjectName}/${this.gradeName}/${this.subjectId}`
                 })
             }
         }
