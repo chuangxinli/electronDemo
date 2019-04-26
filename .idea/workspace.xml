@@ -6,12 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="7486ea55-367c-48fa-9e96-f49c8ff11824" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/assets/js/singleNoScreen.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/renderer/assets/js/singleNoScreen.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/assets/js/singleScreen.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/renderer/assets/js/singleScreen.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/components/ErrReportList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/renderer/components/ErrReportList.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/pages/SeeMonthReport.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/renderer/pages/SeeMonthReport.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/pages/SignIn.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/renderer/pages/SignIn.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/renderer/store/modules/reportData.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/renderer/store/modules/reportData.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/renderer/components/DownList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/renderer/components/DownList.vue" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -23,7 +18,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.69214875">
+    <splitter split-orientation="horizontal" split-proportion="0.89790213">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
           <file pinned="false" current-in-tab="false">
@@ -79,8 +74,8 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/src/renderer/components/DownList.vue">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="4696">
-                  <caret line="246" column="5" selection-start-line="246" selection-start-column="5" selection-end-line="246" selection-end-column="5" />
+                <state relative-caret-position="424">
+                  <caret line="59" column="38" selection-start-line="59" selection-start-column="38" selection-end-line="59" selection-end-column="38" />
                 </state>
               </provider>
             </entry>
@@ -122,7 +117,7 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/src/renderer/components/SearchDown.vue">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="95">
+                <state relative-caret-position="671">
                   <caret line="97" column="18" selection-start-line="97" selection-start-column="18" selection-end-line="97" selection-end-column="18" />
                   <folding>
                     <element signature="e#3972#4311#0" />
@@ -262,7 +257,6 @@
         <option value="$PROJECT_DIR$/src/renderer/assets/css/global.css" />
         <option value="$PROJECT_DIR$/src/renderer/components/SearchDown.vue" />
         <option value="$PROJECT_DIR$/src/renderer/global.js" />
-        <option value="$PROJECT_DIR$/src/renderer/components/DownList.vue" />
         <option value="$PROJECT_DIR$/src/renderer/pages/MonthReport.vue" />
         <option value="$PROJECT_DIR$/src/renderer/pages/temp.vue" />
         <option value="$PROJECT_DIR$/src/renderer/router/index.js" />
@@ -286,6 +280,7 @@
         <option value="$PROJECT_DIR$/src/renderer/assets/js/singleScreen.js" />
         <option value="$PROJECT_DIR$/src/renderer/assets/js/singleNoScreen.js" />
         <option value="$PROJECT_DIR$/src/renderer/pages/SignIn.vue" />
+        <option value="$PROJECT_DIR$/src/renderer/components/DownList.vue" />
       </list>
     </option>
   </component>
@@ -435,7 +430,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="SearchEverywhereHistoryKey" value="&#9;FILE&#9;file://D:/wamp/www/electronDemo/src/main/index.js" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="D:/wamp/www/WordUploadNode" />
+    <property name="last_opened_file_path" value="D:/wamp/www/ruiya.emingren.com" />
     <property name="list.type.of.created.stylesheet" value="CSS" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
@@ -545,12 +540,12 @@
       <workItem from="1555981807273" duration="24414000" />
       <workItem from="1556067783443" duration="16450000" />
       <workItem from="1556154385988" duration="26623000" />
-      <workItem from="1556240223418" duration="12078000" />
+      <workItem from="1556240223418" duration="14546000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="504618000" />
+    <option name="totallyTimeSpent" value="507086000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -565,7 +560,7 @@
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.6040189" visible="true" weight="0.1334214" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.6040189" visible="true" weight="0.054821663" />
       <window_info id="Structure" order="1" weight="0.25" />
       <window_info id="npm" order="2" sideWeight="0.4086207" side_tool="true" weight="0.14376321" />
       <window_info id="Favorites" order="3" side_tool="true" />
@@ -577,7 +572,7 @@
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.3286119" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.3286119" />
-      <window_info anchor="bottom" id="Terminal" order="8" visible="true" weight="0.26062322" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="8" visible="true" weight="0.26062322" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
       <window_info anchor="bottom" id="Docker" order="10" show_stripe_button="false" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
@@ -863,7 +858,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/renderer/components/SearchDown.vue">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="95">
+        <state relative-caret-position="671">
           <caret line="97" column="18" selection-start-line="97" selection-start-column="18" selection-end-line="97" selection-end-column="18" />
           <folding>
             <element signature="e#3972#4311#0" />
@@ -935,8 +930,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/renderer/components/DownList.vue">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4696">
-          <caret line="246" column="5" selection-start-line="246" selection-start-column="5" selection-end-line="246" selection-end-column="5" />
+        <state relative-caret-position="424">
+          <caret line="59" column="38" selection-start-line="59" selection-start-column="38" selection-end-line="59" selection-end-column="38" />
         </state>
       </provider>
     </entry>
