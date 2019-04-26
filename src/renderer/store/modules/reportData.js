@@ -1,7 +1,7 @@
 const state = {
   savePath: '',
   appPath: '',
-  errReportList: [{type: 1, id: 123444, belongTo: '高三数学测试', subjectName: '数学'}]
+  errReportList: []
 }
 
 const mutations = {
@@ -15,8 +15,12 @@ const mutations = {
     state.errReportList.push(payload.errReport)
   },
   DELETE_ERR_REPORTLIST(state, payload){
-    state.errReportList.splice(payload.index, 1)
-  }
+    if(payload.index == -1){
+      state.errReportList = []
+    }else{
+      state.errReportList.splice(payload.index, 1)
+    }
+  },
 }
 
 const actions = {

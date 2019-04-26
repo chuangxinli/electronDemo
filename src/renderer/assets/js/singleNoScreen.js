@@ -6,6 +6,8 @@ const fs = require('fs')
 
 
 let singleNoScreen = function (reportIdList, obj, myEmitter, err) {
+    console.log(reportIdList)
+    console.log(obj)
     if (!obj.savePath) {
         myEmitter.emit('warn', {text: '请先设置报告的下载路径！'})
         return
@@ -17,6 +19,13 @@ let singleNoScreen = function (reportIdList, obj, myEmitter, err) {
         successPdfList = [], index = 0
     let {header, footer, cover, content} = getPart(obj.type)
     let reportModel = getReportModel(obj.type)
+    //错误列表中下载的报告的存放地址
+    if(obj.errReport){
+        savePath = `${obj.savePath}/重新下载的错误报告`
+        if(!fs.existsSync(savePath)){
+            fs.mkdirSync(savePath)
+        }
+    }
     if (obj.type == 1 || obj.type == 2) {
         reportIdList.forEach((item) => {
             getReportData(item, function (item) {
@@ -106,11 +115,11 @@ let singleNoScreen = function (reportIdList, obj, myEmitter, err) {
                             }
                             myEmitter.emit('pdf_error', {
                                 id,
+                                name: correctList[index].name,
                                 belongTo,
-                                className: obj.className,
-                                gradeName: obj.gradeName,
                                 type: obj.type,
                                 subjectName: obj.subjectName,
+                                obj
                             })
                             correctList[index].status = 4 //下载失败
                             failPdfList.push(correctList[index])
@@ -118,6 +127,9 @@ let singleNoScreen = function (reportIdList, obj, myEmitter, err) {
                             getPdf(correctList, obj)
                         }
                     } else {
+                        if(obj.errReport){
+                            myEmitter.emit('pdf_error_redown', id)
+                        }
                         correctList[index].status = 3  //下载成功
                         correctList[index].savePath = pdfName
                         successPdfList.push(correctList[index])

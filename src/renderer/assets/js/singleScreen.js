@@ -18,6 +18,13 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
   let pdfServerBasePath = obj.appPath, savePath = obj.savePath, correctList = [], errList = [], noPayList = [],
     failPdfList = [], successList = [], index = 0
   let reportModel = getReportModel(obj.type)
+  //错误列表中下载的报告的存放地址
+  if(obj.errReport){
+    savePath = `${obj.savePath}/重新下载的错误报告`
+    if(!fs.existsSync(savePath)){
+      fs.mkdirSync(savePath)
+    }
+  }
   reportIdList.forEach((item) => {
     getHtml(item, function (correctList) {
       let correctIds = [], pathStrUrls = [], isStrs
@@ -142,9 +149,11 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
               }
               myEmitter.emit('pdf_error', {
                 id,
+                name: correctList[index].name,
                 belongTo,
                 type: obj.type,
                 subjectName: obj.subjectName,
+                obj
               })
               correctList[index].status = 4 //下载失败
               failPdfList.push(correctList[index])
@@ -152,6 +161,9 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
               getPdf(correctList, obj)
             }
           } else {
+            if(obj.errReport){
+              myEmitter.emit('pdf_error_redown', id)
+            }
             successList.push(correctList[index])
             correctList[index].status = 3 //下载成功
             correctList[index].savePath = pdfName

@@ -64,28 +64,17 @@
         computed: {
             appPath() {
                 return this.$store.state.reportData.appPath
+            },
+            errReportList(){
+                return this.$store.state.reportData.errReportList
             }
         },
-        mounted() {
-            let that = this
-            window.addEventListener('online', function() {
-                that.$notify({
-                    title: '提示',
-                    message: `网络连接成功！`,
-                    duration: 0,
-                    type: 'success'
-                });
-                console.log('有网络了');
-            })
-            window.addEventListener('offline', function() {
-                that.$notify({
-                    title: '提示',
-                    message: `网络异常，请您检查一下网络问题！`,
-                    duration: 0,
-                    type: 'warning'
-                });
-                console.log('断网了');
-            })
+        created(){
+            if (this.formLabelAlign.remember) {
+                console.log('记住密码')
+                this.formLabelAlign.username = localStorage.getItem('username')
+                this.formLabelAlign.password = localStorage.getItem('password')
+            }
             if(!this.global.myEmitter){
                 console.log('myEmitter')
                 this.global.myEmitter = new MyEmitter()
@@ -100,7 +89,20 @@
                     }
                 })
                 this.global.myEmitter.on('pdf_error', (data) => {
-                    this.global.errReportList.push(data)
+                    //this.global.errReportList.push(data)
+                    for(let i = 0, len = this.errReportList.length; i < len; i++){
+                        if(this.errReportList[i].id == data.id){
+                            this.$store.dispatch('ADD_ERR_REPORTLIST', {errReport: data})
+                            break
+                        }
+                    }
+                })
+                this.global.myEmitter.on('pdf_error_redown', (id) => {
+                    for(let i = 0, len = this.errReportList.length; i < len; i++){
+                        if(this.errReportList[i].id == id){
+                            this.$store.dispatch('DELETE_ERR_REPORTLIST', i)
+                        }
+                    }
                 })
                 this.global.myEmitter.on('complete_single_class', (data) => {
 
@@ -125,13 +127,57 @@
                     });
                 })
             }
-            console.log(this.appPath)
-            console.log(require('../../../package.json').version)
-            if (this.formLabelAlign.remember) {
-                this.formLabelAlign.username = localStorage.getItem('username')
-                this.formLabelAlign.password = localStorage.getItem('password')
-            }
             this.detectionVersion()
+        },
+        mounted() {
+            //this.$store.dispatch('DELETE_ERR_REPORTLIST', {index: -1})
+            /*let o = {
+                id: 178747,
+                name: '金同学6同学月考分析报告(高中理科数学)',
+                type: 1,
+                studentName: '金同学6',
+                isDelete: false,
+                isDown: true,
+                isShow: true,
+                status: 1,
+                obj: {
+                    appPath: '',
+                    className: '1班',
+                    gradeName: '高二',
+                    isBatch: false,
+                    subjectName: '数学（理）',
+                    type: 1
+                }
+            }
+            if(this.errReportList.length > 0){
+                for(let i = 0, len = this.errReportList.length; i < len; i++){
+                    if(this.errReportList[i].id == o.id){
+                        return
+                    }
+                }
+                this.$store.dispatch('ADD_ERR_REPORTLIST', {errReport: o})
+            }else{
+                this.$store.dispatch('ADD_ERR_REPORTLIST', {errReport: o})
+            }*/
+            let that = this
+            window.addEventListener('online', function() {
+                that.$notify({
+                    title: '提示',
+                    message: `网络连接成功！`,
+                    duration: 0,
+                    type: 'success'
+                });
+                console.log('有网络了');
+            })
+            window.addEventListener('offline', function() {
+                that.$notify({
+                    title: '提示',
+                    message: `网络异常，请您检查一下网络问题！`,
+                    duration: 0,
+                    type: 'warning'
+                });
+                console.log('断网了');
+            })
         },
         methods: {
             conformDown(){

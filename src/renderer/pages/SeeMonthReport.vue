@@ -34,7 +34,7 @@
             <el-tag>{{savePath}}</el-tag>
             <el-button type="primary" size="small" class="mLeft20" @click="openSavePath()">查看下载的报告</el-button>
             <down-list></down-list>
-            <err-report-list></err-report-list>
+            <err-report-list :qualityType="qualityType"></err-report-list>
             <!--<el-button type="primary" size="small" class="mLeft20" @click="errorPdfDialogVisible = true">查看下载失败的报告</el-button>-->
         </div>
         <div class="mTop20">
