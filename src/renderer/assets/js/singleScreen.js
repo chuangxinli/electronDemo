@@ -179,6 +179,7 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
               correctList[index].savePath = pdfName
               index++
               console.log(`${id}报告生成成功`);
+              myEmitter.emit('down_report_success', {id})
               getPdf(correctList, obj)
             }
           })

@@ -143,6 +143,7 @@ let singleNoScreen = function (reportIdList, obj, myEmitter, err) {
                             successPdfList.push(correctList[index])
                             index++
                             console.log(`${id}报告生成成功`);
+                            myEmitter.emit('down_report_success', {id})
                             getPdf(correctList, obj)
                         }
                     })

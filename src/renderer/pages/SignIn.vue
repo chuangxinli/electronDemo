@@ -67,6 +67,9 @@
             },
             errReportList(){
                 return this.$store.state.reportData.errReportList
+            },
+            successReportList(){
+                return this.$store.state.reportData.successReportList
             }
         },
         created(){
@@ -140,6 +143,12 @@
                         duration: 0,
                         type: 'warning'
                     });
+                })
+                this.global.myEmitter.on('down_report_success', (data) => {
+                    //这里只处理批量下载的任务
+                    if(!this.successReportList.includes(data.id)){
+                        this.$store.dispatch('ADD_SUCCESS_REPORT', {id: data.id})
+                    }
                 })
             }
             this.detectionVersion()

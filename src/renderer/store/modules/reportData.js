@@ -1,7 +1,8 @@
 const state = {
   savePath: '',
   appPath: '',
-  errReportList: []
+  errReportList: [],
+  successReportList: []
 }
 
 const mutations = {
@@ -21,7 +22,12 @@ const mutations = {
       state.errReportList.splice(payload.index, 1)
     }
   },
-
+  ADD_SUCCESS_REPORT(state, payload){
+    state.successReportList.push(payload.id)
+  },
+  DELETE_SUCCESS_REPORT(state, payload){
+    state.successReportLis = []
+  }
 }
 
 const actions = {
@@ -36,6 +42,12 @@ const actions = {
   },
   DELETE_ERR_REPORTLIST({commit}, payload){
     commit('DELETE_ERR_REPORTLIST', payload)
+  },
+  ADD_SUCCESS_REPORT({commit}, payload){
+    commit('ADD_SUCCESS_REPORT', payload)
+  },
+  DELETE_SUCCESS_REPORT({commit}, payload){
+    commit('DELETE_SUCCESS_REPORT', payload)
   }
 }
 

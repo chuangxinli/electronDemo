@@ -1,6 +1,6 @@
 
 const del = require('del')
-let dev = false, api_url, type = 2   //1正式 2 测试
+let dev = false, api_url, type = 1   //1正式 2 测试
 function delTemp() {
     del.sync('public/html/*')
     del.sync('public/report/clip_tool/images/*')

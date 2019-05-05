@@ -35,7 +35,6 @@
             <el-button type="primary" size="small" class="mLeft20" @click="openSavePath()">查看下载的报告</el-button>
             <down-list></down-list>
             <err-report-list :qualityType="qualityType"></err-report-list>
-            <!--<el-button type="primary" size="small" class="mLeft20" @click="errorPdfDialogVisible = true">查看下载失败的报告</el-button>-->
         </div>
         <div class="mTop20">
             <span>报告质量选择（方案一和方案二都只针对个人报告和班级报告）：</span>
@@ -44,9 +43,10 @@
                 <el-radio :label="2">方案二（质量一般，较省时）</el-radio>
             </el-radio-group>
         </div>
-        <div class="mTop20">
-            <el-button type="primary" size="small" @click="downSelectGrade()" v-show="curActive == 'grade' && gradeReportList.length > 0">下载所选年级报告
+        <div class="mTop20" v-show="curActive == 'grade' && gradeReportList.length > 0">
+            <el-button type="primary" size="small" @click="downSelectGrade()">下载所选年级报告
             </el-button>
+            <el-tag type="info" class="mLeft20">下载进度：{{downGradeNum + ' / ' + gradeReportList.length}}</el-tag>
         </div>
         <div class="mTop20" v-show="curActive == 'grade'" >
             <el-table
@@ -99,9 +99,10 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div class="mTop20">
-            <el-button type="primary" size="small" @click="downSelectClass()" v-show="curActive == 'class' && classReportList.length > 0">下载所选班级报告
+        <div class="mTop20" v-show="curActive == 'class' && classReportList.length > 0">
+            <el-button type="primary" size="small" @click="downSelectClass()">下载所选班级报告
             </el-button>
+            <el-tag type="info" class="mLeft20">下载进度：{{downClassNum + ' / ' + classReportList.length}}</el-tag>
         </div>
         <div class="mTop20" v-show="curActive == 'class'">
             <el-table
@@ -160,9 +161,10 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div class="mTop20">
-            <el-button type="primary" size="small" @click="downSelectPerson()" v-show="curActive == 'person' && personReportList.length > 0">下载所选个人报告
+        <div class="mTop20" v-show="curActive == 'person' && personReportList.length > 0">
+            <el-button type="primary" size="small" @click="downSelectPerson()">下载所选个人报告
             </el-button>
+            <el-tag type="info" class="mLeft20">下载进度：{{downPersonNum + ' / ' + personReportList.length}}</el-tag>
         </div>
         <div class="mTop20" v-show="curActive == 'person'">
             <el-table
@@ -271,50 +273,6 @@
         <el-button type="primary" @click="confirmDown()" size="small">确 定</el-button>
       </span>
         </el-dialog>
-        <!--错误报告弹框-->
-        <!--<el-dialog
-                title="错误报告列表"
-                :visible.sync="errorPdfDialogVisible"
-                width="40%"
-                center>
-            <el-table
-                    :data="errReportList"
-                    border
-                    size="small"
-                    @selection-change="handlePersonSelectionChange"
-                    style="width: 100%">
-                <el-table-column
-                        align="center"
-                        type="index"
-                        width="50">
-                </el-table-column>
-                <el-table-column
-                        align="center"
-                        prop="id"
-                        label="报告编号"
-                        width="100">
-                </el-table-column>
-                <el-table-column
-                        align="center"
-                        prop="belongTo"
-                        label="报告所属"
-                        width="">
-                </el-table-column>
-                <el-table-column
-                        align="center"
-                        prop="subjectName"
-                        label="报告学科"
-                        width="120">
-                </el-table-column>
-                <el-table-column
-                        align="center"
-                        :formatter="getType"
-                        label="报告类型"
-                        width="120">
-                </el-table-column>
-            </el-table>
-        </el-dialog>-->
-
     </div>
 </template>
 
@@ -366,9 +324,6 @@
                 class_arr: [],
                 //年级报告选择下载
                 grade_arr: []
-                /*//错误报告数据
-                errorPdfDialogVisible: false,
-                errReportList: []*/
             }
         },
         computed: {
@@ -377,6 +332,36 @@
             },
             appPath() {
                 return this.$store.state.reportData.appPath
+            },
+            //当前界面中某个班级个人报告下载的数量
+            downPersonNum(){
+                let num = 0
+                for(let i = 0, len = this.personReportList.length; i < len; i++){
+                    if(this.$store.state.reportData.successReportList.includes(this.personReportList[i].id)){
+                        num++
+                    }
+                }
+                return num
+            },
+            //当前界面中某个班级报告下载的数量
+            downClassNum(){
+                let num = 0
+                for(let i = 0, len = this.classReportList.length; i < len; i++){
+                    if(this.$store.state.reportData.successReportList.includes(this.classReportList[i].id)){
+                        num++
+                    }
+                }
+                return num
+            },
+            //当前界面中某个年级报告下载的数量
+            downGradeNum(){
+                let num = 0
+                for(let i = 0, len = this.gradeReportList.length; i < len; i++){
+                    if(this.$store.state.reportData.successReportList.includes(this.gradeReportList[i].id)){
+                        num++
+                    }
+                }
+                return num
             }
         },
         mounted() {

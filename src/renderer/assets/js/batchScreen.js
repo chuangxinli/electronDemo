@@ -197,6 +197,7 @@ let batchScreen = function (classInfo, obj, myEmitter) {
               successList.push(correctList[index])
               index++
               console.log(`${id}报告生成成功`);
+              myEmitter.emit('down_report_success', {id})
               getPdf(correctList, errList, noPayList, failPdfList)
             }
           })
