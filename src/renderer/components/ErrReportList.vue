@@ -107,11 +107,9 @@
         },
         methods: {
             handlePersonSelectionChange(val){
-                console.log(val)
                 this.downList = val
             },
             downReport(row){
-                console.log(row)
                 if(!(row instanceof Array)){
                     row = [row]
                 }

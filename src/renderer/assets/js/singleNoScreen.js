@@ -6,8 +6,6 @@ const fs = require('fs')
 
 
 let singleNoScreen = function (reportIdList, obj, myEmitter, err) {
-    console.log(reportIdList)
-    console.log(obj)
     if (!obj.savePath) {
         myEmitter.emit('warn', {text: '请先设置报告的下载路径！'})
         return
@@ -46,7 +44,6 @@ let singleNoScreen = function (reportIdList, obj, myEmitter, err) {
             baseURL: baseURL,
             params: {id: params.id},
         }).then(function (response) {
-            console.log(response)
             if (response.data.contentType === 'all') {
                 callback(params);
             } else {
@@ -93,7 +90,6 @@ let singleNoScreen = function (reportIdList, obj, myEmitter, err) {
                     content: `file:///${pdfServerBasePath}/public/report/${reportModel}/${content}?id=${id}`,
                     pdfName: pdfName
                 }
-                console.log(params)
                 wkFunc()
                 function wkFunc() {
                     let killSubChild = false, timer

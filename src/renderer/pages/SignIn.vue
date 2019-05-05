@@ -102,7 +102,6 @@
                 })
                 this.global.myEmitter.on('complete_single_class', (data) => {
                     setTimeout(() => {
-                        console.log(this.global.isDownTaskComplete)
                         if (this.global.isDownTaskComplete) {
                             this.$notify({
                                 title: '提示',
@@ -115,7 +114,6 @@
                 })
                 this.global.myEmitter.on('complete_single', (data) => {
                     setTimeout(() => {
-                        console.log(this.global.isDownTaskComplete)
                         if (this.global.isDownTaskComplete) {
                             this.$notify({
                                 title: '提示',
@@ -180,11 +178,9 @@
                 this.downDialogVisible = true
                 ipcRenderer.send("update");
                 ipcRenderer.on("message", (event, text) => {
-                    console.log(arguments);
                     this.tips = text;
                 });
                 ipcRenderer.on("downloadProgress", (event, progressObj) => {
-                    console.log(progressObj);
                     this.downloadPercent = parseInt(progressObj.percent || 0);
                 });
                 ipcRenderer.on("isUpdateNow", () => {
@@ -259,26 +255,24 @@
                 }
                 let url = '/login'
                 let params = {
-                    username: this.formLabelAlign.username,
-                    password: this.formLabelAlign.password,
+                    username: this.formLabelAlign.username.trim(),
+                    password: this.formLabelAlign.password.trim(),
                     type: 1 //教师
                 }
                 let data = await this.api.get(url, params, {loading: true})
                 if (data) {
-                    console.log(data)
                     this.global.uid = data.uid
                     this.global.sid = data.sid
                     sessionStorage.setItem('sid', data.sid)
                     sessionStorage.setItem('uid', data.uid)
-                    console.log(this.formLabelAlign.remember)
                     if (!this.formLabelAlign.remember) {
                         localStorage.removeItem('remember')
                         localStorage.removeItem('username')
                         localStorage.removeItem('password')
                     } else {
                         localStorage.setItem('remember', 'true')
-                        localStorage.setItem('username', this.formLabelAlign.username)
-                        localStorage.setItem('password', this.formLabelAlign.password)
+                        localStorage.setItem('username', this.formLabelAlign.username.trim())
+                        localStorage.setItem('password', this.formLabelAlign.password.trim())
                     }
                     this.getInfoByUid()
                     this.getRoleList()
@@ -315,7 +309,6 @@
                 }
                 let data = await this.api.get(url, params)
                 if (data) {
-                    console.log(data)
                     this.global.schoolName = data.infoList[0].schoolName
                     this.global.schoolId = data.infoList[0].schoolId
                     sessionStorage.setItem('schoolName', data.infoList[0].schoolName)

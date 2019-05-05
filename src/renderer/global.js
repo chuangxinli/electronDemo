@@ -1,6 +1,6 @@
 
 const del = require('del')
-let dev = false, api_url, type = 1   //1正式 2 测试
+let api_url, type = 1   //1正式 2 测试
 function delTemp() {
     del.sync('public/html/*')
     del.sync('public/report/clip_tool/images/*')
@@ -18,7 +18,6 @@ switch (type) {
 export default {
     api_url,
     version_url: 'http://39.96.186.199/win', //判断是否有新的版本
-    dev,
     sid: '',
     uid: '',
     roleId: '',

@@ -47,7 +47,6 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
           console.error(`图片生成失败`, stderr)
           return;
         }
-        console.log(correctList)
         getPdf(correctList, obj)
       })
     })
@@ -104,7 +103,6 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
         let id = correctList[index].id, pdfName
         let name = correctList[index].studentName ? correctList[index].studentName : correctList[index].name
         name = name.replace(/[^\u4e00-\u9fa5a-zA-Z0-9\(\)（）【】\[\]\s]*/g, '')
-        console.log(correctList)
         console.log('index:', index)
         console.log('id:', id)
         if (obj.isBatch && obj.type == 5 || obj.type == 6) {
@@ -127,7 +125,6 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
           content: `file:///${pdfServerBasePath}/public/report/${reportModel}/Report.html?id=${id}`,
           pdfName: pdfName
         }
-        console.log(params)
         wkFunc()
         function wkFunc(){
           //如果3分钟后wkhtmltopdf命令的回调函数还没有执行，就假设wkhtmltopdf进程中断了；杀掉该子进程，重新函数

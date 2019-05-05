@@ -116,7 +116,6 @@
                 this.downReport(this.downList)
             },
             handleSearchSelectionChange(val){
-                console.log(val)
                 this.downList = val
             },
             downReport(row){

@@ -120,7 +120,6 @@
                 }
                 let data = await this.api.get(url, params, {loading: true})
                 if (data) {
-                    console.log(data)
                     this.gradeList = data.infoData.gradeList
                     this.gradeList.unshift({
                         gradeCode: 0,

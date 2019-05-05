@@ -21,7 +21,6 @@
             }
         },
         mounted() {
-            console.log(this.global.nickName, this.global.roleNickName)
             this.user = this.global.nickName + this.global.roleNickName
             this.role = this.global.roleName
         },

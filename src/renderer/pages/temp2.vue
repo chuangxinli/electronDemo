@@ -416,7 +416,6 @@
                 }
             },
             handlePersonSelectionChange(val) {
-                console.log(val)
                 this.person_arr = val
             },
             handleClassSelectionChange(val){
@@ -766,7 +765,6 @@
             },
             setSavePath() {
                 dialog.showOpenDialog({properties: ['openDirectory']}, (path) => {
-                    console.log(path)
                     if (path) {
                         this.$store.dispatch('GET_SAVE_PATH', {savePath: path[0]})
                     }
