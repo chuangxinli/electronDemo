@@ -1,7 +1,7 @@
 <template>
     <div>
         <el-breadcrumb separator="/">
-            <el-breadcrumb-item>有谱月考</el-breadcrumb-item>
+            <el-breadcrumb-item>有谱周测</el-breadcrumb-item>
             <el-breadcrumb-item>学情报告</el-breadcrumb-item>
             <el-breadcrumb-item>查看报告</el-breadcrumb-item>
         </el-breadcrumb>
@@ -19,10 +19,10 @@
                 </el-option>
             </el-select>
             <el-button :type="curActive == 'class' ? 'primary' : ''" size="small" class="mLeft20"
-                       @click="getPaperTestClassDetail()">班级报告
+                       @click="getPaperTestClassDetail()" v-show="testObject == 1">班级报告
             </el-button>
             <el-button :type="curActive == 'grade' ? 'primary' : ''" size="small" class="mLeft20"
-                       @click="getPaperTestGradeDetail()">年级报告
+                       @click="getPaperTestGradeDetail()" v-show="testObject == 1">年级报告
             </el-button>
             <el-button type="primary" size="small" class="mLeft20" @click="allDown()">批量下载</el-button>
             <el-button type="primary" size="small" class="mLeft20" @click="setSavePath()">下载路径设置</el-button>
@@ -34,8 +34,7 @@
             <el-tag>{{savePath}}</el-tag>
             <el-button type="primary" size="small" class="mLeft20" @click="openSavePath()">查看下载的报告</el-button>
             <down-list></down-list>
-            <err-report-list :qualityType="qualityType"></err-report-list>
-            <!--<el-button type="primary" size="small" class="mLeft20" @click="errorPdfDialogVisible = true">查看下载失败的报告</el-button>-->
+            <el-button type="primary" size="small" class="mLeft20" @click="errorPdfDialogVisible = true">查看下载失败的报告</el-button>
         </div>
         <div class="mTop20">
             <span>报告质量选择（方案一和方案二都只针对个人报告和班级报告）：</span>
@@ -272,7 +271,7 @@
       </span>
         </el-dialog>
         <!--错误报告弹框-->
-        <!--<el-dialog
+        <el-dialog
                 title="错误报告列表"
                 :visible.sync="errorPdfDialogVisible"
                 width="40%"
@@ -313,7 +312,7 @@
                         width="120">
                 </el-table-column>
             </el-table>
-        </el-dialog>-->
+        </el-dialog>
 
     </div>
 </template>
@@ -328,6 +327,7 @@
     export default {
         data() {
             return {
+                testObject: '',
                 subjectName: '',
                 gradeName: '',
                 className: '',
@@ -364,10 +364,10 @@
                 //班级报告选择下载
                 class_arr: [],
                 //年级报告选择下载
-                grade_arr: []
-                /*//错误报告数据
+                grade_arr: [],
+                //错误报告数据
                 errorPdfDialogVisible: false,
-                errReportList: []*/
+                errReportList: []
             }
         },
         computed: {
@@ -389,20 +389,41 @@
             this.gradeName = this.$route.params.gradeName
             this.subjectName = this.$route.params.subjectName
             this.subjectId = this.$route.params.subjectId
-            this.getPaperTestGradeDetail()
-            this.getPaperTestClassDetail()
-            this.getClassList()
+            this.testObject = this.$route.params.testObject
+            if(this.testObject == 2){
+                this.testObject = 'person'
+                this.getPaperTestStuDetail()
+            }else{
+                this.getPaperTestGradeDetail()
+                this.getPaperTestClassDetail()
+                this.getClassList()
+            }
         },
         methods: {
+            getType(row){
+                if(row.type == 1){
+                    return '月考个人'
+                }else if(row.type == 2){
+                    return '周测个人'
+                }else if(row.type == 3){
+                    return '周测年级'
+                }else if(row.type == 4){
+                    return '月考年级'
+                }else if(row.type == 5){
+                    return '周测班级'
+                }else if(row.type == 6){
+                    return '月考班级'
+                }
+            },
             handlePersonSelectionChange(val) {
                 console.log(val)
                 this.person_arr = val
             },
             handleClassSelectionChange(val){
-               this.class_arr = val
+                this.class_arr = val
             },
             handleGradeSelectionChange(val){
-              this.grade_arr = val
+                this.grade_arr = val
             },
             downSelectGrade(){
                 if(this.grade_arr.length == 0){
@@ -471,11 +492,11 @@
             },
             async getClassList() {
                 this.curActive = 'person'
-                let url = '/das/scanExam/getClassList'
+                let url = '/das/homework/relation/classes'
                 let params = {
                     sid: this.global.sid,
                     uid: this.global.uid,
-                    homeworkId: this.taskId
+                    testHomeworkId: this.taskId
                 }
                 let data = await this.api.get(url, params, {loading: true})
                 if (data) {
@@ -492,7 +513,7 @@
                     uid: this.global.uid,
                     taskId: this.taskId,
                     classid: this.classId,
-                    type: 6
+                    type: ''
                 }
                 let data = await this.api.get(url, params, {loading: true})
                 if (data) {
@@ -618,18 +639,6 @@
             },
             allDown() {
                 this.allDownDialogVisible = true
-                if(this.gradeReportList.length > 0){
-                    this.checkAll_grade = true
-                    this.checkedReport_grade = this.gradeReportList
-                }
-                if(this.classReportList.length > 0){
-                    this.checkAll_class = true
-                    this.checkedReport_class = this.classReportList
-                }
-                if(this.classList.length > 0){
-                    this.checkAll_person = true
-                    this.checkedReport_person = this.classList
-                }
             },
             confirmDown() {
                 this.allDownDialogVisible = false

@@ -21,6 +21,7 @@ const mutations = {
       state.errReportList.splice(payload.index, 1)
     }
   },
+
 }
 
 const actions = {
