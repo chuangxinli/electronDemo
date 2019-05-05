@@ -10,7 +10,7 @@
             </el-button>
             <el-select v-model="classId" placeholder="请选择" size="small" class="mLeft20"
                        @change="getPaperTestStuDetail()"
-                       v-show="curActive == 'person' && testObject == 1">
+                       v-show="curActive == 'person'">
                 <el-option
                         v-for="item in classList"
                         :key="item.classId"
@@ -24,7 +24,7 @@
             <el-button :type="curActive == 'grade' ? 'primary' : ''" size="small" class="mLeft20"
                        @click="getPaperTestGradeDetail()" v-show="testObject == 1">年级报告
             </el-button>
-            <el-button type="primary" size="small" class="mLeft20" @click="allDown()" v-show="testObject == 1">批量下载</el-button>
+            <el-button type="primary" size="small" class="mLeft20" @click="allDown()">批量下载</el-button>
             <el-button type="primary" size="small" class="mLeft20" @click="setSavePath()">下载路径设置</el-button>
             <search-down class="mLeft20" :qualityType="qualityType"></search-down>
             <el-button type="primary" size="small" class="mLeft20" @click="$router.go(-1)">返回</el-button>
@@ -34,7 +34,7 @@
             <el-tag>{{savePath}}</el-tag>
             <el-button type="primary" size="small" class="mLeft20" @click="openSavePath()">查看下载的报告</el-button>
             <down-list></down-list>
-            <err-report-list :qualityType="qualityType"></err-report-list>
+            <el-button type="primary" size="small" class="mLeft20" @click="errorPdfDialogVisible = true">查看下载失败的报告</el-button>
         </div>
         <div class="mTop20">
             <span>报告质量选择（方案一和方案二都只针对个人报告和班级报告）：</span>
@@ -43,10 +43,9 @@
                 <el-radio :label="2">方案二（质量一般，较省时）</el-radio>
             </el-radio-group>
         </div>
-        <div class="mTop20" v-show="curActive == 'grade' && gradeReportList.length > 0">
-            <el-button type="primary" size="small" @click="downSelectGrade()">下载所选年级报告
+        <div class="mTop20">
+            <el-button type="primary" size="small" @click="downSelectGrade()" v-show="curActive == 'grade' && gradeReportList.length > 0">下载所选年级报告
             </el-button>
-            <el-tag type="info" class="mLeft20">下载进度：{{downGradeNum + ' / ' + gradeReportList.length}}</el-tag>
         </div>
         <div class="mTop20" v-show="curActive == 'grade'" >
             <el-table
@@ -79,7 +78,7 @@
                 <el-table-column
                         align="center"
                         prop="score"
-                        label="成绩"
+                        label="平均成绩"
                         width="120">
                 </el-table-column>
                 <el-table-column
@@ -99,10 +98,9 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div class="mTop20" v-show="curActive == 'class' && classReportList.length > 0">
-            <el-button type="primary" size="small" @click="downSelectClass()">下载所选班级报告
+        <div class="mTop20">
+            <el-button type="primary" size="small" @click="downSelectClass()" v-show="curActive == 'class' && classReportList.length > 0">下载所选班级报告
             </el-button>
-            <el-tag type="info" class="mLeft20">下载进度：{{downClassNum + ' / ' + classReportList.length}}</el-tag>
         </div>
         <div class="mTop20" v-show="curActive == 'class'">
             <el-table
@@ -161,10 +159,9 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div class="mTop20" v-show="curActive == 'person' && personReportList.length > 0">
-            <el-button type="primary" size="small" @click="downSelectPerson()">下载所选个人报告
+        <div class="mTop20">
+            <el-button type="primary" size="small" @click="downSelectPerson()" v-show="curActive == 'person' && personReportList.length > 0">下载所选个人报告
             </el-button>
-            <el-tag type="info" class="mLeft20">下载进度：{{downPersonNum + ' / ' + personReportList.length}}</el-tag>
         </div>
         <div class="mTop20" v-show="curActive == 'person'">
             <el-table
@@ -273,6 +270,50 @@
         <el-button type="primary" @click="confirmDown()" size="small">确 定</el-button>
       </span>
         </el-dialog>
+        <!--错误报告弹框-->
+        <el-dialog
+                title="错误报告列表"
+                :visible.sync="errorPdfDialogVisible"
+                width="40%"
+                center>
+            <el-table
+                    :data="errReportList"
+                    border
+                    size="small"
+                    @selection-change="handlePersonSelectionChange"
+                    style="width: 100%">
+                <el-table-column
+                        align="center"
+                        type="index"
+                        width="50">
+                </el-table-column>
+                <el-table-column
+                        align="center"
+                        prop="id"
+                        label="报告编号"
+                        width="100">
+                </el-table-column>
+                <el-table-column
+                        align="center"
+                        prop="belongTo"
+                        label="报告所属"
+                        width="">
+                </el-table-column>
+                <el-table-column
+                        align="center"
+                        prop="subjectName"
+                        label="报告学科"
+                        width="120">
+                </el-table-column>
+                <el-table-column
+                        align="center"
+                        :formatter="getType"
+                        label="报告类型"
+                        width="120">
+                </el-table-column>
+            </el-table>
+        </el-dialog>
+
     </div>
 </template>
 
@@ -323,7 +364,10 @@
                 //班级报告选择下载
                 class_arr: [],
                 //年级报告选择下载
-                grade_arr: []
+                grade_arr: [],
+                //错误报告数据
+                errorPdfDialogVisible: false,
+                errReportList: []
             }
         },
         computed: {
@@ -332,36 +376,6 @@
             },
             appPath() {
                 return this.$store.state.reportData.appPath
-            },
-            //当前界面中某个班级个人报告下载的数量
-            downPersonNum(){
-                let num = 0
-                for(let i = 0, len = this.personReportList.length; i < len; i++){
-                    if(this.$store.state.reportData.successReportList.includes(this.personReportList[i].id)){
-                        num++
-                    }
-                }
-                return num
-            },
-            //当前界面中某个班级报告下载的数量
-            downClassNum(){
-                let num = 0
-                for(let i = 0, len = this.classReportList.length; i < len; i++){
-                    if(this.$store.state.reportData.successReportList.includes(this.classReportList[i].id)){
-                        num++
-                    }
-                }
-                return num
-            },
-            //当前界面中某个年级报告下载的数量
-            downGradeNum(){
-                let num = 0
-                for(let i = 0, len = this.gradeReportList.length; i < len; i++){
-                    if(this.$store.state.reportData.successReportList.includes(this.gradeReportList[i].id)){
-                        num++
-                    }
-                }
-                return num
             }
         },
         mounted() {
@@ -371,21 +385,36 @@
                 this.tempPath = this.appPath.split('electronDemo')[0] + 'electronDemo'
             }
             this.errReportList = this.global.errReportList
-            this.testObject = this.$route.params.testObject
             this.taskId = this.$route.params.taskId
             this.gradeName = this.$route.params.gradeName
             this.subjectName = this.$route.params.subjectName
             this.subjectId = this.$route.params.subjectId
+            this.testObject = this.$route.params.testObject
             if(this.testObject == 2){
-                this.curActive = 'person'
+                this.testObject = 'person'
                 this.getPaperTestStuDetail()
-            }else if(this.testObject == 1){
+            }else{
                 this.getPaperTestGradeDetail()
                 this.getPaperTestClassDetail()
                 this.getClassList()
             }
         },
         methods: {
+            getType(row){
+                if(row.type == 1){
+                    return '月考个人'
+                }else if(row.type == 2){
+                    return '周测个人'
+                }else if(row.type == 3){
+                    return '周测年级'
+                }else if(row.type == 4){
+                    return '月考年级'
+                }else if(row.type == 5){
+                    return '周测班级'
+                }else if(row.type == 6){
+                    return '月考班级'
+                }
+            },
             handlePersonSelectionChange(val) {
                 console.log(val)
                 this.person_arr = val
@@ -440,7 +469,7 @@
                     sid: this.global.sid,
                     uid: this.global.uid,
                     taskId: this.taskId,
-                    type: ''
+                    type: 4
                 }
                 let data = await this.api.get(url, params, {loading: true})
                 if (data) {
@@ -454,7 +483,7 @@
                     sid: this.global.sid,
                     uid: this.global.uid,
                     taskId: this.taskId,
-                    type: ''
+                    type: 5
                 }
                 let data = await this.api.get(url, params, {loading: true})
                 if (data) {
@@ -471,7 +500,7 @@
                 }
                 let data = await this.api.get(url, params, {loading: true})
                 if (data) {
-                    this.classList = data.classList
+                    this.classList = data.infoList
                     this.classId = this.classList[0].classId
                     this.className = this.classList[0].className
                     this.getPaperTestStuDetail()
@@ -610,18 +639,6 @@
             },
             allDown() {
                 this.allDownDialogVisible = true
-                if(this.gradeReportList.length > 0){
-                    this.checkAll_grade = true
-                    this.checkedReport_grade = this.gradeReportList
-                }
-                if(this.classReportList.length > 0){
-                    this.checkAll_class = true
-                    this.checkedReport_class = this.classReportList
-                }
-                if(this.classList.length > 0){
-                    this.checkAll_person = true
-                    this.checkedReport_person = this.classList
-                }
             },
             confirmDown() {
                 this.allDownDialogVisible = false

@@ -3,7 +3,7 @@
         <el-dialog
                 title="友情提示"
                 :visible.sync="closeTipDialogVisible"
-                width="40%"
+                width="400px"
                 center>
             <div class="closeTip">
                 关闭客户端，报告下载任务被终止并且当前的下载记录将会删除，请慎重考虑！

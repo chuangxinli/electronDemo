@@ -128,50 +128,70 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
           pdfName: pdfName
         }
         console.log(params)
-        execFile('public/exe/wkhtmltopdf.exe', ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], {maxBuffer: 1000 * 1024}, (error, stdout, stderr) => {
-          if (error) {
-            console.error(`${id}报告生成失败`, stderr);
-            console.log(error)
-            if (stderr.includes("Error: Unable to write to destination")) {
-              console.log("文件操作失败，请确保报告Id为${id}的文件没有被打开！")
-              myEmitter.emit('warn', {text: `文件操作失败，请确保报告Id为${id}的文件没有被打开！`})
+        wkFunc()
+        function wkFunc(){
+          //如果3分钟后wkhtmltopdf命令的回调函数还没有执行，就假设wkhtmltopdf进程中断了；杀掉该子进程，重新函数
+          let killSubChild = false, timer
+          let subChild = execFile('public/exe/wkhtmltopdf.exe', ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], {maxBuffer: 1000 * 1024}, (error, stdout, stderr) => {
+            if(!killSubChild){ //没有该杀掉
+              clearTimeout(timer)
+            }else{ //执行了杀掉子进程
+              return
             }
-            if(correctList[index].repeatCount < 3){
-              myEmitter.emit('pdf_error', {id, type: obj.type})
-              correctList[index].status = 5 //下载异常
-              getPdf(reportIdList, obj)
-            }else{
-              let belongTo = ''
-              if([3, 4, 5, 6].includes(obj.type)){
-                belongTo = obj.gradeName
-              }else{
-                belongTo = obj.gradeName + '（' + obj.className + '）'
+            if (error) {
+              console.error(`${id}报告生成失败`, stderr);
+              console.log(error)
+              //if()
+              if (stderr.includes("Error: Unable to write to destination")) {
+                console.log("文件操作失败，请确保报告Id为${id}的文件没有被打开！")
+                myEmitter.emit('warn', {text: `文件操作失败，请确保报告Id为${id}的文件没有被打开！`})
               }
-              myEmitter.emit('pdf_error', {
-                id,
-                name: correctList[index].name,
-                belongTo,
-                type: obj.type,
-                subjectName: obj.subjectName,
-                obj
-              })
-              correctList[index].status = 4 //下载失败
-              failPdfList.push(correctList[index])
+              if(correctList[index].repeatCount < 3){
+                myEmitter.emit('pdf_error', {id, type: obj.type})
+                correctList[index].status = 5 //下载异常
+                getPdf(reportIdList, obj)
+              }else{
+                let belongTo = ''
+                if([3, 4, 5, 6].includes(obj.type)){
+                  belongTo = obj.gradeName
+                }else{
+                  belongTo = obj.gradeName + '（' + obj.className + '）'
+                }
+                myEmitter.emit('pdf_error', {
+                  id,
+                  name: correctList[index].name,
+                  belongTo,
+                  type: obj.type,
+                  subjectName: obj.subjectName,
+                  obj
+                })
+                correctList[index].status = 4 //下载失败
+                failPdfList.push(correctList[index])
+                index++
+                getPdf(correctList, obj)
+              }
+            } else {
+              if(obj.errReport){
+                myEmitter.emit('pdf_error_redown', id)
+              }
+              successList.push(correctList[index])
+              correctList[index].status = 3 //下载成功
+              correctList[index].savePath = pdfName
               index++
+              console.log(`${id}报告生成成功`);
+              myEmitter.emit('down_report_success', {id})
               getPdf(correctList, obj)
             }
-          } else {
-            if(obj.errReport){
-              myEmitter.emit('pdf_error_redown', id)
-            }
-            successList.push(correctList[index])
-            correctList[index].status = 3 //下载成功
-            correctList[index].savePath = pdfName
-            index++
-            console.log(`${id}报告生成成功`);
-            getPdf(correctList, obj)
-          }
-        })
+          })
+          timer = setTimeout(() => {
+            myEmitter.emit('kill_wk', {
+              text: `${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getMinutes()}--此时的报告id为${id}--杀掉了子进程`
+            })
+            killSubChild = true
+            subChild.kill('SIGTERM')
+            wkFunc()
+          }, 1500 * 60)
+        }
       }else{
         index++
         getPdf(correctList, obj)

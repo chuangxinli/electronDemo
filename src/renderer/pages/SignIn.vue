@@ -14,7 +14,7 @@
         <el-dialog
                 title="友情提示"
                 :visible.sync="isDownDialogVisible"
-                width="40%"
+                width="400px"
                 center>
             <p class="center">检测到了新的版本是否下载！</p>
             <span slot="footer" class="dialog-footer">
@@ -25,7 +25,7 @@
         <el-dialog
                 title="友情提示"
                 :visible.sync="downDialogVisible"
-                width="40%"
+                width="400px"
                 center>
             <p class="center">正在下载中。。。。。。请耐心等待！</p>
             <div class="center mTop20">
@@ -67,6 +67,9 @@
             },
             errReportList(){
                 return this.$store.state.reportData.errReportList
+            },
+            successReportList(){
+                return this.$store.state.reportData.successReportList
             }
         },
         created(){
@@ -79,14 +82,7 @@
                 console.log('myEmitter')
                 this.global.myEmitter = new MyEmitter()
                 this.global.myEmitter.on('complete_all', (data) => {
-                    if (this.global.isDownTaskComplete) {
-                        this.$notify({
-                            title: '提示',
-                            message: `当前所有报告下载任务均已下载完毕！`,
-                            duration: 0,
-                            type: 'success'
-                        });
-                    }
+
                 })
                 this.global.myEmitter.on('pdf_error', (data) => {
                     //this.global.errReportList.push(data)
@@ -105,17 +101,30 @@
                     }
                 })
                 this.global.myEmitter.on('complete_single_class', (data) => {
-
+                    setTimeout(() => {
+                        console.log(this.global.isDownTaskComplete)
+                        if (this.global.isDownTaskComplete) {
+                            this.$notify({
+                                title: '提示',
+                                message: `当前所有报告下载任务均已下载完毕！！`,
+                                duration: 0,
+                                type: 'success'
+                            });
+                        }
+                    }, 50)
                 })
                 this.global.myEmitter.on('complete_single', (data) => {
-                    if (this.global.isDownTaskComplete) {
-                        this.$notify({
-                            title: '提示',
-                            message: `当前所有报告下载任务均已下载完毕！！`,
-                            duration: 0,
-                            type: 'success'
-                        });
-                    }
+                    setTimeout(() => {
+                        console.log(this.global.isDownTaskComplete)
+                        if (this.global.isDownTaskComplete) {
+                            this.$notify({
+                                title: '提示',
+                                message: `当前所有报告下载任务均已下载完毕！！`,
+                                duration: 0,
+                                type: 'success'
+                            });
+                        }
+                    }, 50)
                 })
                 this.global.myEmitter.on('warn', (data) => {
                     console.log('warn 触发事件');
@@ -126,39 +135,25 @@
                         type: 'warning'
                     });
                 })
+                this.global.myEmitter.on('kill_wk', (data) => {
+                    console.log('kill_wk 触发事件');
+                    this.$notify({
+                        title: '提示',
+                        message: data.text,
+                        duration: 0,
+                        type: 'warning'
+                    });
+                })
+                this.global.myEmitter.on('down_report_success', (data) => {
+                    //这里只处理批量下载的任务
+                    if(!this.successReportList.includes(data.id)){
+                        this.$store.dispatch('ADD_SUCCESS_REPORT', {id: data.id})
+                    }
+                })
             }
             this.detectionVersion()
         },
         mounted() {
-            //this.$store.dispatch('DELETE_ERR_REPORTLIST', {index: -1})
-            /*let o = {
-                id: 178747,
-                name: '金同学6同学月考分析报告(高中理科数学)',
-                type: 1,
-                studentName: '金同学6',
-                isDelete: false,
-                isDown: true,
-                isShow: true,
-                status: 1,
-                obj: {
-                    appPath: '',
-                    className: '1班',
-                    gradeName: '高二',
-                    isBatch: false,
-                    subjectName: '数学（理）',
-                    type: 1
-                }
-            }
-            if(this.errReportList.length > 0){
-                for(let i = 0, len = this.errReportList.length; i < len; i++){
-                    if(this.errReportList[i].id == o.id){
-                        return
-                    }
-                }
-                this.$store.dispatch('ADD_ERR_REPORTLIST', {errReport: o})
-            }else{
-                this.$store.dispatch('ADD_ERR_REPORTLIST', {errReport: o})
-            }*/
             let that = this
             window.addEventListener('online', function() {
                 that.$notify({
@@ -285,6 +280,7 @@
                         localStorage.setItem('username', this.formLabelAlign.username)
                         localStorage.setItem('password', this.formLabelAlign.password)
                     }
+                    this.getInfoByUid()
                     this.getRoleList()
                 }
             },
@@ -303,10 +299,10 @@
                     })[0] : data.infoList[0]
                     this.global.roleId = roleObj.roleId
                     this.global.roleName = roleObj.roleName
-                    this.global.nickName = roleObj.nickName
+                    this.global.roleNickName = roleObj.nickName
                     sessionStorage.setItem('roleId', roleObj.roleId)
                     sessionStorage.setItem('roleName', roleObj.roleName)
-                    sessionStorage.setItem('nickName', roleObj.nickName)
+                    sessionStorage.setItem('roleNickName', roleObj.nickName)
                     this.getTeacherSchool()
                 }
             },
@@ -327,6 +323,18 @@
                     this.$router.push({
                         path: '/Home'
                     })
+                }
+            },
+            async getInfoByUid(){
+                let url = '/das/commonInfo/getInfoByUid'
+                let params = {
+                    sid: this.global.sid,
+                    uid: this.global.uid
+                }
+                let data = await this.api.get(url, params)
+                if(data){
+                    this.global.nickName = data.infoData.nickName
+                    sessionStorage.setItem('nickName', data.infoData.nickName)
                 }
             }
         }

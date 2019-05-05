@@ -20,9 +20,9 @@ let singleNoScreen = function (reportIdList, obj, myEmitter, err) {
     let {header, footer, cover, content} = getPart(obj.type)
     let reportModel = getReportModel(obj.type)
     //错误列表中下载的报告的存放地址
-    if(obj.errReport){
+    if (obj.errReport) {
         savePath = `${obj.savePath}/重新下载的错误报告`
-        if(!fs.existsSync(savePath)){
+        if (!fs.existsSync(savePath)) {
             fs.mkdirSync(savePath)
         }
     }
@@ -63,10 +63,10 @@ let singleNoScreen = function (reportIdList, obj, myEmitter, err) {
     function getPdf(correctList, obj) {
         if (index < correctList.length) {
             if (correctList[index].isDown) {
-                if(correctList[index].repeatCount == undefined){
+                if (correctList[index].repeatCount == undefined) {
                     correctList[index].repeatCount = 0
                     correctList[index].status = 2 //正在下载
-                }else{
+                } else {
                     correctList[index].repeatCount++
                     correctList[index].status = 6  //正在重新下载
                 }
@@ -94,50 +94,68 @@ let singleNoScreen = function (reportIdList, obj, myEmitter, err) {
                     pdfName: pdfName
                 }
                 console.log(params)
-                execFile('public/exe/wkhtmltopdf.exe', ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], {maxBuffer: 1000 * 1024}, (error, stdout, stderr) => {
-                    if (error) {
-                        console.error(`${id}报告生成失败`, stderr);
-                        console.log(error)
-                        if (stderr.includes("Error: Unable to write to destination")) {
-                            console.log("文件操作失败，请确保报告Id为${id}的文件没有被打开！")
-                            myEmitter.emit('warn', {text: `文件操作失败，请确保报告Id为${id}的文件没有被打开！`})
+                wkFunc()
+                function wkFunc() {
+                    let killSubChild = false, timer
+                    let subChild = execFile('public/exe/wkhtmltopdf.exe', ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], {maxBuffer: 1000 * 1024}, (error, stdout, stderr) => {
+                        if (!killSubChild) {
+                            clearTimeout(timer)
+                        }else{
+                            return
                         }
-                        //如果错误的pdf连续生成了3次还是生成错误就不再生成了
-                        if (correctList[index].repeatCount < 3) {
-                            correctList[index].status = 5 //下载异常
-                            getPdf(reportIdList, obj)
-                        } else {
-                            let belongTo = ''
-                            if([3, 4, 5, 6].includes(obj.type)){
-                                belongTo = obj.gradeName
-                            }else{
-                                belongTo = obj.gradeName + '（' + obj.className + '）'
+                        if (error) {
+                            console.error(`${id}报告生成失败`, stderr);
+                            console.log(error)
+                            if (stderr.includes("Error: Unable to write to destination")) {
+                                console.log("文件操作失败，请确保报告Id为${id}的文件没有被打开！")
+                                myEmitter.emit('warn', {text: `文件操作失败，请确保报告Id为${id}的文件没有被打开！`})
                             }
-                            myEmitter.emit('pdf_error', {
-                                id,
-                                name: correctList[index].name,
-                                belongTo,
-                                type: obj.type,
-                                subjectName: obj.subjectName,
-                                obj
-                            })
-                            correctList[index].status = 4 //下载失败
-                            failPdfList.push(correctList[index])
+                            //如果错误的pdf连续生成了3次还是生成错误就不再生成了
+                            if (correctList[index].repeatCount < 3) {
+                                correctList[index].status = 5 //下载异常
+                                getPdf(reportIdList, obj)
+                            } else {
+                                let belongTo = ''
+                                if ([3, 4, 5, 6].includes(obj.type)) {
+                                    belongTo = obj.gradeName
+                                } else {
+                                    belongTo = obj.gradeName + '（' + obj.className + '）'
+                                }
+                                myEmitter.emit('pdf_error', {
+                                    id,
+                                    name: correctList[index].name,
+                                    belongTo,
+                                    type: obj.type,
+                                    subjectName: obj.subjectName,
+                                    obj
+                                })
+                                correctList[index].status = 4 //下载失败
+                                failPdfList.push(correctList[index])
+                                index++
+                                getPdf(correctList, obj)
+                            }
+                        } else {
+                            if (obj.errReport) {
+                                myEmitter.emit('pdf_error_redown', id)
+                            }
+                            correctList[index].status = 3  //下载成功
+                            correctList[index].savePath = pdfName
+                            successPdfList.push(correctList[index])
                             index++
+                            console.log(`${id}报告生成成功`);
+                            myEmitter.emit('down_report_success', {id})
                             getPdf(correctList, obj)
                         }
-                    } else {
-                        if(obj.errReport){
-                            myEmitter.emit('pdf_error_redown', id)
-                        }
-                        correctList[index].status = 3  //下载成功
-                        correctList[index].savePath = pdfName
-                        successPdfList.push(correctList[index])
-                        index++
-                        console.log(`${id}报告生成成功`);
-                        getPdf(correctList, obj)
-                    }
-                })
+                    })
+                    timer = setTimeout(() => {
+                        myEmitter.emit('kill_wk', {
+                            text: `${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getMinutes()}--此时的报告id为${id}--杀掉了子进程`
+                        })
+                        killSubChild = true
+                        subChild.kill('SIGTERM')
+                        wkFunc()
+                    }, 1500 * 60)
+                }
             } else {
                 index++
                 getPdf(correctList, obj)

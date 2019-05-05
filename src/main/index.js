@@ -9,7 +9,7 @@ import store from '../renderer/store'
 console.log('savePath:', store.state.reportData.savePath)
 
 store.dispatch('GET_APP_PATH', {appPath: app.getAppPath()})
-
+store.dispatch('DELETE_SUCCESS_REPORT', {})
 
 console.log('app.getAppPath:', app.getAppPath())
 console.log(app.getVersion())

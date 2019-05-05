@@ -21,6 +21,7 @@ Vue.config.productionTip = false
 //页面刷新处理
 {
   if(sessionStorage.getItem('sid') && sessionStorage.getItem('uid')){
+      console.log('先执行')
      global.sid = sessionStorage.getItem('sid')
      global.uid = sessionStorage.getItem('uid')
      global.roleId = sessionStorage.getItem('roleId')
@@ -28,6 +29,7 @@ Vue.config.productionTip = false
      global.nickName = sessionStorage.getItem('nickName')
      global.schoolName = sessionStorage.getItem('schoolName')
      global.schoolId = sessionStorage.getItem('schoolId')
+     global.roleNickName = sessionStorage.getItem('roleNickName')
   }
 }
 Vue.prototype.api = api
