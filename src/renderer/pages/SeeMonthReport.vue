@@ -25,16 +25,16 @@
                        @click="getPaperTestGradeDetail()">年级报告
             </el-button>
             <el-button type="primary" size="small" class="mLeft20" @click="allDown()">批量下载</el-button>
-            <el-button type="primary" size="small" class="mLeft20" @click="setSavePath()">下载路径设置</el-button>
-            <search-down class="mLeft20" :qualityType="qualityType"></search-down>
-            <el-button type="primary" size="small" class="mLeft20" @click="$router.go(-1)">返回</el-button>
+            <el-button type="primary" size="small" class="fRight" @click="$router.go(-1)">返回</el-button>
         </div>
         <div class="mTop20" v-show="savePath">
-            <span>报告下载位置：</span>
-            <el-tag>{{savePath}}</el-tag>
+            <el-button type="primary" size="small" @click="setSavePath()">下载路径设置</el-button>
+            <span class="mLeft20">报告下载位置：</span>
+            <el-tag type="info">{{savePath}}</el-tag>
             <el-button type="primary" size="small" class="mLeft20" @click="openSavePath()">查看下载的报告</el-button>
             <down-list></down-list>
             <err-report-list :qualityType="qualityType"></err-report-list>
+            <search-down class="mLeft20" :qualityType="qualityType"></search-down>
         </div>
         <div class="mTop20">
             <span>报告质量选择（方案一和方案二都只针对个人报告和班级报告）：</span>

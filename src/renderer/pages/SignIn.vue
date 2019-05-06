@@ -135,12 +135,12 @@
                 })
                 this.global.myEmitter.on('kill_wk', (data) => {
                     console.log('kill_wk 触发事件');
-                    this.$notify({
+                    /*this.$notify({
                         title: '提示',
                         message: data.text,
                         duration: 0,
                         type: 'warning'
-                    });
+                    });*/
                 })
                 this.global.myEmitter.on('down_report_success', (data) => {
                     //这里只处理批量下载的任务

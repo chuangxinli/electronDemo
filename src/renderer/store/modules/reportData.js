@@ -26,7 +26,7 @@ const mutations = {
     state.successReportList.push(payload.id)
   },
   DELETE_SUCCESS_REPORT(state, payload){
-    state.successReportLis = []
+    state.successReportList = []
   }
 }
 

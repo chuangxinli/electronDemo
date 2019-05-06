@@ -7,13 +7,13 @@ function delTemp() {
 }
 switch (type) {
     case 1:
-        api_url = 'http://das.51youpu.com'
+        api_url = ''
         break
     case 2:
-        api_url = 'http://120.27.195.10:8090'
+        api_url = ''
         break
     default:
-        api_url = 'http://das.51youpu.com'
+        api_url = ''
 }
 export default {
     api_url,
