@@ -1,12 +1,13 @@
 const {execFile} = require('child_process')
 const axios = require("axios")
-const {getReportModel, getPart, baseURL, idURL} = require('./common')
+const {getReportModel, getPart, baseURL, idURL, existsPublic} = require('./common')
 const fse = require('fs-extra')
 const fs = require('fs')
 const uuid = require('uuid/v4')
 
 //批量下载报告下载的是每个班级里面的个人报告。下载班级报告和年级报告不走批量下载接口
 let batchNoScreen = function (classInfo, obj, myEmitter) {
+    existsPublic()
     if (!obj.savePath) {
         myEmitter.emit('warn', {text: '请先设置报告的下载路径！'})
         return
@@ -97,7 +98,7 @@ let batchNoScreen = function (classInfo, obj, myEmitter) {
             });
     }
 
-    function getPdf(correctList, errList, noPayList, failPdfList) {
+    function getPdf(correctList, errList, noPayList, failPdfList, pdfName) {
         if (index < correctList.length) {
             if(correctList[index].isDown){
                 if(correctList[index].repeatCount == undefined){
@@ -109,9 +110,11 @@ let batchNoScreen = function (classInfo, obj, myEmitter) {
                 }
                 let id = correctList[index].id
                 let name = correctList[index].studentName.replace(/[^\u4e00-\u9fa5a-zA-Z0-9\(\)（）【】\[\]\s]*/g, '')
-                let pdfName = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${classList[classIndex - 1].className}/${id}(${name}).pdf`;
-                if (!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${classList[classIndex - 1].className}`)) {
-                    fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${classList[classIndex - 1].className}`)
+                if(!pdfName){
+                    pdfName = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${classList[classIndex - 1].className}/${id}(${name}).pdf`;
+                    if (!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${classList[classIndex - 1].className}`)) {
+                        fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${classList[classIndex - 1].className}`)
+                    }
                 }
                 let params = {
                     footer: `file:///${pdfServerBasePath}/public/report/${reportModel}/${footer}?id=${id}`,
@@ -132,13 +135,19 @@ let batchNoScreen = function (classInfo, obj, myEmitter) {
                         if (error) {
                             console.error(`${id}报告生成失败`, stderr);
                             console.log(error)
+                            let tempPdfName
                             if (stderr.includes("Error: Unable to write to destination")) {
                                 console.log("文件操作失败，请确保报告Id为${id}的文件没有被打开！")
-                                myEmitter.emit('warn', {text: `文件操作失败，请确保报告Id为${id}的文件没有被打开！`})
+                                for(let i = 1; i < 99999; i++){
+                                    tempPdfName = pdfName.replace(/\.pdf$/, `(${i}).pdf`)
+                                    if(!fs.existsSync(tempPdfName)){
+                                        break;
+                                    }
+                                }
                             }
-                            if(correctList[index].repeatCount < 3){
+                            if(correctList[index].repeatCount < 6){
                                 correctList[index].status = 5 //下载异常
-                                getPdf(correctList, errList, noPayList, failPdfList)
+                                getPdf(correctList, errList, noPayList, failPdfList, tempPdfName)
                             }else{
                                 let belongTo = ''
                                 if([3, 4, 5, 6].includes(obj.type)){

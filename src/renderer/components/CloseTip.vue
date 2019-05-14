@@ -26,7 +26,11 @@
         },
         mounted() {
             ipcRenderer.on('close', (data) => {
-                this.closeTipDialogVisible = true
+                if(this.global.isDownTaskComplete){
+                    ipcRenderer.send('master-close')
+                }else{
+                    this.closeTipDialogVisible = true
+                }
             })
         },
         methods: {

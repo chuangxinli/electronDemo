@@ -47,10 +47,10 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     height: 563,
     useContentSize: true,
-    width: 1200,
+    width: 1260,
     webPreferences: {webSecurity: false},
     title: '有谱报告下载小工具',
-    minWidth: 1200,
+    minWidth: 1260,
     minHeight: 563
   })
 

@@ -27,7 +27,7 @@
             <el-button type="primary" size="small" class="mLeft20" @click="allDown()" v-show="testObject == 1">批量下载</el-button>
             <el-button type="primary" size="small" class="fRight" @click="$router.go(-1)">返回</el-button>
         </div>
-        <div class="mTop20" v-show="savePath">
+        <div class="mTop20">
             <el-button type="primary" size="small" @click="setSavePath()">下载路径设置</el-button>
             <span class="mLeft20">报告下载位置：</span>
             <el-tag type="info">{{savePath}}</el-tag>
@@ -365,8 +365,8 @@
             }
         },
         mounted() {
-            if (this.appPath.includes('DownloadReport')) {
-                this.tempPath = this.appPath.split('DownloadReport')[0] + 'DownloadReport'
+            if (this.appPath.includes('downloadreport')) {
+                this.tempPath = this.appPath.split('downloadreport')[0] + 'downloadreport'
             } else {
                 this.tempPath = this.appPath.split('electronDemo')[0] + 'electronDemo'
             }

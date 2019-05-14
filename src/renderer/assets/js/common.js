@@ -1,3 +1,6 @@
+const fs = require('fs')
+const asar = require('asar')
+const fse = require('fs-extra')
 const baseURL = 'http://das.51youpu.com'
 const idURL = 'http://api.51youpu.com'
 
@@ -72,9 +75,27 @@ function getPart(type) {
   return part
 }
 
+//判断是否存在public文件夹
+function existsPublic(){
+  try{
+    if(!fs.existsSync('public')){
+      asar.extractAll(this.appPath, '')
+      if(!fs.existsSync('public/html')){
+        fs.mkdirSync('public/html')
+      }
+      fse.removeSync('node_modules')
+      fse.removeSync('data.json')
+      fse.removeSync('dist')
+    }
+  }catch (e) {
+    console.log(e)
+  }
+}
+
 module.exports = {
   getReportModel,
   getPart,
+  existsPublic,
   baseURL,
   idURL
 }

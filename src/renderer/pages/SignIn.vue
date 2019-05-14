@@ -25,6 +25,7 @@
         <el-dialog
                 title="友情提示"
                 :visible.sync="downDialogVisible"
+                :close-on-click-modal="false"
                 width="400px"
                 center>
             <p class="center">正在下载中。。。。。。请耐心等待！</p>
@@ -85,7 +86,6 @@
 
                 })
                 this.global.myEmitter.on('pdf_error', (data) => {
-                    //this.global.errReportList.push(data)
                     for(let i = 0, len = this.errReportList.length; i < len; i++){
                         if(this.errReportList[i].id == data.id){
                             this.$store.dispatch('ADD_ERR_REPORTLIST', {errReport: data})
@@ -220,13 +220,17 @@
                         background: 'rgba(0, 0, 0, 0.5)'
                     })
                     setTimeout(() => {
-                        asar.extractAll(this.appPath, '')
-                        if(!fs.existsSync('public/html')){
-                            fs.mkdirSync('public/html')
+                        try{
+                            asar.extractAll(this.appPath, '')
+                            if(!fs.existsSync('public/html')){
+                                fs.mkdirSync('public/html')
+                            }
+                            fse.removeSync('node_modules')
+                            fse.removeSync('data.json')
+                            fse.removeSync('dist')
+                        }catch (e) {
+                            console.log(e)
                         }
-                        fse.removeSync('node_modules')
-                        fse.removeSync('data.json')
-                        fse.removeSync('dist')
                         loadingInstance.close()
                         this.onSubmit()
                     },500)
@@ -351,8 +355,6 @@
     .box {
         width: 600px;
         height: 400px;
-        border: 1px solid #cdcdcd;
-        border-radius: 30px;
         position: fixed;
         left: 0;
         right: 0;

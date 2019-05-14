@@ -1,11 +1,12 @@
 const axios = require("axios")
 const {execFile} = require('child_process')
-const {getReportModel, getPart, baseURL} = require('./common')
+const {getReportModel, getPart, baseURL, existsPublic} = require('./common')
 const fse = require('fs-extra')
 const fs = require('fs')
 
 
-let singleNoScreen = function (reportIdList, obj, myEmitter, err) {
+let singleNoScreen = function (reportIdList, obj, myEmitter) {
+    existsPublic()
     if (!obj.savePath) {
         myEmitter.emit('warn', {text: '请先设置报告的下载路径！'})
         return
@@ -57,7 +58,7 @@ let singleNoScreen = function (reportIdList, obj, myEmitter, err) {
             });
     }
 
-    function getPdf(correctList, obj) {
+    function getPdf(correctList, obj, pdfName) {
         if (index < correctList.length) {
             if (correctList[index].isDown) {
                 if (correctList[index].repeatCount == undefined) {
@@ -67,21 +68,23 @@ let singleNoScreen = function (reportIdList, obj, myEmitter, err) {
                     correctList[index].repeatCount++
                     correctList[index].status = 6  //正在重新下载
                 }
-                let id = correctList[index].id, pdfName
+                let id = correctList[index].id
                 let name = correctList[index].studentName ? correctList[index].studentName : correctList[index].name
                 name = name.replace(/[^\u4e00-\u9fa5a-zA-Z0-9\(\)（）【】\[\]\s]*/g, '')
-                if (obj.isBatch && obj.type == 5 || obj.type == 6) {
-                    pdfName = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/班级报告/${id}(${name}).pdf`
-                    if (!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/班级报告`)) {
-                        fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/班级报告`)
+                if(!pdfName){
+                    if (obj.isBatch && obj.type == 5 || obj.type == 6) {
+                        pdfName = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/班级报告/${id}(${name}).pdf`
+                        if (!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/班级报告`)) {
+                            fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/班级报告`)
+                        }
+                    } else if (obj.isBatch && obj.type == 3 || obj.type == 4) {
+                        pdfName = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告/${id}(${name}).pdf`
+                        if (!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告`)) {
+                            fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告`)
+                        }
+                    } else {
+                        pdfName = `${savePath}/${id}(${name}).pdf`;
                     }
-                } else if (obj.isBatch && obj.type == 3 || obj.type == 4) {
-                    pdfName = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告/${id}(${name}).pdf`
-                    if (!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告`)) {
-                        fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告`)
-                    }
-                } else {
-                    pdfName = `${savePath}/${id}(${name}).pdf`;
                 }
                 let params = {
                     footer: `file:///${pdfServerBasePath}/public/report/${reportModel}/${footer}?id=${id}`,
@@ -102,14 +105,20 @@ let singleNoScreen = function (reportIdList, obj, myEmitter, err) {
                         if (error) {
                             console.error(`${id}报告生成失败`, stderr);
                             console.log(error)
+                            let tempPdfName
                             if (stderr.includes("Error: Unable to write to destination")) {
                                 console.log("文件操作失败，请确保报告Id为${id}的文件没有被打开！")
-                                myEmitter.emit('warn', {text: `文件操作失败，请确保报告Id为${id}的文件没有被打开！`})
+                                for(let i = 1; i < 99999; i++){
+                                    tempPdfName = pdfName.replace(/\.pdf$/, `(${i}).pdf`)
+                                    if(!fs.existsSync(tempPdfName)){
+                                        break;
+                                    }
+                                }
                             }
                             //如果错误的pdf连续生成了3次还是生成错误就不再生成了
-                            if (correctList[index].repeatCount < 3) {
+                            if (correctList[index].repeatCount < 6) {
                                 correctList[index].status = 5 //下载异常
-                                getPdf(reportIdList, obj)
+                                getPdf(reportIdList, obj, tempPdfName)
                             } else {
                                 let belongTo = ''
                                 if ([3, 4, 5, 6].includes(obj.type)) {

@@ -28,10 +28,7 @@ export default {
     schoolId: '',
     delTemp,
     downTaskList: [],  //下载报告列表
-    downTaskInfo: {
-        isDownTaskComplete: false,  //当前所有下载任务是否完成
-        childProcessNum: 0 //wk工具进程个数
-    },
-    myEmitter: '',  //时间监听
+    isDownTaskComplete: true,
+    myEmitter: '',  //事件监听
     errReportList: [] //错误报告列表
 }
