@@ -40,8 +40,11 @@
     const asar = require('asar')
     import {Loading} from 'element-ui'
     const fse = require('fs-extra')
-
     const {ipcRenderer} = require('electron')
+    const EventEmitter = require('events');
+
+    class MyEmitter extends EventEmitter {
+    }
 
     export default {
         data() {
@@ -64,7 +67,64 @@
             }
         },
         mounted() {
-            console.log('哈哈')
+            let that = this
+            window.addEventListener('online', function() {
+                that.$notify({
+                    title: '提示',
+                    message: `网络连接成功！`,
+                    duration: 0,
+                    type: 'success'
+                });
+                console.log('有网络了');
+            })
+            window.addEventListener('offline', function() {
+                that.$notify({
+                    title: '提示',
+                    message: `网络异常，请您检查一下网络问题！`,
+                    duration: 0,
+                    type: 'warning'
+                });
+                console.log('断网了');
+            })
+            if(!this.global.myEmitter){
+                console.log('myEmitter')
+                this.global.myEmitter = new MyEmitter()
+                this.global.myEmitter.on('complete_all', (data) => {
+                    if (this.global.isDownTaskComplete) {
+                        this.$notify({
+                            title: '提示',
+                            message: `当前所有报告下载任务均已下载完毕！`,
+                            duration: 0,
+                            type: 'success'
+                        });
+                    }
+                })
+                this.global.myEmitter.on('pdf_error', (data) => {
+                    this.global.errReportList.push(data)
+                })
+                this.global.myEmitter.on('complete_single_class', (data) => {
+
+                })
+                this.global.myEmitter.on('complete_single', (data) => {
+                    if (this.global.isDownTaskComplete) {
+                        this.$notify({
+                            title: '提示',
+                            message: `当前所有报告下载任务均已下载完毕！！`,
+                            duration: 0,
+                            type: 'success'
+                        });
+                    }
+                })
+                this.global.myEmitter.on('warn', (data) => {
+                    console.log('warn 触发事件');
+                    this.$notify({
+                        title: '提示',
+                        message: data.text,
+                        duration: 0,
+                        type: 'warning'
+                    });
+                })
+            }
             console.log(this.appPath)
             console.log(require('../../../package.json').version)
             if (this.formLabelAlign.remember) {

@@ -1,6 +1,7 @@
 const state = {
   savePath: '',
-  appPath: ''
+  appPath: '',
+  errReportList: [{type: 1, id: 123444, belongTo: '高三数学测试', subjectName: '数学'}]
 }
 
 const mutations = {
@@ -9,6 +10,12 @@ const mutations = {
   },
   GET_APP_PATH(state, payload){
     state.appPath = payload.appPath
+  },
+  ADD_ERR_REPORTLIST(state, payload){
+    state.errReportList.push(payload.errReport)
+  },
+  DELETE_ERR_REPORTLIST(state, payload){
+    state.errReportList.splice(payload.index, 1)
   }
 }
 
@@ -18,6 +25,12 @@ const actions = {
   },
   GET_APP_PATH({commit}, payload) {
     commit('GET_APP_PATH', payload)
+  },
+  ADD_ERR_REPORTLIST({commit}, payload){
+    commit('ADD_ERR_REPORTLIST', payload)
+  },
+  DELETE_ERR_REPORTLIST({commit}, payload){
+    commit('DELETE_ERR_REPORTLIST', payload)
   }
 }
 

@@ -5,7 +5,7 @@
             <el-breadcrumb-item>学情报告</el-breadcrumb-item>
         </el-breadcrumb>
         <div class="mTop20">
-            <span>学科：</span>
+            <span>年级：</span>
             <el-select v-model="selectGradeId" size="small" placeholder="请选择" @change="getTestList()">
                 <el-option
                         v-for="item in gradeList"
@@ -14,7 +14,7 @@
                         :value="item.gradeCode">
                 </el-option>
             </el-select>
-            <span class="mLeft20">年级：</span>
+            <span class="mLeft20">学科：</span>
             <el-select v-model="selectSubjectId" size="small" placeholder="请选择" class="mRight20" @change="getTestList()">
                 <el-option
                         v-for="item in subjectList"
@@ -79,7 +79,6 @@
                 </el-table-column>
                 <el-table-column
                         align="center"
-                        fixed="right"
                         label="操作"
                         width="100">
                     <template slot-scope="scope">

@@ -7,8 +7,7 @@ function delTemp() {
 }
 export default {
     api_url: 'http://das.51youpu.com',
-    static_url: 'http://39.96.186.199/static/public.zip',
-    version_url: 'http://39.96.186.199/win',
+    version_url: 'http://39.96.186.199/win', //判断是否有新的版本
     dev,
     sid: '',
     uid: '',
@@ -18,9 +17,11 @@ export default {
     schoolName: '',
     schoolId: '',
     delTemp,
-    downTaskList: [],
-    downErrInfo: {
-        failPdfList: []
+    downTaskList: [],  //下载报告列表
+    downTaskInfo: {
+        isDownTaskComplete: false,  //当前所有下载任务是否完成
+        childProcessNum: 0 //wk工具进程个数
     },
-    isDownTaskComplete: false
+    myEmitter: '',  //时间监听
+    errReportList: [] //错误报告列表
 }

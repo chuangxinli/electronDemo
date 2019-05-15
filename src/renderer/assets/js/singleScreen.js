@@ -130,9 +130,22 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
               myEmitter.emit('warn', {text: `文件操作失败，请确保报告Id为${id}的文件没有被打开！`})
             }
             if(correctList[index].repeatCount < 3){
+              myEmitter.emit('pdf_error', {id, type: obj.type})
               correctList[index].status = 5 //下载异常
               getPdf(reportIdList, obj)
             }else{
+              let belongTo = ''
+              if([3, 4, 5, 6].includes(obj.type)){
+                belongTo = obj.gradeName
+              }else{
+                belongTo = obj.gradeName + '（' + obj.className + '）'
+              }
+              myEmitter.emit('pdf_error', {
+                id,
+                belongTo,
+                type: obj.type,
+                subjectName: obj.subjectName,
+              })
               correctList[index].status = 4 //下载失败
               failPdfList.push(correctList[index])
               index++
@@ -152,8 +165,8 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
         getPdf(correctList, obj)
       }
     } else {
-      console.log('complete')
-      myEmitter.emit('complete', {})
+      console.log('complete_single')
+      myEmitter.emit('complete_single', {})
     }
   }
 }
