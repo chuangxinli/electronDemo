@@ -76,21 +76,40 @@
                 errorPdfDialogVisible: false,
                 searchReportIds: '',
                 searchList: [],
-                downList: []
+                downList: [],
+                //报告临时位置
+                tempPath: ''
+            }
+        },
+        props: {
+            qualityType: {
+                type: Number,
+                default: 1
             }
         },
         computed: {
             errReportList() {
                 return this.$store.state.reportData.errReportList
+            },
+            savePath() {
+                return this.$store.state.reportData.savePath
+            },
+            appPath() {
+                return this.$store.state.reportData.appPath
+            }
+        },
+        mounted() {
+            if (this.appPath.includes('DownloadReport')) {
+                this.tempPath = this.appPath.split('DownloadReport')[0] + 'DownloadReport'
+            } else {
+                this.tempPath = this.appPath.split('electronDemo')[0] + 'electronDemo'
             }
         },
         methods: {
-            handleSearchSelectionChange(val){
-                console.log(val)
+            handlePersonSelectionChange(val){
                 this.downList = val
             },
             downReport(row){
-                console.log(row)
                 if(!(row instanceof Array)){
                     row = [row]
                 }
@@ -98,6 +117,7 @@
                     let tempRow = {
                         id: item.id,
                         type: item.type,
+                        name: item.name,
                         isDown: true,
                         isShow: true,
                         isDelete: false,
@@ -107,23 +127,26 @@
                     this.global.downTaskList.push(tempRow)
                     if(this.qualityType == 1){
                         singleScreen([tempRow], {
-                            gradeName: item.gradeName,
-                            subjectName: item.subjectName,
-                            className: item.className,
+                            gradeName: item.obj.gradeName,
+                            subjectName: item.obj.subjectName,
+                            className: item.obj.className,
                             savePath: this.savePath,
                             type: tempRow.type,
-                            isBatch: false,  //true是批量下载（下载后会自动整合到一个文件夹）  false不是批量下载直接放在了文件夹的根目录
-                            appPath: this.tempPath
+                            isBatch: item.obj.isBatch,
+                            //true是批量下载（下载后会自动整合到一个文件夹）  false不是批量下载直接放在了文件夹的根目录
+                            appPath: this.tempPath,
+                            errReport: true
                         }, this.global.myEmitter)
                     }else if(this.qualityType == 2){
                         singleNoScreen([tempRow], {
-                            gradeName: item.gradeName,
-                            subjectName: item.subjectName,
-                            className: item.className,
+                            gradeName: item.obj.gradeName,
+                            subjectName: item.obj.subjectName,
+                            className: item.obj.className,
                             savePath: this.savePath,
                             type: tempRow.type,
-                            isBatch: false,  //true是批量下载（下载后会自动整合到一个文件夹）  false不是批量下载直接放在了文件夹的根目录
-                            appPath: this.tempPath
+                            isBatch: item.obj.isBatch,  //true是批量下载（下载后会自动整合到一个文件夹）  false不是批量下载直接放在了文件夹的根目录
+                            appPath: this.tempPath,
+                            errReport: true
                         }, this.global.myEmitter)
                     }
                 })

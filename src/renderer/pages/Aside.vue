@@ -8,11 +8,11 @@
                 text-color="#fff"
                 active-text-color="#0188EF">
             <el-menu-item index="1" @click="$router.push({path: '/Home/MonthReport'})">
-                <i class="el-icon-document"></i>
+                <i class="iconfont icon-gongzuobaogao self_iconfont"></i>
                 <span slot="title">月考报告</span>
             </el-menu-item>
             <el-menu-item index="2" @click="goWeekReport()">
-                <i class="el-icon-menu"></i>
+                <i class="iconfont icon-gongzuobaogao1 self_iconfont"></i>
                 <span slot="title">周测报告</span>
             </el-menu-item>
         </el-menu>
@@ -35,6 +35,10 @@
 </script>
 
 <style scoped>
+    .self_iconfont{
+        color: #ffffff;
+        margin-right: 10px;
+    }
     .aside{
         position: fixed;
         left: 0;

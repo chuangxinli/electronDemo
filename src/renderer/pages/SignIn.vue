@@ -14,7 +14,7 @@
         <el-dialog
                 title="友情提示"
                 :visible.sync="isDownDialogVisible"
-                width="40%"
+                width="400px"
                 center>
             <p class="center">检测到了新的版本是否下载！</p>
             <span slot="footer" class="dialog-footer">
@@ -25,7 +25,8 @@
         <el-dialog
                 title="友情提示"
                 :visible.sync="downDialogVisible"
-                width="40%"
+                :close-on-click-modal="false"
+                width="400px"
                 center>
             <p class="center">正在下载中。。。。。。请耐心等待！</p>
             <div class="center mTop20">
@@ -64,7 +65,91 @@
         computed: {
             appPath() {
                 return this.$store.state.reportData.appPath
+            },
+            errReportList(){
+                return this.$store.state.reportData.errReportList
+            },
+            successReportList(){
+                return this.$store.state.reportData.successReportList
             }
+        },
+        created(){
+            if (this.formLabelAlign.remember) {
+                console.log('记住密码')
+                this.formLabelAlign.username = localStorage.getItem('username')
+                this.formLabelAlign.password = localStorage.getItem('password')
+            }
+            if(!this.global.myEmitter){
+                console.log('myEmitter')
+                this.global.myEmitter = new MyEmitter()
+                this.global.myEmitter.on('complete_all', (data) => {
+
+                })
+                this.global.myEmitter.on('pdf_error', (data) => {
+                    for(let i = 0, len = this.errReportList.length; i < len; i++){
+                        if(this.errReportList[i].id == data.id){
+                            this.$store.dispatch('ADD_ERR_REPORTLIST', {errReport: data})
+                            break
+                        }
+                    }
+                })
+                this.global.myEmitter.on('pdf_error_redown', (id) => {
+                    for(let i = 0, len = this.errReportList.length; i < len; i++){
+                        if(this.errReportList[i].id == id){
+                            this.$store.dispatch('DELETE_ERR_REPORTLIST', i)
+                        }
+                    }
+                })
+                this.global.myEmitter.on('complete_single_class', (data) => {
+                    setTimeout(() => {
+                        if (this.global.isDownTaskComplete) {
+                            this.$notify({
+                                title: '提示',
+                                message: `当前所有报告下载任务均已下载完毕！！`,
+                                duration: 0,
+                                type: 'success'
+                            });
+                        }
+                    }, 50)
+                })
+                this.global.myEmitter.on('complete_single', (data) => {
+                    setTimeout(() => {
+                        if (this.global.isDownTaskComplete) {
+                            this.$notify({
+                                title: '提示',
+                                message: `当前所有报告下载任务均已下载完毕！！`,
+                                duration: 0,
+                                type: 'success'
+                            });
+                        }
+                    }, 50)
+                })
+                this.global.myEmitter.on('warn', (data) => {
+                    console.log('warn 触发事件');
+                    this.$notify({
+                        title: '提示',
+                        message: data.text,
+                        duration: 0,
+                        type: 'warning'
+                    });
+                })
+                this.global.myEmitter.on('kill_wk', (data) => {
+                    console.log('kill_wk 触发事件');
+                    /*this.$notify({
+                        title: '提示',
+                        message: data.text,
+                        duration: 0,
+                        type: 'warning'
+                    });*/
+                })
+                this.global.myEmitter.on('down_report_success', (data) => {
+                    //这里只处理批量下载的任务
+                    if(!this.successReportList.includes(data.id)){
+                        this.$store.dispatch('ADD_SUCCESS_REPORT', {id: data.id})
+                    }
+                })
+            }
+            this.detectionVersion()
         },
         mounted() {
             let that = this
@@ -86,52 +171,6 @@
                 });
                 console.log('断网了');
             })
-            if(!this.global.myEmitter){
-                console.log('myEmitter')
-                this.global.myEmitter = new MyEmitter()
-                this.global.myEmitter.on('complete_all', (data) => {
-                    if (this.global.isDownTaskComplete) {
-                        this.$notify({
-                            title: '提示',
-                            message: `当前所有报告下载任务均已下载完毕！`,
-                            duration: 0,
-                            type: 'success'
-                        });
-                    }
-                })
-                this.global.myEmitter.on('pdf_error', (data) => {
-                    this.global.errReportList.push(data)
-                })
-                this.global.myEmitter.on('complete_single_class', (data) => {
-
-                })
-                this.global.myEmitter.on('complete_single', (data) => {
-                    if (this.global.isDownTaskComplete) {
-                        this.$notify({
-                            title: '提示',
-                            message: `当前所有报告下载任务均已下载完毕！！`,
-                            duration: 0,
-                            type: 'success'
-                        });
-                    }
-                })
-                this.global.myEmitter.on('warn', (data) => {
-                    console.log('warn 触发事件');
-                    this.$notify({
-                        title: '提示',
-                        message: data.text,
-                        duration: 0,
-                        type: 'warning'
-                    });
-                })
-            }
-            console.log(this.appPath)
-            console.log(require('../../../package.json').version)
-            if (this.formLabelAlign.remember) {
-                this.formLabelAlign.username = localStorage.getItem('username')
-                this.formLabelAlign.password = localStorage.getItem('password')
-            }
-            this.detectionVersion()
         },
         methods: {
             conformDown(){
@@ -139,11 +178,9 @@
                 this.downDialogVisible = true
                 ipcRenderer.send("update");
                 ipcRenderer.on("message", (event, text) => {
-                    console.log(arguments);
                     this.tips = text;
                 });
                 ipcRenderer.on("downloadProgress", (event, progressObj) => {
-                    console.log(progressObj);
                     this.downloadPercent = parseInt(progressObj.percent || 0);
                 });
                 ipcRenderer.on("isUpdateNow", () => {
@@ -183,13 +220,17 @@
                         background: 'rgba(0, 0, 0, 0.5)'
                     })
                     setTimeout(() => {
-                        asar.extractAll(this.appPath, '')
-                        if(!fs.existsSync('public/html')){
-                            fs.mkdirSync('public/html')
+                        try{
+                            asar.extractAll(this.appPath, '')
+                            if(!fs.existsSync('public/html')){
+                                fs.mkdirSync('public/html')
+                            }
+                            fse.removeSync('node_modules')
+                            fse.removeSync('data.json')
+                            fse.removeSync('dist')
+                        }catch (e) {
+                            console.log(e)
                         }
-                        fse.removeSync('node_modules')
-                        fse.removeSync('data.json')
-                        fse.removeSync('dist')
                         loadingInstance.close()
                         this.onSubmit()
                     },500)
@@ -218,27 +259,26 @@
                 }
                 let url = '/login'
                 let params = {
-                    username: this.formLabelAlign.username,
-                    password: this.formLabelAlign.password,
+                    username: this.formLabelAlign.username.trim(),
+                    password: this.formLabelAlign.password.trim(),
                     type: 1 //教师
                 }
                 let data = await this.api.get(url, params, {loading: true})
                 if (data) {
-                    console.log(data)
                     this.global.uid = data.uid
                     this.global.sid = data.sid
                     sessionStorage.setItem('sid', data.sid)
                     sessionStorage.setItem('uid', data.uid)
-                    console.log(this.formLabelAlign.remember)
                     if (!this.formLabelAlign.remember) {
                         localStorage.removeItem('remember')
                         localStorage.removeItem('username')
                         localStorage.removeItem('password')
                     } else {
                         localStorage.setItem('remember', 'true')
-                        localStorage.setItem('username', this.formLabelAlign.username)
-                        localStorage.setItem('password', this.formLabelAlign.password)
+                        localStorage.setItem('username', this.formLabelAlign.username.trim())
+                        localStorage.setItem('password', this.formLabelAlign.password.trim())
                     }
+                    this.getInfoByUid()
                     this.getRoleList()
                 }
             },
@@ -257,10 +297,10 @@
                     })[0] : data.infoList[0]
                     this.global.roleId = roleObj.roleId
                     this.global.roleName = roleObj.roleName
-                    this.global.nickName = roleObj.nickName
+                    this.global.roleNickName = roleObj.nickName
                     sessionStorage.setItem('roleId', roleObj.roleId)
                     sessionStorage.setItem('roleName', roleObj.roleName)
-                    sessionStorage.setItem('nickName', roleObj.nickName)
+                    sessionStorage.setItem('roleNickName', roleObj.nickName)
                     this.getTeacherSchool()
                 }
             },
@@ -273,7 +313,6 @@
                 }
                 let data = await this.api.get(url, params)
                 if (data) {
-                    console.log(data)
                     this.global.schoolName = data.infoList[0].schoolName
                     this.global.schoolId = data.infoList[0].schoolId
                     sessionStorage.setItem('schoolName', data.infoList[0].schoolName)
@@ -281,6 +320,18 @@
                     this.$router.push({
                         path: '/Home'
                     })
+                }
+            },
+            async getInfoByUid(){
+                let url = '/das/commonInfo/getInfoByUid'
+                let params = {
+                    sid: this.global.sid,
+                    uid: this.global.uid
+                }
+                let data = await this.api.get(url, params)
+                if(data){
+                    this.global.nickName = data.infoData.nickName
+                    sessionStorage.setItem('nickName', data.infoData.nickName)
                 }
             }
         }
@@ -304,8 +355,6 @@
     .box {
         width: 600px;
         height: 400px;
-        border: 1px solid #cdcdcd;
-        border-radius: 30px;
         position: fixed;
         left: 0;
         right: 0;

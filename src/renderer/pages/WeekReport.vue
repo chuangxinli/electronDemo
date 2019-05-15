@@ -140,7 +140,6 @@
                 }
                 let data = await this.api.get(url, params, {loading: true})
                 if (data) {
-                    console.log(data)
                     this.testList = data.homeworkList
                     this.total = data.count
                 }

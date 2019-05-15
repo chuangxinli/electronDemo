@@ -2,12 +2,13 @@ const pug = require('pug')
 const fs = require('fs')
 const path = require('path')
 const axios = require('axios')
-const {baseURL, getReportModel} = require('./common')
+const {baseURL, getReportModel, existsPublic} = require('./common')
 const {execFile} = require('child_process')
 const fse = require("fs-extra")
 
 
-let singleScreen = function (reportIdList, obj, myEmitter) {
+let singleScreen = function (reportInfo, obj, myEmitter) {
+  existsPublic()
   if (!obj.savePath) {
     myEmitter.emit('warn', {text: '请先设置报告的下载路径！'})
     return
@@ -15,10 +16,17 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
     myEmitter.emit('warn', {text: '报告的下载路径不存在，请重新设置！'})
     return
   }
-  let pdfServerBasePath = obj.appPath, savePath = obj.savePath, correctList = [], errList = [], noPayList = [],
-    failPdfList = [], successList = [], index = 0
+  let pdfServerBasePath = obj.appPath, savePath = obj.savePath, correctList = [], errList = [], noPayList = [], failPdfList = [], successList = [], index = 0, reportIdList = reportInfo.classReportList
   let reportModel = getReportModel(obj.type)
+  //错误列表中下载的报告的存放地址
+  if(obj.errReport){
+    savePath = `${obj.savePath}/重新下载的错误报告`
+    if(!fs.existsSync(savePath)){
+      fs.mkdirSync(savePath)
+    }
+  }
   reportIdList.forEach((item) => {
+    reportInfo.progress = 2
     getHtml(item, function (correctList) {
       let correctIds = [], pathStrUrls = [], isStrs
       correctList.forEach((item) => {
@@ -40,7 +48,6 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
           console.error(`图片生成失败`, stderr)
           return;
         }
-        console.log(correctList)
         getPdf(correctList, obj)
       })
     })
@@ -84,8 +91,9 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
       });
   }
 
-  function getPdf(correctList, obj) {
+  function getPdf(correctList, obj, pdfName) {
     if (index < correctList.length) {
+      reportInfo.progress = 3
       if(correctList[index].isDown){
         if(correctList[index].repeatCount == undefined){
           correctList[index].repeatCount = 0
@@ -94,24 +102,23 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
           correctList[index].repeatCount++
           correctList[index].status = 6  //正在重新下载
         }
-        let id = correctList[index].id, pdfName
+        let id = correctList[index].id
         let name = correctList[index].studentName ? correctList[index].studentName : correctList[index].name
         name = name.replace(/[^\u4e00-\u9fa5a-zA-Z0-9\(\)（）【】\[\]\s]*/g, '')
-        console.log(correctList)
-        console.log('index:', index)
-        console.log('id:', id)
-        if (obj.isBatch && obj.type == 5 || obj.type == 6) {
-          pdfName = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/班级报告/${id}(${name}).pdf`
-          if (!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/班级报告`)) {
-            fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/班级报告`)
+        if(!pdfName){
+          if (obj.isBatch && obj.type == 5 || obj.type == 6) {
+            pdfName = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/班级报告/${id}(${name}).pdf`
+            if (!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/班级报告`)) {
+              fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/班级报告`)
+            }
+          } else if (obj.isBatch && obj.type == 3 || obj.type == 4) {
+            pdfName = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告/${id}(${name}).pdf`
+            if (!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告`)) {
+              fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告`)
+            }
+          } else {
+            pdfName = `${savePath}/${id}(${name}).pdf`;
           }
-        } else if (obj.isBatch && obj.type == 3 || obj.type == 4) {
-          pdfName = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告/${id}(${name}).pdf`
-          if (!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告`)) {
-            fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告`)
-          }
-        } else {
-          pdfName = `${savePath}/${id}(${name}).pdf`;
         }
         let params = {
           footer: `file:///${pdfServerBasePath}/public/report/${reportModel}/Footer.html?id=${id}`,
@@ -120,51 +127,83 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
           content: `file:///${pdfServerBasePath}/public/report/${reportModel}/Report.html?id=${id}`,
           pdfName: pdfName
         }
-        console.log(params)
-        execFile('public/exe/wkhtmltopdf.exe', ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], {maxBuffer: 1000 * 1024}, (error, stdout, stderr) => {
-          if (error) {
-            console.error(`${id}报告生成失败`, stderr);
-            console.log(error)
-            if (stderr.includes("Error: Unable to write to destination")) {
-              console.log("文件操作失败，请确保报告Id为${id}的文件没有被打开！")
-              myEmitter.emit('warn', {text: `文件操作失败，请确保报告Id为${id}的文件没有被打开！`})
+        wkFunc()
+        function wkFunc(){
+          //如果3分钟后wkhtmltopdf命令的回调函数还没有执行，就假设wkhtmltopdf进程中断了；杀掉该子进程，重新函数
+          let killSubChild = false, timer
+          let subChild = execFile('public/exe/wkhtmltopdf.exe', ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], {maxBuffer: 1000 * 1024}, (error, stdout, stderr) => {
+            if(!killSubChild){ //没有该杀掉
+              clearTimeout(timer)
+            }else{ //执行了杀掉子进程
+              return
             }
-            if(correctList[index].repeatCount < 3){
-              myEmitter.emit('pdf_error', {id, type: obj.type})
-              correctList[index].status = 5 //下载异常
-              getPdf(reportIdList, obj)
-            }else{
-              let belongTo = ''
-              if([3, 4, 5, 6].includes(obj.type)){
-                belongTo = obj.gradeName
-              }else{
-                belongTo = obj.gradeName + '（' + obj.className + '）'
+            if (error) {
+              console.error(`${id}报告生成失败`, stderr);
+              console.log(error)
+              let tempPdfName
+              if (stderr.includes("Error: Unable to write to destination")) {
+                console.log("文件操作失败，请确保报告Id为${id}的文件没有被打开！")
+                for(let i = 1; i < 99999; i++){
+                  tempPdfName = pdfName.replace(/\.pdf$/, `(${i}).pdf`)
+                  if(!fs.existsSync(tempPdfName)){
+                    break;
+                  }
+                }
               }
-              myEmitter.emit('pdf_error', {
-                id,
-                belongTo,
-                type: obj.type,
-                subjectName: obj.subjectName,
-              })
-              correctList[index].status = 4 //下载失败
-              failPdfList.push(correctList[index])
+              if(correctList[index].repeatCount < 6){
+                myEmitter.emit('pdf_error', {id, type: obj.type})
+                correctList[index].status = 5 //下载异常
+                getPdf(reportIdList, obj, tempPdfName)
+              }else{
+                let belongTo = ''
+                if([3, 4, 5, 6].includes(obj.type)){
+                  belongTo = obj.gradeName
+                }else{
+                  belongTo = obj.gradeName + '（' + obj.className + '）'
+                }
+                myEmitter.emit('pdf_error', {
+                  id,
+                  name: correctList[index].name,
+                  belongTo,
+                  type: obj.type,
+                  subjectName: obj.subjectName,
+                  obj
+                })
+                correctList[index].status = 4 //下载失败
+                failPdfList.push(correctList[index])
+                reportInfo.errNum++
+                index++
+                getPdf(correctList, obj)
+              }
+            } else {
+              if(obj.errReport){
+                myEmitter.emit('pdf_error_redown', id)
+              }
+              successList.push(correctList[index])
+              correctList[index].status = 3 //下载成功
+              correctList[index].savePath = pdfName
+              reportInfo.successNum++
               index++
+              console.log(`${id}报告生成成功`);
+              myEmitter.emit('down_report_success', {id})
               getPdf(correctList, obj)
             }
-          } else {
-            successList.push(correctList[index])
-            correctList[index].status = 3 //下载成功
-            correctList[index].savePath = pdfName
-            index++
-            console.log(`${id}报告生成成功`);
-            getPdf(correctList, obj)
-          }
-        })
+          })
+          timer = setTimeout(() => {
+            myEmitter.emit('kill_wk', {
+              text: `${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getMinutes()}--此时的报告id为${id}--杀掉了子进程`
+            })
+            killSubChild = true
+            subChild.kill('SIGTERM')
+            wkFunc()
+          }, 1500 * 60)
+        }
       }else{
         index++
         getPdf(correctList, obj)
       }
     } else {
+      reportInfo.isComplete = true
       console.log('complete_single')
       myEmitter.emit('complete_single', {})
     }

@@ -1,12 +1,13 @@
 const {execFile} = require('child_process')
 const axios = require("axios")
-const {getReportModel, getPart, baseURL, idURL} = require('./common')
+const {getReportModel, getPart, baseURL, idURL, existsPublic} = require('./common')
 const fse = require('fs-extra')
 const fs = require('fs')
 const uuid = require('uuid/v4')
 
 //批量下载报告下载的是每个班级里面的个人报告。下载班级报告和年级报告不走批量下载接口
 let batchNoScreen = function (classInfo, obj, myEmitter) {
+    existsPublic()
     if (!obj.savePath) {
         myEmitter.emit('warn', {text: '请先设置报告的下载路径！'})
         return
@@ -23,6 +24,7 @@ let batchNoScreen = function (classInfo, obj, myEmitter) {
 
     for (let i = classIndex; i < classList.length; i++) {
         if (classList[i].isDown) {
+            classList[i].progress = 2
             classIndex = i
             getPersonIds({
                 classId: classList[classIndex].classId,
@@ -97,8 +99,9 @@ let batchNoScreen = function (classInfo, obj, myEmitter) {
             });
     }
 
-    function getPdf(correctList, errList, noPayList, failPdfList) {
+    function getPdf(correctList, errList, noPayList, failPdfList, pdfName) {
         if (index < correctList.length) {
+            classList[classIndex - 1].progress = 3
             if(correctList[index].isDown){
                 if(correctList[index].repeatCount == undefined){
                     correctList[index].repeatCount = 0
@@ -109,9 +112,11 @@ let batchNoScreen = function (classInfo, obj, myEmitter) {
                 }
                 let id = correctList[index].id
                 let name = correctList[index].studentName.replace(/[^\u4e00-\u9fa5a-zA-Z0-9\(\)（）【】\[\]\s]*/g, '')
-                let pdfName = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${classList[classIndex - 1].className}/${id}(${name}).pdf`;
-                if (!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${classList[classIndex - 1].className}`)) {
-                    fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${classList[classIndex - 1].className}`)
+                if(!pdfName){
+                    pdfName = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${classList[classIndex - 1].className}/${id}(${name}).pdf`;
+                    if (!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${classList[classIndex - 1].className}`)) {
+                        fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${classList[classIndex - 1].className}`)
+                    }
                 }
                 let params = {
                     footer: `file:///${pdfServerBasePath}/public/report/${reportModel}/${footer}?id=${id}`,
@@ -120,43 +125,69 @@ let batchNoScreen = function (classInfo, obj, myEmitter) {
                     content: `file:///${pdfServerBasePath}/public/report/${reportModel}/${content}?id=${id}`,
                     pdfName: pdfName
                 }
-                execFile('public/exe/wkhtmltopdf.exe', ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], {maxBuffer: 1000 * 1024}, (error, stdout, stderr) => {
-                    if (error) {
-                        console.error(`${id}报告生成失败`, stderr);
-                        console.log(error)
-                        if (stderr.includes("Error: Unable to write to destination")) {
-                            console.log("文件操作失败，请确保报告Id为${id}的文件没有被打开！")
-                            myEmitter.emit('warn', {text: `文件操作失败，请确保报告Id为${id}的文件没有被打开！`})
-                        }
-                        if(correctList[index].repeatCount < 3){
-                            correctList[index].status = 5 //下载异常
-                            getPdf(correctList, errList, noPayList, failPdfList)
+                wkFunc()
+                function wkFunc(){
+                    let killSubChild = false, timer
+                    let subChild = execFile('public/exe/wkhtmltopdf.exe', ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], {maxBuffer: 1000 * 1024}, (error, stdout, stderr) => {
+                        if(!killSubChild){
+                            clearTimeout(timer)
                         }else{
-                            let belongTo = ''
-                            if([3, 4, 5, 6].includes(obj.type)){
-                                belongTo = obj.gradeName
-                            }else{
-                                belongTo = obj.gradeName + '（' + classList[classIndex - 1].name + '）'
+                            return
+                        }
+                        if (error) {
+                            console.error(`${id}报告生成失败`, stderr);
+                            console.log(error)
+                            let tempPdfName
+                            if (stderr.includes("Error: Unable to write to destination")) {
+                                console.log("文件操作失败，请确保报告Id为${id}的文件没有被打开！")
+                                for(let i = 1; i < 99999; i++){
+                                    tempPdfName = pdfName.replace(/\.pdf$/, `(${i}).pdf`)
+                                    if(!fs.existsSync(tempPdfName)){
+                                        break;
+                                    }
+                                }
                             }
-                            myEmitter.emit('pdf_error', {
-                                id,
-                                belongTo,
-                                type: obj.type,
-                                subjectName: obj.subjectName,
-                            })
-                            correctList[index].status = 4 //下载失败
-                            failPdfList.push(correctList[index])
+                            if(correctList[index].repeatCount < 6){
+                                correctList[index].status = 5 //下载异常
+                                getPdf(correctList, errList, noPayList, failPdfList, tempPdfName)
+                            }else{
+                                let belongTo = ''
+                                if([3, 4, 5, 6].includes(obj.type)){
+                                    belongTo = obj.gradeName
+                                }else{
+                                    belongTo = obj.gradeName + '（' + classList[classIndex - 1].name + '）'
+                                }
+                                myEmitter.emit('pdf_error', {
+                                    id,
+                                    belongTo,
+                                    type: obj.type,
+                                    subjectName: obj.subjectName,
+                                })
+                                correctList[index].status = 4 //下载失败
+                                failPdfList.push(correctList[index])
+                                classList[classIndex - 1].errNum++
+                                index++
+                                getPdf(correctList, errList, noPayList, failPdfList)
+                            }
+                        } else {
+                            correctList[index].status = 3  //下载成功
+                            correctList[index].savePath = pdfName
+                            classList[classIndex - 1].successNum++
                             index++
+                            console.log(`${id}报告生成成功`);
+                            myEmitter.emit('down_report_success', {id})
                             getPdf(correctList, errList, noPayList, failPdfList)
                         }
-                    } else {
-                        correctList[index].status = 3  //下载成功
-                        correctList[index].savePath = pdfName
-                        index++
-                        console.log(`${id}报告生成成功`);
-                        getPdf(correctList, errList, noPayList, failPdfList)
-                    }
-                })
+                    })
+                    timer = setTimeout(() => {
+                        myEmitter.emit('kill_wk', {
+                            text: `${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getMinutes()}--此时的报告id为${id}--此时班级为${classList[classIndex - 1].className}--杀掉了wk子进程`
+                        })
+                        killSubChild = true
+                        subChild.kill('SIGTERM')
+                        wkFunc()
+                    }, 1500 * 60)
+                }
             } else {
                 index++
                 getPdf(correctList, obj)
@@ -164,10 +195,12 @@ let batchNoScreen = function (classInfo, obj, myEmitter) {
         } else {
             classList[classIndex - 1].status = 3
             classList[classIndex - 1].savePath = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${classList[classIndex - 1].className}`
+            classList[classIndex - 1].isComplete = true
             myEmitter.emit('complete_single_class', {})
             if (classIndex < classList.length) {
                 for (let i = classIndex; i < classList.length; i++) {
                     if (classList[i].isDown) {
+                        classList[i].progress = 2
                         index = 0
                         classIndex = i
                         getPersonIds({
@@ -185,6 +218,7 @@ let batchNoScreen = function (classInfo, obj, myEmitter) {
                     }
                 }
             } else {
+                classInfo[0].isComplete = true
                 classInfo[0].status = 3
                 myEmitter.emit('complete_all', {})
             }

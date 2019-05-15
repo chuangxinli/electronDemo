@@ -116,7 +116,6 @@
                 this.downReport(this.downList)
             },
             handleSearchSelectionChange(val){
-                console.log(val)
                 this.downList = val
             },
             downReport(row){
@@ -211,20 +210,22 @@
                         // 两个请求现在都执行完成
                         console.log(args)
                         args.forEach((item, index) => {
+                            console.log(item)
                             if(item.data.report){
                                 if(item.data.testType == 2 && item.data.report.covermap && item.data.report.covermap.classname && item.data.report.covermap.classno && item.data.report.covermap.gradename){
                                     item.type = 5
-                                }else if(item.data.testType == 3 && item.data.report.covermap && item.data.report.covermap.classname && item.data.report.covermap.classno && item.data.report.covermap.gradename){
+                                }else if(item.data.testType != 2 && item.data.report.covermap && item.data.report.covermap.classname && item.data.report.covermap.classno && item.data.report.covermap.gradename){
                                     item.type = 6
-                                }else if(item.data.testType == 2 && item.data.report.cover && item.data.report.cover.subjectName){
+                                }else if(item.data.testType == 2 && item.data.report.cover && item.data.report.cover.studentName){
                                     item.type = 2
-                                }else if(item.data.testType == 3 && item.data.report.cover && item.data.report.cover.subjectName){
+                                }else if(item.data.testType != 2 && item.data.report.cover && item.data.report.cover.studentName){
                                     item.type = 1
                                 }else if(item.data.testType == 2 && item.data.report.cover && item.data.report.cover.gradeName){
                                     item.type = 3
-                                }else if(item.data.testType == 3 && item.data.report.cover && item.data.report.cover.gradeName){
+                                }else if(item.data.testType != 2 && item.data.report.cover && item.data.report.cover.gradeName){
                                     item.type = 4
                                 }
+                                console.log('item.type:', item.type)
                                 item.id = arr[index].replace(/[^0-9]/g, '')
                                 that.searchList.push(item)
                             }

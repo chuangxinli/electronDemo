@@ -1,10 +1,13 @@
 <template>
     <div class="header" style="-webkit-app-region: drag">
         <div class="title">欢迎使用有谱报告下载客户端</div>
-        <div class="signOut mLeft40 mRight20" @click="signOut()">退出登录</div>
+        <div class="signOut mLeft40 mRight20" @click="signOut()">
+            <i class="iconfont icon-tuichudenglu2"></i>
+            <span>退出</span>
+        </div>
         <div class="user">
-            <span>当前用户：{{user}}</span>
-            <span class="mLeft40">当前角色：{{role}}</span>
+            <i class="iconfont icon-yonghu4"></i>
+            <span>{{user}}</span>
         </div>
     </div>
 </template>
@@ -18,7 +21,7 @@
             }
         },
         mounted() {
-            this.user = this.global.nickName
+            this.user = this.global.nickName + this.global.roleNickName
             this.role = this.global.roleName
         },
         methods: {
