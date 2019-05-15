@@ -26,11 +26,13 @@ let batchScreen = function (classInfo, obj, myEmitter) {
 
   for(let i = classIndex; i < classList.length; i++){
     if(classList[i].isDown){
+      classList[i].progress = 2
       classIndex = i
       getPersonIds({classId: classList[classIndex].classId, testId: obj.taskId, subjectId: obj.subjectId, reportType: obj.reportType}, function (reportList) {
         let correctList = [], errList = [], noPayList = [], failPdfList = []
         reportList.forEach((item) => {
           getHtml({id: item}, reportList, correctList, errList, noPayList, failPdfList, function (correctList, errList, noPayList, failPdfList) {
+            classList[classIndex - 1].allNum = correctList.length
             let correctIds = [], pathStrUrls = [], isStrs
             correctList.forEach((item) => {
               correctIds.push(item.id)
@@ -134,6 +136,7 @@ let batchScreen = function (classInfo, obj, myEmitter) {
 
   function getPdf(correctList, errList, noPayList, failPdfList, pdfName) {
     if (index < correctList.length) {
+      classList[classIndex - 1].progress = 3
       if(correctList[index].isDown){
         if(correctList[index].repeatCount == undefined){
           correctList[index].repeatCount = 0
@@ -197,6 +200,7 @@ let batchScreen = function (classInfo, obj, myEmitter) {
                 })
                 correctList[index].status = 4 //下载失败
                 failPdfList.push(correctList[index])
+                classList[classIndex - 1].errNum++
                 index++
                 getPdf(correctList, errList, noPayList, failPdfList)
               }
@@ -204,6 +208,7 @@ let batchScreen = function (classInfo, obj, myEmitter) {
               correctList[index].status = 3  //下载成功
               correctList[index].savePath = pdfName
               successList.push(correctList[index])
+              classList[classIndex - 1].successNum++
               index++
               console.log(`${id}报告生成成功`);
               myEmitter.emit('down_report_success', {id})
@@ -226,16 +231,19 @@ let batchScreen = function (classInfo, obj, myEmitter) {
     } else {
       classList[classIndex - 1].status = 3
       classList[classIndex - 1].savePath = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${classList[classIndex - 1].className}`
+      classList[classIndex - 1].isComplete = true
       myEmitter.emit('complete_single_class', {})
       if(classIndex < classList.length){
         for (let i = classIndex; i < classList.length; i++) {
           if (classList[i].isDown) {
+            classList[i].progress = 2
             index = 0
             classIndex = i
             getPersonIds({classId: classList[classIndex].classId, testId: obj.taskId, subjectId: obj.subjectId, reportType: obj.reportType}, function (reportList) {
               let correctList = [], errList = [], noPayList = [], failPdfList = []
               reportList.forEach((item) => {
                 getHtml({id: item}, reportList, correctList, errList, noPayList, failPdfList, function (correctList, errList, noPayList, failPdfList) {
+                  classList[classIndex - 1].allNum = correctList.length
                   let correctIds = [], pathStrUrls = [], isStrs
                   correctList.forEach((item) => {
                     correctIds.push(item.id)
@@ -268,6 +276,7 @@ let batchScreen = function (classInfo, obj, myEmitter) {
         }
       }else{
         classInfo[0].status = 3
+        classInfo[0].isComplete = true
         myEmitter.emit('complete_all', {})
       }
     }

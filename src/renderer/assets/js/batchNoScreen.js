@@ -24,6 +24,7 @@ let batchNoScreen = function (classInfo, obj, myEmitter) {
 
     for (let i = classIndex; i < classList.length; i++) {
         if (classList[i].isDown) {
+            classList[i].progress = 2
             classIndex = i
             getPersonIds({
                 classId: classList[classIndex].classId,
@@ -100,6 +101,7 @@ let batchNoScreen = function (classInfo, obj, myEmitter) {
 
     function getPdf(correctList, errList, noPayList, failPdfList, pdfName) {
         if (index < correctList.length) {
+            classList[classIndex - 1].progress = 3
             if(correctList[index].isDown){
                 if(correctList[index].repeatCount == undefined){
                     correctList[index].repeatCount = 0
@@ -163,12 +165,14 @@ let batchNoScreen = function (classInfo, obj, myEmitter) {
                                 })
                                 correctList[index].status = 4 //下载失败
                                 failPdfList.push(correctList[index])
+                                classList[classIndex - 1].errNum++
                                 index++
                                 getPdf(correctList, errList, noPayList, failPdfList)
                             }
                         } else {
                             correctList[index].status = 3  //下载成功
                             correctList[index].savePath = pdfName
+                            classList[classIndex - 1].successNum++
                             index++
                             console.log(`${id}报告生成成功`);
                             myEmitter.emit('down_report_success', {id})
@@ -191,10 +195,12 @@ let batchNoScreen = function (classInfo, obj, myEmitter) {
         } else {
             classList[classIndex - 1].status = 3
             classList[classIndex - 1].savePath = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${classList[classIndex - 1].className}`
+            classList[classIndex - 1].isComplete = true
             myEmitter.emit('complete_single_class', {})
             if (classIndex < classList.length) {
                 for (let i = classIndex; i < classList.length; i++) {
                     if (classList[i].isDown) {
+                        classList[i].progress = 2
                         index = 0
                         classIndex = i
                         getPersonIds({
@@ -212,6 +218,7 @@ let batchNoScreen = function (classInfo, obj, myEmitter) {
                     }
                 }
             } else {
+                classInfo[0].isComplete = true
                 classInfo[0].status = 3
                 myEmitter.emit('complete_all', {})
             }

@@ -30,5 +30,10 @@ export default {
     downTaskList: [],  //下载报告列表
     isDownTaskComplete: true,
     myEmitter: '',  //事件监听
-    errReportList: [] //错误报告列表
+    errReportList: [], //错误报告列表
+    downClassIdList: [  //为了个人报告 （避免下载重复）
+        [], //周测
+        []  //月考
+    ],
+    downReportIdList: [] //年级和班级 （避免下载重复）
 }

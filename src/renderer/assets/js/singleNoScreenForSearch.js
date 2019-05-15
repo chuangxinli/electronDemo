@@ -5,7 +5,7 @@ const fse = require('fs-extra')
 const fs = require('fs')
 
 
-let singleNoScreen = function (reportInfo, obj, myEmitter) {
+let singleNoScreen = function (reportIdList, obj, myEmitter) {
     existsPublic()
     if (!obj.savePath) {
         myEmitter.emit('warn', {text: '请先设置报告的下载路径！'})
@@ -14,7 +14,8 @@ let singleNoScreen = function (reportInfo, obj, myEmitter) {
         myEmitter.emit('warn', {text: '报告的下载路径不存在，请重新设置！'})
         return
     }
-    let pdfServerBasePath = obj.appPath, savePath = obj.savePath, correctList = [], errList = [], failPdfList = [], successPdfList = [], index = 0, reportIdList = reportInfo.gradeReportList
+    let pdfServerBasePath = obj.appPath, savePath = obj.savePath, correctList = [], errList = [], failPdfList = [],
+        successPdfList = [], index = 0
     let {header, footer, cover, content} = getPart(obj.type)
     let reportModel = getReportModel(obj.type)
     //错误列表中下载的报告的存放地址
@@ -59,7 +60,6 @@ let singleNoScreen = function (reportInfo, obj, myEmitter) {
 
     function getPdf(correctList, obj, pdfName) {
         if (index < correctList.length) {
-            reportInfo.progress = 3
             if (correctList[index].isDown) {
                 if (correctList[index].repeatCount == undefined) {
                     correctList[index].repeatCount = 0
@@ -136,7 +136,6 @@ let singleNoScreen = function (reportInfo, obj, myEmitter) {
                                 })
                                 correctList[index].status = 4 //下载失败
                                 failPdfList.push(correctList[index])
-                                reportInfo.errNum++
                                 index++
                                 getPdf(correctList, obj)
                             }
@@ -147,7 +146,6 @@ let singleNoScreen = function (reportInfo, obj, myEmitter) {
                             correctList[index].status = 3  //下载成功
                             correctList[index].savePath = pdfName
                             successPdfList.push(correctList[index])
-                            reportInfo.successNum++
                             index++
                             console.log(`${id}报告生成成功`);
                             myEmitter.emit('down_report_success', {id})
@@ -168,7 +166,6 @@ let singleNoScreen = function (reportInfo, obj, myEmitter) {
                 getPdf(correctList, obj)
             }
         } else {
-            reportInfo.isComplete = true
             console.log('complete_single')
             myEmitter.emit('complete_single', {})
         }
