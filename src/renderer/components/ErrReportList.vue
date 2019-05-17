@@ -1,15 +1,15 @@
 <template>
     <div class="inlineBlock">
         <el-button type="primary" size="small" class="mLeft20" @click="errorPdfDialogVisible = true">查看下载失败的报告</el-button>
-        <div class="mTop20" v-show="searchList.length > 0">
-            <el-button type="primary" size="small" @click="downSelectReport">下载所选报告</el-button>
-        </div>
         <!--错误报告弹框-->
         <el-dialog
                 title="错误报告列表"
                 :visible.sync="errorPdfDialogVisible"
                 width="60%"
                 center>
+            <div class="mTop20" v-show="searchList.length > 0">
+                <el-button type="primary" size="small" @click="downSelectReport">下载所选报告</el-button>
+            </div>
             <el-table
                     :data="errReportList"
                     border
@@ -68,7 +68,6 @@
     const {baseURL} = require('@/assets/js/common.js')
     const singleNoScreen = require('@/assets/js/singleNoScreen')
     const singleScreen = require('@/assets/js/singleScreen')
-    const uuid = require('uuid/v4')
     export default {
         data(){
             return{
@@ -121,7 +120,6 @@
                         isDown: true,
                         isShow: true,
                         isDelete: false,
-                        localId: uuid(),
                         status: 1
                     }
                     this.global.downTaskList.push(tempRow)

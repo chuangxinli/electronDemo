@@ -14,6 +14,8 @@ let singleNoScreen = function (reportInfo, obj, myEmitter) {
         myEmitter.emit('warn', {text: '报告的下载路径不存在，请重新设置！'})
         return
     }
+    console.log(reportInfo)
+    console.log(obj)
     let pdfServerBasePath = obj.appPath, savePath = obj.savePath, correctList = [], errList = [], failPdfList = [], successPdfList = [], index = 0, reportIdList = reportInfo.gradeReportList
     let {header, footer, cover, content} = getPart(obj.type)
     let reportModel = getReportModel(obj.type)
@@ -82,7 +84,12 @@ let singleNoScreen = function (reportInfo, obj, myEmitter) {
                         if (!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告`)) {
                             fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告`)
                         }
-                    } else {
+                    } else if(obj.isBatch && obj.type == 1 || obj.type == 2){
+                        pdfName = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${obj.className}/${id}(${name}).pdf`
+                        if (!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${obj.className}`)) {
+                            fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${obj.className}`)
+                        }
+                    }else {
                         pdfName = `${savePath}/${id}(${name}).pdf`;
                     }
                 }
@@ -132,6 +139,10 @@ let singleNoScreen = function (reportInfo, obj, myEmitter) {
                                     belongTo,
                                     type: obj.type,
                                     subjectName: obj.subjectName,
+                                    isDown: true,
+                                    isShow: true,
+                                    isDelete: false,
+                                    status: 1,
                                     obj
                                 })
                                 correctList[index].status = 4 //下载失败
@@ -161,7 +172,7 @@ let singleNoScreen = function (reportInfo, obj, myEmitter) {
                         killSubChild = true
                         subChild.kill('SIGTERM')
                         wkFunc()
-                    }, 1500 * 60)
+                    }, 3000 * 60)
                 }
             } else {
                 index++

@@ -1,9 +1,30 @@
 <template>
     <div class="header" style="-webkit-app-region: drag">
-        <div class="title">欢迎使用有谱报告下载客户端</div>
-        <div class="signOut mLeft40 mRight20" @click="signOut()">
-            <i class="iconfont icon-tuichudenglu2"></i>
-            <span>退出</span>
+        <div class="title">欢迎使用有谱报告下载小助手</div>
+        <div class="signOut mLeft40 mRight20" style="position: relative">
+            <el-popover
+                    placement="bottom"
+                    width="160"
+                    trigger="click">
+                <ul class="popover_box">
+                    <li v-show="savePath" @click="openSavePath">
+                        <i class="iconfont icon-chakan3"></i>
+                        <span>查看下载的报告</span>
+                    </li>
+                    <li @click="setSavePath">
+                        <i class="iconfont icon-shezhi"></i>
+                        <span>设置报告下载路径</span>
+                    </li>
+                    <li @click="signOut">
+                        <i class="iconfont icon-qiehuan1"></i>
+                        <span>切换账号</span>
+                    </li>
+                </ul>
+                <div slot="reference">
+                    <i class="iconfont icon-shezhi4"></i>
+                    <span>设置</span>
+                </div>
+            </el-popover>
         </div>
         <div class="user">
             <i class="iconfont icon-yonghu4"></i>
@@ -13,11 +34,17 @@
 </template>
 
 <script>
+    const {shell} = require('electron').remote
     export default {
         data() {
             return {
                 user: '',
                 role: ''
+            }
+        },
+        computed: {
+            savePath() {
+                return this.$store.state.reportData.savePath
             }
         },
         mounted() {
@@ -42,6 +69,13 @@
                         path: '/SignIn'
                     })
                 }
+            },
+            openSavePath() {
+                //shell.openExternal('https://github.com')
+                shell.openItem(this.savePath)
+            },
+            setSavePath(){
+                this.$emit('showSetPath')
             }
         }
     }
@@ -57,7 +91,7 @@
         height: 60px;
         line-height: 60px;
         color: #ffffff;
-        z-index: 999;
+        z-index: 666;
     }
     .title{
         float: left;
@@ -69,5 +103,23 @@
     .signOut{
         cursor: pointer;
         float: right;
+    }
+    .popover_box li{
+        height: 30px;
+        line-height: 30px;
+        cursor: pointer;
+        text-align: left;
+        border: 1px solid #ffffff;
+        border-radius: 5px;
+    }
+    .popover_box li i{
+        margin-left: 10px;
+    }
+    .popover_box li span{
+        margin-left: 10px;
+    }
+    .popover_box li:hover{
+        color: #ffffff;
+        background: #0188EF;
     }
 </style>

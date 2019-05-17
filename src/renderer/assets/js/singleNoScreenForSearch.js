@@ -25,6 +25,8 @@ let singleNoScreen = function (reportIdList, obj, myEmitter) {
             fs.mkdirSync(savePath)
         }
     }
+    console.log(correctList)
+    console.log(obj)
     if (obj.type == 1 || obj.type == 2) {
         reportIdList.forEach((item) => {
             getReportData(item, function (item) {
@@ -59,6 +61,7 @@ let singleNoScreen = function (reportIdList, obj, myEmitter) {
     }
 
     function getPdf(correctList, obj, pdfName) {
+        console.log(index)
         if (index < correctList.length) {
             if (correctList[index].isDown) {
                 if (correctList[index].repeatCount == undefined) {
@@ -82,7 +85,12 @@ let singleNoScreen = function (reportIdList, obj, myEmitter) {
                         if (!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告`)) {
                             fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告`)
                         }
-                    } else {
+                    } else if(obj.isBatch && obj.type == 1 || obj.type == 2){
+                        pdfName = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${obj.className}/${id}(${name}).pdf`
+                        if (!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${obj.className}`)) {
+                            fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${obj.className}`)
+                        }
+                    }else {
                         pdfName = `${savePath}/${id}(${name}).pdf`;
                     }
                 }
@@ -132,6 +140,10 @@ let singleNoScreen = function (reportIdList, obj, myEmitter) {
                                     belongTo,
                                     type: obj.type,
                                     subjectName: obj.subjectName,
+                                    isDown: true,
+                                    isShow: true,
+                                    isDelete: false,
+                                    status: 1,
                                     obj
                                 })
                                 correctList[index].status = 4 //下载失败
@@ -159,7 +171,7 @@ let singleNoScreen = function (reportIdList, obj, myEmitter) {
                         killSubChild = true
                         subChild.kill('SIGTERM')
                         wkFunc()
-                    }, 1500 * 60)
+                    }, 3000 * 60)
                 }
             } else {
                 index++

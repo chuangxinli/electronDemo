@@ -16,6 +16,8 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
         myEmitter.emit('warn', {text: '报告的下载路径不存在，请重新设置！'})
         return
     }
+    console.log(reportIdList)
+    console.log(obj)
     let pdfServerBasePath = obj.appPath, savePath = obj.savePath, correctList = [], errList = [], noPayList = [],
         failPdfList = [], successList = [], index = 0
     let reportModel = getReportModel(obj.type)
@@ -48,6 +50,7 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
                     console.error(`图片生成失败`, stderr)
                     return;
                 }
+                console.log(correctList)
                 getPdf(correctList, obj)
             })
         })
@@ -103,6 +106,8 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
                 }
                 let id = correctList[index].id
                 let name = correctList[index].studentName ? correctList[index].studentName : correctList[index].name
+                console.log(correctList[index])
+                console.log(name)
                 name = name.replace(/[^\u4e00-\u9fa5a-zA-Z0-9\(\)（）【】\[\]\s]*/g, '')
                 if(!pdfName){
                     if (obj.isBatch && obj.type == 5 || obj.type == 6) {
@@ -115,7 +120,12 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
                         if (!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告`)) {
                             fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告`)
                         }
-                    } else {
+                    } else if(obj.isBatch && obj.type == 1 || obj.type == 2){
+                        pdfName = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${obj.className}/${id}(${name}).pdf`
+                        if (!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${obj.className}`)) {
+                            fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${obj.className}`)
+                        }
+                    }else {
                         pdfName = `${savePath}/${id}(${name}).pdf`;
                     }
                 }
@@ -166,6 +176,10 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
                                     belongTo,
                                     type: obj.type,
                                     subjectName: obj.subjectName,
+                                    isDown: true,
+                                    isShow: true,
+                                    isDelete: false,
+                                    status: 1,
                                     obj
                                 })
                                 correctList[index].status = 4 //下载失败
@@ -193,7 +207,7 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
                         killSubChild = true
                         subChild.kill('SIGTERM')
                         wkFunc()
-                    }, 1500 * 60)
+                    }, 3000 * 60)
                 }
             }else{
                 index++

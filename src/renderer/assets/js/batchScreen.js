@@ -197,6 +197,12 @@ let batchScreen = function (classInfo, obj, myEmitter) {
                   belongTo,
                   type: obj.type,
                   subjectName: obj.subjectName,
+                  name,
+                  isDown: true,
+                  isShow: true,
+                  isDelete: false,
+                  status: 1,
+                  obj
                 })
                 correctList[index].status = 4 //下载失败
                 failPdfList.push(correctList[index])
@@ -222,7 +228,7 @@ let batchScreen = function (classInfo, obj, myEmitter) {
             killSubChild = true
             subChild.kill('SIGTERM')
             wkFunc()
-          }, 1500 * 60)
+          }, 3000 * 60)
         }
       }else{
         index++

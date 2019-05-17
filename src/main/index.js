@@ -45,15 +45,14 @@ function createWindow() {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    height: 563,
+    height: 1260,
     useContentSize: true,
-    width: 1260,
+    width: 680,
     webPreferences: {webSecurity: false},
-    title: '有谱报告下载小工具',
     minWidth: 1260,
-    minHeight: 563
+    minHeight: 680
   })
-
+  mainWindow.maximize()
   mainWindow.webContents.openDevTools()
 
   mainWindow.loadURL(winURL)

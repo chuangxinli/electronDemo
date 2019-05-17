@@ -1,45 +1,81 @@
 <template>
-    <div>
-        <el-form :label-position="labelPosition" label-width="80px" :model="formLabelAlign" class="signin">
-            <el-form-item label="账号：" class="mBot50 mTop80">
-                <el-input v-model="formLabelAlign.username" @keyup.native.enter="beforeLogin"></el-input>
-            </el-form-item>
-            <el-form-item label="密码：" class="mBot50">
-                <el-input v-model="formLabelAlign.password" type="password" @keyup.native.13="beforeLogin"></el-input>
-            </el-form-item>
-            <el-checkbox v-model="formLabelAlign.remember" class="remember">记住密码</el-checkbox>
-            <el-button type="primary" @click="beforeLogin" class="onSubmit mLeft40">登录</el-button>
-        </el-form>
-        <div class="box"></div>
-        <el-dialog
-                title="友情提示"
-                :visible.sync="isDownDialogVisible"
-                width="400px"
-                center>
-            <p class="center">检测到了新的版本是否下载！</p>
-            <span slot="footer" class="dialog-footer">
+    <div style="position: relative">
+        <div class="login_background">
+            <!--提示有新版本-->
+            <el-dialog
+                    title="友情提示"
+                    :visible.sync="isDownDialogVisible"
+                    width="400px"
+                    center>
+                <p class="center">检测到了新的版本是否下载！</p>
+                <span slot="footer" class="dialog-footer">
                 <el-button @click="isDownDialogVisible = false">取 消</el-button>
                 <el-button type="primary" @click="conformDown()">确 定</el-button>
             </span>
-        </el-dialog>
-        <el-dialog
-                title="友情提示"
-                :visible.sync="downDialogVisible"
-                :close-on-click-modal="false"
-                width="400px"
-                center>
-            <p class="center">正在下载中。。。。。。请耐心等待！</p>
-            <div class="center mTop20">
-                <el-progress type="circle" :percentage="downloadPercent" color="#8e71c7"></el-progress>
+            </el-dialog>
+            <!--新版本下载进度-->
+            <el-dialog
+                    title="友情提示"
+                    :visible.sync="downDialogVisible"
+                    :close-on-click-modal="false"
+                    width="400px"
+                    center>
+                <p class="center">正在下载中。。。。。。请耐心等待！</p>
+                <div class="center mTop20">
+                    <el-progress type="circle" :percentage="downloadPercent" color="#8e71c7"></el-progress>
+                </div>
+            </el-dialog>
+        </div>
+        <div class="login_background_2">
+            <div class="info">
+                <img src="../assets/img/logo.png" alt="">
+                <span>有谱报告下载助手</span>
             </div>
-        </el-dialog>
+            <div class="login_left">
+                <div class="left_img">
+                    <img src="../assets/img/login_3.png" alt="">
+                </div>
+            </div>
+            <div class="login_right">
+                <div class="right_box">
+                    <div class="login_box">
+                        <h2 class="title">请您使用您的有谱教师账号登录</h2>
+                        <el-form :label-position="labelPosition" label-width="80px" :model="formLabelAlign" class="signin">
+                            <!--<el-form-item label="账号：" class="mBot50 mTop80">
+                                <el-input v-model="formLabelAlign.username" @keyup.native.enter="beforeLogin"></el-input>
+                            </el-form-item>
+                            <el-form-item label="密码：" class="mBot50">
+                                <el-input v-model="formLabelAlign.password" type="password" @keyup.native.13="beforeLogin"></el-input>
+                            </el-form-item>-->
+                            <div class="input_box" :class="{'ipt_active': iptUserActive}">
+                                <i class="iconfont icon-yonghu2"></i>
+                                <input type="text" v-model="formLabelAlign.username" @keyup.enter="beforeLogin" placeholder="请输入用户名" @focus="iptUserActive = true" @blur="iptUserActive = false">
+                            </div>
+                            <div class="input_box" :class="{'ipt_active': iptPwdActive}">
+                                <i class="iconfont icon-mima"></i>
+                                <input type="password" v-model="formLabelAlign.password" @keyup.13="beforeLogin" placeholder="请输入密码" @focus="iptPwdActive = true" @blur="iptPwdActive = false">
+                            </div>
+                            <div class="remeber_box">
+                                <el-checkbox v-model="formLabelAlign.remember" class="remember">记住密码</el-checkbox>
+                            </div>
+                            <div class="onSubmit_box">
+                                <el-button type="primary" @click="beforeLogin" class="onSubmit mLeft40">登录</el-button>
+                            </div>
+                        </el-form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <close-tip></close-tip>
     </div>
 </template>
+
 
 <script>
     const fs = require('fs')
     const asar = require('asar')
     import {Loading} from 'element-ui'
+
     const fse = require('fs-extra')
     const {ipcRenderer} = require('electron')
     const EventEmitter = require('events');
@@ -59,70 +95,54 @@
                 downDialogVisible: false,
                 isDownDialogVisible: false,
                 tips: '',
-                downloadPercent: 0
+                downloadPercent: 0,
+                iptUserActive: false,
+                iptPwdActive: false
             }
         },
         computed: {
             appPath() {
                 return this.$store.state.reportData.appPath
             },
-            errReportList(){
+            errReportList() {
                 return this.$store.state.reportData.errReportList
             },
-            successReportList(){
+            successReportList() {
                 return this.$store.state.reportData.successReportList
             }
         },
-        created(){
+        created() {
             if (this.formLabelAlign.remember) {
                 console.log('记住密码')
                 this.formLabelAlign.username = localStorage.getItem('username')
                 this.formLabelAlign.password = localStorage.getItem('password')
             }
-            if(!this.global.myEmitter){
+            if (!this.global.myEmitter) {
                 console.log('myEmitter')
                 this.global.myEmitter = new MyEmitter()
                 this.global.myEmitter.on('complete_all', (data) => {
 
                 })
                 this.global.myEmitter.on('pdf_error', (data) => {
-                    for(let i = 0, len = this.errReportList.length; i < len; i++){
-                        if(this.errReportList[i].id == data.id){
-                            this.$store.dispatch('ADD_ERR_REPORTLIST', {errReport: data})
-                            break
+                    for(let i = 0, len = this.global.errReportList.length; i < len; i++){
+                        if(this.global.errReportList[i].id == data.id){
+                            return
                         }
                     }
+                    this.global.errReportList.push(data)
                 })
                 this.global.myEmitter.on('pdf_error_redown', (id) => {
-                    for(let i = 0, len = this.errReportList.length; i < len; i++){
-                        if(this.errReportList[i].id == id){
-                            this.$store.dispatch('DELETE_ERR_REPORTLIST', i)
+                    for(let i = 0, len = this.global.errReportList.length; i < len; i++){
+                        if(this.global.errReportList[i].id == id){
+                            this.global.errReportList.splice(i, 1)
+                            return
                         }
                     }
                 })
                 this.global.myEmitter.on('complete_single_class', (data) => {
-                    setTimeout(() => {
-                        if (this.global.isDownTaskComplete) {
-                            this.$notify({
-                                title: '提示',
-                                message: `当前所有报告下载任务均已下载完毕！！`,
-                                duration: 0,
-                                type: 'success'
-                            });
-                        }
-                    }, 50)
                 })
                 this.global.myEmitter.on('complete_single', (data) => {
-                    setTimeout(() => {
-                        if (this.global.isDownTaskComplete) {
-                            this.$notify({
-                                title: '提示',
-                                message: `当前所有报告下载任务均已下载完毕！！`,
-                                duration: 0,
-                                type: 'success'
-                            });
-                        }
-                    }, 50)
+
                 })
                 this.global.myEmitter.on('warn', (data) => {
                     console.log('warn 触发事件');
@@ -143,17 +163,13 @@
                     });*/
                 })
                 this.global.myEmitter.on('down_report_success', (data) => {
-                    //这里只处理批量下载的任务
-                    if(!this.successReportList.includes(data.id)){
-                        this.$store.dispatch('ADD_SUCCESS_REPORT', {id: data.id})
-                    }
                 })
             }
             this.detectionVersion()
         },
         mounted() {
             let that = this
-            window.addEventListener('online', function() {
+            window.addEventListener('online', function () {
                 that.$notify({
                     title: '提示',
                     message: `网络连接成功！`,
@@ -162,7 +178,7 @@
                 });
                 console.log('有网络了');
             })
-            window.addEventListener('offline', function() {
+            window.addEventListener('offline', function () {
                 that.$notify({
                     title: '提示',
                     message: `网络异常，请您检查一下网络问题！`,
@@ -173,7 +189,7 @@
             })
         },
         methods: {
-            conformDown(){
+            conformDown() {
                 this.isDownDialogVisible = false
                 this.downDialogVisible = true
                 ipcRenderer.send("update");
@@ -191,6 +207,7 @@
                 let data = await this.api.get(`${this.global.version_url}/data.json?${new Date().getTime()}`, {})
                 if (data) {
                     console.log(data.version)
+
                     function isDown(curVersion, remoteVertion) {
                         curVersion = curVersion.split('.')
                         remoteVertion = remoteVertion.split('.')
@@ -220,20 +237,20 @@
                         background: 'rgba(0, 0, 0, 0.5)'
                     })
                     setTimeout(() => {
-                        try{
+                        try {
                             asar.extractAll(this.appPath, '')
-                            if(!fs.existsSync('public/html')){
+                            if (!fs.existsSync('public/html')) {
                                 fs.mkdirSync('public/html')
                             }
                             fse.removeSync('node_modules')
                             fse.removeSync('data.json')
                             fse.removeSync('dist')
-                        }catch (e) {
+                        } catch (e) {
                             console.log(e)
                         }
                         loadingInstance.close()
                         this.onSubmit()
-                    },500)
+                    }, 500)
                 } else {
                     this.onSubmit()
                 }
@@ -322,14 +339,14 @@
                     })
                 }
             },
-            async getInfoByUid(){
+            async getInfoByUid() {
                 let url = '/das/commonInfo/getInfoByUid'
                 let params = {
                     sid: this.global.sid,
                     uid: this.global.uid
                 }
                 let data = await this.api.get(url, params)
-                if(data){
+                if (data) {
                     this.global.nickName = data.infoData.nickName
                     sessionStorage.setItem('nickName', data.infoData.nickName)
                 }
@@ -339,33 +356,146 @@
 </script>
 
 <style scoped>
-    .signin {
-        width: 400px;
-        height: 400px;
+
+    .login_background {
+        width: 100%;
+        height: 100%;
         position: fixed;
         left: 0;
-        right: 0;
         top: 0;
         bottom: 0;
+        right: 0;
         margin: auto;
+        background: url(../assets/img/login_1.png);
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+    }
+
+    .login_background_2 {
+        width: 88%;
+        height: 88%;
+        position: fixed;
+        margin: auto;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        background: url(../assets/img/login_5.png);
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+    }
+
+    .info {
+        width: 100%;
+        height: 50px;
+        line-height: 50px;
+    }
+
+    .info > img {
+        margin-left: 10px;
+        margin-top: 10px;
+        width: 30px;
+        float: left;
+    }
+
+    .info > span {
+        float: left;
+        font-size: 20px;
+        color: red;
+        margin-left: 6px;
+    }
+
+    .login_left {
+        float: left;
+        width: 50%;
+        height: 100%;
+    }
+
+    .login_left .left_img {
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
+
+    .login_left .left_img > img {
+        width: 80%;
+        position: absolute;
+        margin: auto;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+    .login_right {
+        float: left;
+        width: 50%;
+        height: 100%;
+        position: relative;
+    }
+    .right_box{
+        margin-top: 20%;
+    }
+    .signin {
+        width: 460px;
+        height: 400px;
         text-align: center;
         z-index: 22;
     }
-
-    .box {
-        width: 600px;
+    .login_box{
+        width: 460px;
         height: 400px;
-        position: fixed;
+        position: absolute;
         left: 0;
-        right: 0;
         top: 0;
+        right: 0;
         bottom: 0;
         margin: auto;
+    }
+    .login_right .title{
+        font-weight: 700;
+        color: #00b0f0;
+        text-align: center;
+        font-size: 26px;
+        height: 40px;
+        line-height: 40px;
+    }
+    .input_box{
+        margin-top: 40px;
+        text-align: left;
+        height: 40px;
+        line-height: 40px;
+        border-bottom: 1px solid #cdcdcd;
+    }
+    .input_box i{
+        font-size: 20px;
+        margin-top: 10px;
+    }
+    .input_box input{
+        width: 400px;
+        margin-left: 20px;
+        border: none;
+        height: 30px;
+        line-height: 30px;
+        font-size: 16px;
+        color: #666666;
+    }
+    .remeber_box{
+        margin-top: 40px;
+        height: 40px;
+        line-height: 40px;
+        text-align: left;
+    }
+    .onSubmit_box{
+        margin-top: 40px;
+        height: 40px;
+        line-height: 40px;
         text-align: center;
     }
-
-    .signinBtn {
+    .onSubmit{
         width: 200px;
-        margin-left: 20px;
+    }
+    .ipt_active{
+        border-bottom: 1px solid #66b1ff;
     }
 </style>

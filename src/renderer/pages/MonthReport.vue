@@ -40,7 +40,7 @@
                         align="center"
                         prop="examName"
                         label="考试名称"
-                        width="200">
+                        width="">
                 </el-table-column>
                 <el-table-column
                         align="center"
@@ -81,17 +81,17 @@
                 <el-table-column
                         align="center"
                         label="操作"
-                        width="">
+                        width="300px">
                     <template slot-scope="scope">
-                        <el-button @click="seeMonthReport(scope.row)" type="text" size="small">查看报告</el-button>
+                        <!--<el-button @click="seeMonthReport(scope.row)" type="text" size="small">查看报告</el-button>-->
                         <el-button @click="showBatchDown(scope.row)" type="text" size="small">批量下载</el-button>
-                        <el-button @click="seeDownProgress(scope.row)" type="text" size="small">查看下载进度</el-button>
+                        <el-button v-show="scope.row.isDown" @click="seeDownProgress(scope.row)" type="text" size="small">查看下载进度</el-button>
+                        <el-button v-show="scope.row.isDown" @click="seeErrReport(scope.row)" type="text" size="small">下载失败的报告</el-button>
                     </template>
                 </el-table-column>
             </el-table>
         </div>
-        <paging class="mTop20" :current-page="currentPage" :total-num="total" :page-size="pageSize"
-                @childrenChange="pageChange" v-show="testList && testList.length > 0"></paging>
+        <paging class="mTop20" :current-page="currentPage" :total-num="total" :page-size="pageSize" @childrenChange="pageChange" v-show="testList && testList.length > 0"></paging>
         <!--批量下载弹框-->
         <el-dialog
                 title="提示"
@@ -248,6 +248,66 @@
                 </ul>
             </div>
         </el-dialog>
+        <!--错误报告弹框-->
+        <el-dialog
+                title="错误报告列表"
+                :visible.sync="errorPdfDialogVisible"
+                width="60%"
+                center>
+            <div class="mTop20 mBot20" v-show="errReportList.length > 0">
+                <el-button type="primary" size="small" @click="downSelectReport">下载所选报告</el-button>
+            </div>
+            <el-table
+                    :data="errReportList"
+                    empty-text="暂时没有下载失败的报告"
+                    border
+                    size="small"
+                    @selection-change="handlePersonSelectionChange"
+                    style="width: 100%">
+                <el-table-column
+                        align="center"
+                        type="index"
+                        width="50">
+                </el-table-column>
+                <el-table-column
+                        type="selection"
+                        align="center"
+                        width="55">
+                </el-table-column>
+                <el-table-column
+                        align="center"
+                        prop="id"
+                        label="报告编号"
+                        width="">
+                </el-table-column>
+                <el-table-column
+                        align="center"
+                        :formatter="getErrDownStatus"
+                        label="下载状态"
+                        width="">
+                </el-table-column>
+                <el-table-column
+                        align="center"
+                        prop="subjectName"
+                        label="报告学科"
+                        width="">
+                </el-table-column>
+                <el-table-column
+                        align="center"
+                        :formatter="getType"
+                        label="报告类型"
+                        width="">
+                </el-table-column>
+                <el-table-column
+                        align="center"
+                        label="操作"
+                        width="">
+                    <template slot-scope="scope">
+                        <el-button @click="downReport(scope.row)" type="text" size="small">下载报告</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </el-dialog>
     </div>
 </template>
 
@@ -256,6 +316,8 @@
     const singleScreen = require('@/assets/js/singleScreen')
     const batchNoScreen = require('@/assets/js/batchNoScreen')
     const batchScreen = require('@/assets/js/batchScreen')
+    const singleNoScreenForSearch = require('@/assets/js/singleNoScreenForSearch')
+    const singleScreenForSearch = require('@/assets/js/singleScreenForSearch')
     const {dialog, shell} = require('electron').remote
     export default {
         data() {
@@ -283,9 +345,6 @@
                 personReportList: [],
                 classList: [],
                 classId: '',
-                curActive: 'grade',
-                curType: 3, // 1：个人 2：班级 3：年级
-                reportType: 6, //3是月考  6是周测
                 allDownDialogVisible: false,
                 //年级报告
                 checkAll_grade: false,
@@ -306,9 +365,14 @@
                     taskId: '',
                     gradeReportInfo: {},
                     classReportInfo: {},
-                    classPersonReportList: []
+                    classPersonReportList: [],
+                    singlePersonInfo: {}
                 },
-                taskTitle: ''
+                taskTitle: '',
+                //重新下载下载失败的报告所需的数据
+                errReportList: [],
+                errorPdfDialogVisible: false,
+                downErrList: []
             }
         },
         computed: {
@@ -320,7 +384,6 @@
             },
         },
         mounted() {
-            console.log(this.curDownTask)
             if (this.appPath.includes('downloadreport')) {
                 this.tempPath = this.appPath.split('downloadreport')[0] + 'downloadreport'
             } else {
@@ -369,6 +432,19 @@
                 let data = await this.api.get(url, params, {loading: true})
                 if (data) {
                     console.log(data)
+                    let downTaskList = []
+                    this.global.downTaskList.forEach((item) => {
+                        if(item.reportType == this.reportType){
+                            downTaskList.push(item.taskId)
+                        }
+                    })
+                    for(let i = 0, len = data.infoList.length; i < len; i++){
+                        if(downTaskList.includes(data.infoList[i].homeworkId)){
+                            data.infoList[i].isDown = true
+                        }else{
+                            data.infoList[i].isDown = false
+                        }
+                    }
                     this.testList = data.infoList
                     this.total = data.count
                 }
@@ -417,6 +493,7 @@
                     for(let i = 0, len = this.global.downTaskList.length; i < len; i++){
                         if((row.homeworkId == this.global.downTaskList[i].taskId) && this.global.downTaskList[i].reportType == this.reportType){
                             if(this.global.downTaskList[i].gradeReportInfo.gradeReportList && this.global.downTaskList[i].gradeReportInfo.gradeReportList.length > 0 && !this.global.downTaskList[i].gradeReportInfo.isComplete){
+                                alert(1)
                                 this.$message({
                                     type: 'info',
                                     message: '当前考试任务正在下载，不能重复下载，请等待本次任务下载完成，再接着下载！',
@@ -425,6 +502,7 @@
                                 return
                             }
                             if(this.global.downTaskList[i].classReportInfo.classReportList &&　this.global.downTaskList[i].classReportInfo.classReportList.length > 0 && !this.global.downTaskList[i].classReportInfo.isComplete){
+                                alert(2)
                                 this.$message({
                                     type: 'info',
                                     message: '当前考试任务正在下载，不能重复下载，请等待本次任务下载完成，再接着下载！',
@@ -433,6 +511,17 @@
                                 return
                             }
                             if(this.global.downTaskList[i].classPersonReportList.length > 0 && this.global.downTaskList[i].classPersonReportList[0].children && this.global.downTaskList[i].classPersonReportList[0].children.length > 0 && !this.global.downTaskList[i].classPersonReportList[0].isComplete){
+                                alert(3)
+                                this.$message({
+                                    type: 'info',
+                                    message: '当前考试任务正在下载，不能重复下载，请等待本次任务下载完成，再接着下载！',
+                                    showClose: true,
+                                    duration: 50000
+                                })
+                                return
+                            }
+                            if(this.global.downTaskList[i].singlePersonInfo.singlePersonList &&　this.global.downTaskList[i].singlePersonInfo.singlePersonList.length > 0 && !this.global.downTaskList[i].singlePersonInfo.isComplete){
+                                alert(4)
                                 this.$message({
                                     type: 'info',
                                     message: '当前考试任务正在下载，不能重复下载，请等待本次任务下载完成，再接着下载！',
@@ -457,7 +546,6 @@
                 this.allDownDialogVisible = true
             },
             async getPaperTestGradeDetail() {
-                this.curActive = 'grade'
                 let url = '/das/testManager/getPaperTestGradeDetail'
                 let params = {
                     sid: this.global.sid,
@@ -475,7 +563,6 @@
                 }
             },
             async getPaperTestClassDetail() {
-                this.curActive = 'class'
                 let url = '/das/testManager/getPaperTestClassDetail'
                 let params = {
                     sid: this.global.sid,
@@ -493,7 +580,6 @@
                 }
             },
             async getClassList() {
-                this.curActive = 'person'
                 let url = '/das/scanExam/getClassList'
                 let params = {
                     sid: this.global.sid,
@@ -538,34 +624,43 @@
                 this.gradeName = row.gradeName
                 this.subjectId = row.subjectId
                 this.taskTitle = this.taskName + '报告批量下载'
+                this.curDownTask = {
+                    taskId: '',
+                    gradeReportInfo: {},
+                    classReportInfo: {},
+                    classPersonReportList: []
+                }
                 for (let i = 0, len = this.global.downTaskList.length; i < len; i++) {
                     if (this.taskId == this.global.downTaskList[i].taskId) {
                         this.curDownTask = this.global.downTaskList[i]
                     }
                 }
                 this.taskDialogVisible = true
-                console.log(this.taskId)
-                console.log(this.curDownTask)
-                console.log(this.global.downTaskList)
             },
             confirmDown() {
                 this.allDownDialogVisible = false
-                if(this.global.downTaskList.length > 0){
-                    for(let i = 0, len = this.global.downTaskList.length; i < len; i++){
-                        if((this.taskId == this.global.downTaskList[i].taskId) && this.global.downTaskList[i].reportType == this.reportType){
-                            this.global.downTaskList.splice(i, 1)
-                            break;
-                        }
-                    }
-                }
                 let taskObj = {}
                 if (this.checkedReport_grade.length > 0 || this.checkedReport_class.length > 0 || this.checkedReport_person.length > 0) {
+                    if(this.global.downTaskList.length > 0){
+                        for(let i = 0, len = this.global.downTaskList.length; i < len; i++){
+                            if((this.taskId == this.global.downTaskList[i].taskId) && this.global.downTaskList[i].reportType == this.reportType){
+                                this.global.downTaskList.splice(i, 1)
+                                break;
+                            }
+                        }
+                    }
+                    for(let i = 0, len = this.testList.length; i < len; i++){
+                        if(this.taskId == this.testList[i].homeworkId){
+                            this.testList[i].isDown = true
+                        }
+                    }
                     taskObj = {
                         taskId: this.taskId,
                         gradeReportInfo: {},
                         classReportInfo: {},
                         classPersonReportList: [],
-                        reportType: 6
+                        singlePersonInfo: {},
+                        reportType: this.reportType
                     }
                     this.global.downTaskList.push(taskObj)
                 }
@@ -599,7 +694,8 @@
                         type: 4,
                         isBatch: true,
                         appPath: this.tempPath,
-                        taskId: this.taskId
+                        taskId: this.taskId,
+                        reportType: this.reportType
                     }, this.global.myEmitter)
                 }
                 if (this.checkedReport_class.length > 0) {
@@ -632,7 +728,8 @@
                         type: 6,
                         isBatch: true,
                         appPath: this.tempPath,
-                        taskId: this.taskId
+                        taskId: this.taskId,
+                        reportType: this.reportType
                     }, this.global.myEmitter)
                 }
                 if (this.checkedReport_person.length > 0) {
@@ -696,6 +793,103 @@
                 } else if (type == 'person') {
                     this.curDownTask.classPersonReportList[0].children[index].isDown = false
                     this.curDownTask.classPersonReportList[0].children.splice(index, 1)
+                }
+            },
+            seeErrReport(row){
+              this.errReportList = []
+              for(let i = 0, len = this.global.errReportList.length; i < len; i++){
+                  if(row.homeworkId == this.global.errReportList[i].obj.taskId && this.global.errReportList[i].obj.reportType == this.reportType){
+                      this.errReportList.push(this.global.errReportList[i])
+                  }
+              }
+              this.errorPdfDialogVisible = true
+            },
+            //重新下载下载失败的报告所需的方法
+            handlePersonSelectionChange(val){
+                this.downErrList = val
+            },
+            downReport(row){
+                if(!(row instanceof Array)){
+                    row = [row]
+                }
+                row.forEach((item, index) => {
+                    setTimeout(() => {
+                        if([1, 2, 5, 6].includes(item.obj.type)){ //班级和个人报告
+                            singleScreenForSearch([item], {
+                                gradeName: item.obj.gradeName,
+                                subjectName: item.obj.subjectName,
+                                className: item.obj.className,
+                                savePath: this.savePath,
+                                type: item.type,
+                                isBatch: item.obj.isBatch,
+                                //true是批量下载（下载后会自动整合到一个文件夹）
+                                appPath: this.tempPath,
+                                errReport: true,
+                                reportType: item.obj.reportType,
+                                taskId: item.obj.taskId
+                            }, this.global.myEmitter)
+                        }else{ //年级报告
+                            singleNoScreenForSearch([item], {
+                                gradeName: item.obj.gradeName,
+                                subjectName: item.obj.subjectName,
+                                className: item.obj.className,
+                                savePath: this.savePath,
+                                type: item.type,
+                                isBatch: item.obj.isBatch,  //true是批量下载（下载后会自动整合到一个文件夹）
+                                appPath: this.tempPath,
+                                errReport: true,
+                                reportType: item.obj.reportType,
+                                taskId: item.obj.taskId
+                            }, this.global.myEmitter)
+                        }
+                    }, index * 30000)
+                })
+            },
+            downSelectReport(){
+                if(this.downErrList.length == 0){
+                    this.$message({
+                        message: '所选报告不能为空！',
+                        type: 'warning',
+                        duration: 2000
+                    })
+                    return
+                }
+                this.downReport(this.downErrList)
+            },
+            getType(row){
+                if(row.type == 1){
+                    return '月考个人'
+                }else if(row.type == 2){
+                    return '周测个人'
+                }else if(row.type == 3){
+                    return '周测年级'
+                }else if(row.type == 4){
+                    return '月考年级'
+                }else if(row.type == 5){
+                    return '周测班级'
+                }else if(row.type == 6){
+                    return '月考班级'
+                }
+            },
+            getErrDownStatus(row){
+                if (row.status == 1) {
+                    return '等待下载'
+                } else if (row.status == 2) {
+                    return '正在下载'
+                } else if (row.status == 3) {
+                    return '下载完成'
+                } else if (row.status == 4) {
+                    return '下载失败'
+                } else if(row.status == 5) {
+                    return '下载出现异常'
+                } else if(row.status == 6) {
+                    return '正在重新下载'
+                } else if(row.status == 7) {
+                    return '正在处理数据'
+                } else if(row.status == 8) {
+                    return '正在处理数据和图片'
+                } else {
+                    return '-------'
                 }
             }
         }

@@ -16,7 +16,7 @@ let singleScreen = function (reportInfo, obj, myEmitter) {
     myEmitter.emit('warn', {text: '报告的下载路径不存在，请重新设置！'})
     return
   }
-  let pdfServerBasePath = obj.appPath, savePath = obj.savePath, correctList = [], errList = [], noPayList = [], failPdfList = [], successList = [], index = 0, reportIdList = reportInfo.classReportList
+  let pdfServerBasePath = obj.appPath, savePath = obj.savePath, correctList = [], errList = [], noPayList = [], failPdfList = [], successList = [], index = 0, reportIdList = (reportInfo.classReportList && reportInfo.classReportList.length > 0) ? reportInfo.classReportList : reportInfo.singlePersonList  //可能是个人也可能是班级报告
   let reportModel = getReportModel(obj.type)
   //错误列表中下载的报告的存放地址
   if(obj.errReport){
@@ -116,6 +116,11 @@ let singleScreen = function (reportInfo, obj, myEmitter) {
             if (!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告`)) {
               fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/年级报告`)
             }
+          } else if(obj.isBatch && obj.type == 1 || obj.type == 2){
+            pdfName = `${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${obj.className}/${id}(${name}).pdf`
+            if (!fse.pathExistsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${obj.className}`)) {
+              fse.mkdirsSync(`${savePath}/${obj.gradeName}${obj.subjectName}_${obj.taskId}/${obj.className}`)
+            }
           } else {
             pdfName = `${savePath}/${id}(${name}).pdf`;
           }
@@ -167,6 +172,10 @@ let singleScreen = function (reportInfo, obj, myEmitter) {
                   belongTo,
                   type: obj.type,
                   subjectName: obj.subjectName,
+                  isDown: true,
+                  isShow: true,
+                  isDelete: false,
+                  status: 1,
                   obj
                 })
                 correctList[index].status = 4 //下载失败
@@ -196,7 +205,7 @@ let singleScreen = function (reportInfo, obj, myEmitter) {
             killSubChild = true
             subChild.kill('SIGTERM')
             wkFunc()
-          }, 1500 * 60)
+          }, 3000 * 60)
         }
       }else{
         index++

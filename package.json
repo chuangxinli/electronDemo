@@ -17,7 +17,7 @@
     "postinstall": ""
   },
   "build": {
-    "productName": "有谱报告下载小工具",
+    "productName": "有谱报告下载小助手",
     "appId": "com.lcx-example.yourapp",
     "directories": {
       "output": "build"
