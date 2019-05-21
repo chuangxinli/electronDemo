@@ -1,9 +1,31 @@
 
 const del = require('del')
 let api_url, type = 1   //1正式 2 测试
-function delTemp() {
-    del.sync('public/html/*')
-    del.sync('public/report/clip_tool/images/*')
+let dev = true   //开发环境  打包成exe时，必须为false
+function delTemp(dataPath) {
+    del.sync(`${dataPath}/public/html/*`)
+    del.sync(`${dataPath}/public/report/clip_tool/images/*`)
+}
+function isAllowDownReport(downTaskList) {
+    let num = 0
+    for(let i = 0, len = downTaskList.length; i < len; i++) {
+        if(downTaskList[i].gradeReportInfo.gradeReportList && downTaskList[i].gradeReportInfo.gradeReportList.length > 0 && !downTaskList[i].gradeReportInfo.isComplete){
+            num++
+        }
+        if(downTaskList[i].classReportInfo.classReportList && downTaskList[i].classReportInfo.classReportList.length > 0 && !downTaskList[i].classReportInfo.isComplete){
+            num++
+        }
+        if(downTaskList[i].classPersonReportList && downTaskList[i].classPersonReportList.length > 0 && !downTaskList[i].classPersonReportList.isComplete){
+            num++
+        }
+        if(downTaskList[i].singlePersonInfo.singlePersonList && downTaskList[i].singlePersonInfo.singlePersonList.length > 0 && !downTaskList[i].singlePersonInfo.isComplete){
+            num++
+        }
+        if(num > 6){
+            return false
+        }
+    }
+    return true
 }
 switch (type) {
     case 1:
@@ -27,6 +49,8 @@ export default {
     schoolName: '',
     schoolId: '',
     delTemp,
+    isAllowDownReport,
+    dev,
     downTaskList: [],  //下载报告列表
     isDownTaskComplete: true,
     myEmitter: '',  //事件监听

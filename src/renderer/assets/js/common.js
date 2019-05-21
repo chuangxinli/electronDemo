@@ -3,6 +3,9 @@ const asar = require('asar')
 const fse = require('fs-extra')
 const baseURL = 'http://das.51youpu.com'
 const idURL = 'http://api.51youpu.com'
+const wkTimeout = 3000 * 60
+const pdfFailRepeatCount = 6
+const path = require('path')
 
 function getReportModel(type) {
   let reportModel;
@@ -76,16 +79,16 @@ function getPart(type) {
 }
 
 //判断是否存在public文件夹
-function existsPublic(){
+function existsPublic(appPath, dataPath){
   try{
-    if(!fs.existsSync('public')){
-      asar.extractAll(this.appPath, '')
-      if(!fs.existsSync('public/html')){
-        fs.mkdirSync('public/html')
+    if(!fs.existsSync(`${dataPath}${path.sep}public`)){
+      asar.extractAll(appPath, dataPath)
+      if(!fs.existsSync(`${dataPath}${path.sep}public${path.sep}html`)){
+        fs.mkdirSync(`${dataPath}${path.sep}public${path.sep}html`)
       }
-      fse.removeSync('node_modules')
-      fse.removeSync('data.json')
-      fse.removeSync('dist')
+      fse.removeSync(`${dataPath}${path.sep}public${path.sep}node_modules`)
+      fse.removeSync(`${dataPath}${path.sep}public${path.sep}data.json`)
+      fse.removeSync(`${dataPath}${path.sep}public${path.sep}dist`)
     }
   }catch (e) {
     console.log(e)
@@ -97,5 +100,7 @@ module.exports = {
   getPart,
   existsPublic,
   baseURL,
-  idURL
+  idURL,
+  wkTimeout,
+  pdfFailRepeatCount
 }

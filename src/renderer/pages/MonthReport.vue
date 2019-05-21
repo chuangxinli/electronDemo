@@ -81,7 +81,7 @@
                 <el-table-column
                         align="center"
                         label="操作"
-                        width="300px">
+                        width="260px">
                     <template slot-scope="scope">
                         <!--<el-button @click="seeMonthReport(scope.row)" type="text" size="small">查看报告</el-button>-->
                         <el-button @click="showBatchDown(scope.row)" type="text" size="small">批量下载</el-button>
@@ -333,8 +333,6 @@
                 testList: [],
                 //2019-05-15
                 //批量下载
-                //临时位置
-                tempPath: '',
                 subjectName: '',
                 gradeName: '',
                 className: '',
@@ -379,16 +377,15 @@
             savePath() {
                 return this.$store.state.reportData.savePath
             },
+            //客户端.asar文件位置
             appPath() {
                 return this.$store.state.reportData.appPath
             },
+            dataPath() {
+                return this.$store.state.reportData.dataPath
+            }
         },
         mounted() {
-            if (this.appPath.includes('downloadreport')) {
-                this.tempPath = this.appPath.split('downloadreport')[0] + 'downloadreport'
-            } else {
-                this.tempPath = this.appPath.split('electronDemo')[0] + 'electronDemo'
-            }
             this.getSubjectGradeCondition()
         },
         methods: {
@@ -489,6 +486,14 @@
                 this.isIndeterminate_person = checkedCount > 0 && checkedCount < this.classList.length;
             },
             showBatchDown(row) {
+                if(!this.global.isAllowDownReport(this.global.downTaskList)){
+                    this.$message({
+                        type: 'info',
+                        message: '下载任务太多了，等稍等片刻再接着下载！',
+                        showClose: true
+                    })
+                    return
+                }
                 if(this.global.downTaskList.length > 0){
                     for(let i = 0, len = this.global.downTaskList.length; i < len; i++){
                         if((row.homeworkId == this.global.downTaskList[i].taskId) && this.global.downTaskList[i].reportType == this.reportType){
@@ -689,7 +694,8 @@
                         savePath: this.savePath,
                         type: 4,
                         isBatch: true,
-                        appPath: this.tempPath,
+                        appPath: this.appPath,
+                        dataPath: this.dataPath,
                         taskId: this.taskId,
                         reportType: this.reportType
                     }, this.global.myEmitter)
@@ -723,7 +729,8 @@
                         savePath: this.savePath,
                         type: 6,
                         isBatch: true,
-                        appPath: this.tempPath,
+                        appPath: this.appPath,
+                        dataPath: this.dataPath,
                         taskId: this.taskId,
                         reportType: this.reportType
                     }, this.global.myEmitter)
@@ -768,7 +775,8 @@
                         savePath: this.savePath,
                         type: 1,
                         isBatch: true,
-                        appPath: this.tempPath,
+                        appPath: this.appPath,
+                        dataPath: this.dataPath,
                         taskId: this.taskId,
                         subjectId: this.subjectId,
                         reportType: this.reportType
@@ -819,7 +827,8 @@
                                 type: item.type,
                                 isBatch: item.obj.isBatch,
                                 //true是批量下载（下载后会自动整合到一个文件夹）
-                                appPath: this.tempPath,
+                                appPath: this.appPath,
+                                dataPath: this.dataPath,
                                 errReport: true,
                                 reportType: item.obj.reportType,
                                 taskId: item.obj.taskId
@@ -832,7 +841,8 @@
                                 savePath: this.savePath,
                                 type: item.type,
                                 isBatch: item.obj.isBatch,  //true是批量下载（下载后会自动整合到一个文件夹）
-                                appPath: this.tempPath,
+                                appPath: this.appPath,
+                                dataPath: this.dataPath,
                                 errReport: true,
                                 reportType: item.obj.reportType,
                                 taskId: item.obj.taskId

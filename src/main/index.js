@@ -7,12 +7,11 @@ import global from '../renderer/global'
 import store from '../renderer/store'
 
 console.log('savePath:', store.state.reportData.savePath)
+const dataPath = store.state.reportData.savePath
 
 store.dispatch('GET_APP_PATH', {appPath: app.getAppPath()})
-store.dispatch('DELETE_SUCCESS_REPORT', {})
-
 console.log('app.getAppPath:', app.getAppPath())
-console.log(app.getVersion())
+console.log(app.getVersion()) //electron的版本
 
 /**
  * Set `__static` path to static files in production
@@ -45,16 +44,18 @@ function createWindow() {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    height: 1260,
+    height: 680,
     useContentSize: true,
-    width: 680,
+    width: 1400,
     webPreferences: {webSecurity: false},
-    minWidth: 1260,
+    minWidth: 1400,
     minHeight: 680
   })
-  mainWindow.maximize()
+  setTimeout(() => {
+    mainWindow.maximize()
+  }, 1500)
     //调试的时候用
-  //mainWindow.webContents.openDevTools()
+  mainWindow.webContents.openDevTools()
 
   mainWindow.loadURL(winURL)
   mainWindow.on('close', (e) => {
@@ -69,8 +70,9 @@ function createWindow() {
   })
 
   //清空生成报告时临时所需的html和img
-  global.delTemp()
-  //require('./app')
+  if(dataPath){
+    global.delTemp(dataPath)
+  }
 }
 
 app.on('ready', createWindow)

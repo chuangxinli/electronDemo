@@ -2,7 +2,7 @@ const pug = require('pug')
 const fs = require('fs')
 const path = require('path')
 const axios = require('axios')
-const {baseURL, getReportModel, idURL, existsPublic} = require('./common')
+const {baseURL, getReportModel, idURL, existsPublic, wkTimeout, pdfFailRepeatCount} = require('./common')
 const {execFile} = require('child_process')
 const fse = require("fs-extra")
 const uuid = require('uuid/v4')
@@ -10,7 +10,7 @@ const uuid = require('uuid/v4')
 
 //批量下载报告下载的是每个班级里面的个人报告。下载班级报告和年级报告不走批量下载接口
 let batchScreen = function (classInfo, obj, myEmitter) {
-  existsPublic()
+  existsPublic(obj.appPath, obj.dataPath)
   if (!obj.savePath) {
     myEmitter.emit('warn', {text: '请先设置报告的下载路径（在设置里面设置报告的下载路径）！'})
     return
@@ -20,7 +20,7 @@ let batchScreen = function (classInfo, obj, myEmitter) {
   }
   classInfo[0].status = 2
   let classList = classInfo[0].children
-  let pdfServerBasePath = obj.appPath, savePath = obj.savePath, successList = [], index = 0, classIndex = 0, errClassList = []
+  let pdfServerBasePath = obj.dataPath, savePath = obj.savePath, successList = [], index = 0, classIndex = 0, errClassList = []
   let reportModel = getReportModel(obj.type)
 
 
@@ -36,7 +36,7 @@ let batchScreen = function (classInfo, obj, myEmitter) {
             let correctIds = [], pathStrUrls = [], isStrs
             correctList.forEach((item) => {
               correctIds.push(item.id)
-              pathStrUrls.push(path.normalize(`${obj.appPath}/public/html/${item.id}.html`))
+              pathStrUrls.push(path.normalize(`${obj.dataPath}/public/html/${item.id}.html`))
             })
             if (correctList.length === 1) {
               correctIds.push(correctIds[0])
@@ -47,7 +47,7 @@ let batchScreen = function (classInfo, obj, myEmitter) {
             pathStrUrls = pathStrUrls.toString()
             console.log('正确id：' + correctIds)
             console.log('image 生成中...');
-            execFile('public/exe/phantomjs.exe', ['public/pug/screen_shot.js', pathStrUrls, isStrs], function (err, stdout, stderr) {
+            execFile(`${obj.dataPath}/public/exe/phantomjs.exe`, [`${obj.dataPath}/public/pug/screen_shot.js`, pathStrUrls, isStrs, obj.dataPath], function (err, stdout, stderr) {
               console.log('image 生成结束...')
               if (err) {
                 console.error(`图片生成失败`, stderr)
@@ -106,15 +106,15 @@ let batchScreen = function (classInfo, obj, myEmitter) {
         params.status = 1
         if (obj.type == 1 || obj.type == 2) {
           if (response.data.contentType === 'all') {
-            let temp = pug.renderFile('public/pug/report.pug', response.data)
-            fs.writeFileSync(`public/html/${params.id}.html`, temp)
+            let temp = pug.renderFile(`${obj.dataPath}/public/pug/report.pug`, response.data)
+            fs.writeFileSync(`${obj.dataPath}/public/html/${params.id}.html`, temp)
             correctList.push(params)
           } else {
             noPayList.push(params)
           }
         } else if (obj.type == 5 || obj.type == 6) {
-          let temp = pug.renderFile('public/pug/classReport.pug', response.data)
-          fs.writeFileSync(`public/html/${params.id}.html`, temp)
+          let temp = pug.renderFile(`${obj.dataPath}/public/pug/classReport.pug`, response.data)
+          fs.writeFileSync(`${obj.dataPath}/public/html/${params.id}.html`, temp)
           correctList.push(params)
         }
         if (noPayList.length + errList.length + correctList.length === reportList.length) {
@@ -163,7 +163,7 @@ let batchScreen = function (classInfo, obj, myEmitter) {
         wkFunc()
         function wkFunc(){
           let killSubChild = false, timer
-          let subChild = execFile('public/exe/wkhtmltopdf.exe', ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], {maxBuffer: 1000 * 1024}, (error, stdout, stderr) => {
+          let subChild = execFile(`${obj.dataPath}/public/exe/wkhtmltopdf.exe`, ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], {maxBuffer: 1000 * 1024}, (error, stdout, stderr) => {
             if(!killSubChild){
               clearTimeout(timer)
             }else{
@@ -182,7 +182,7 @@ let batchScreen = function (classInfo, obj, myEmitter) {
                   }
                 }
               }
-              if(correctList[index].repeatCount < 6){
+              if(correctList[index].repeatCount < pdfFailRepeatCount){
                 correctList[index].status = 5 //下载异常
                 getPdf(correctList, errList, noPayList, failPdfList, tempPdfName)
               }else{
@@ -228,7 +228,7 @@ let batchScreen = function (classInfo, obj, myEmitter) {
             killSubChild = true
             subChild.kill('SIGTERM')
             wkFunc()
-          }, 3000 * 60)
+          }, wkTimeout)
         }
       }else{
         index++
@@ -253,7 +253,7 @@ let batchScreen = function (classInfo, obj, myEmitter) {
                   let correctIds = [], pathStrUrls = [], isStrs
                   correctList.forEach((item) => {
                     correctIds.push(item.id)
-                    pathStrUrls.push(path.normalize(`${obj.appPath}/public/html/${item.id}.html`))
+                    pathStrUrls.push(path.normalize(`${obj.dataPath}/public/html/${item.id}.html`))
                   })
                   if (correctList.length === 1) {
                     correctIds.push(correctIds[0])
@@ -264,7 +264,7 @@ let batchScreen = function (classInfo, obj, myEmitter) {
                   pathStrUrls = pathStrUrls.toString()
                   console.log('正确id：' + correctIds)
                   console.log('image 生成中...');
-                  execFile('public/exe/phantomjs.exe', ['public/pug/screen_shot.js', pathStrUrls, isStrs], function (err, stdout, stderr) {
+                  execFile(`${obj.dataPath}/public/exe/phantomjs.exe`, [`${obj.dataPath}/public/pug/screen_shot.js`, pathStrUrls, isStrs, obj.dataPath], function (err, stdout, stderr) {
                     console.log('image 生成结束...')
                     if (err) {
                       console.error(`图片生成失败`, stderr)

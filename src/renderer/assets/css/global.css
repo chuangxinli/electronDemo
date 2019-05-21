@@ -133,8 +133,8 @@ table {
 
 /* 滚动条美化效果 */
 ::-webkit-scrollbar {
-    width: 5px;/*竖向滚动条的宽度*/
-    height: 5px;/*横向滚动条的高度*/
+    width: 8px;/*竖向滚动条的宽度*/
+    height: 8px;/*横向滚动条的高度*/
 }
 /*滚动条轨道的样式*/
 ::-webkit-scrollbar-track {
@@ -164,5 +164,11 @@ table {
 
 .center{
     text-align: center;
+}
+
+html,body{
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
 }
 

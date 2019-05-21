@@ -4,11 +4,13 @@
         <div class="main">
             <Aside></Aside>
             <div class="view">
-                <div class="viewBbox">
-                    <div style="min-height: 600px">
-                        <router-view></router-view>
+                <div class="viewBbox" :style="setWidthHeight">
+                    <div style="padding: 20px; min-width: 1200px">
+                        <div style="min-height: 600px">
+                            <router-view></router-view>
+                        </div>
+                        <Footer></Footer>
                     </div>
-                    <Footer></Footer>
                 </div>
             </div>
         </div>
@@ -34,6 +36,7 @@
     export default {
         data() {
             return {
+                setWidthHeight: {},
                 setDialogVisible: false
             }
         },
@@ -43,7 +46,11 @@
             }
         },
         mounted(){
-
+            this.getWidthHeight()
+            let that = this
+            window.onresize = function () {
+                that.getWidthHeight()
+            }
         },
         components: {
             Header,
@@ -51,6 +58,15 @@
             Footer
         },
         methods: {
+            getWidthHeight(){
+                let width, height
+                height = document.body.offsetHeight - 60 + 'px'
+                width = document.body.offsetWidth - 200 + 'px'
+                this.setWidthHeight = {
+                    width,
+                    height
+                }
+            },
             setSavePath() {
                 dialog.showOpenDialog({properties: ['openDirectory']}, (path) => {
                     if (path) {
@@ -67,17 +83,12 @@
         height: 100%;
     }
     .view{
-        position: fixed;
-        top: 60px;
-        left: 200px;
-        right: 0;
-        bottom: 0;
-        z-index: 10;
+        margin-top: 60px;
+        margin-left: 200px;
+        overflow: hidden;
     }
     .viewBbox{
-        padding: 20px;
-        height: 100%;
-        overflow-y: scroll;
+        overflow: auto;
     }
     .savePath{
         min-height: 40px;

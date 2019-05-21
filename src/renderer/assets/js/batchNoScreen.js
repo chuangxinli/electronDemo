@@ -1,13 +1,13 @@
 const {execFile} = require('child_process')
 const axios = require("axios")
-const {getReportModel, getPart, baseURL, idURL, existsPublic} = require('./common')
+const {getReportModel, getPart, baseURL, idURL, existsPublic, wkTimeout, pdfFailRepeatCount} = require('./common')
 const fse = require('fs-extra')
 const fs = require('fs')
 const uuid = require('uuid/v4')
 
 //批量下载报告下载的是每个班级里面的个人报告。下载班级报告和年级报告不走批量下载接口
 let batchNoScreen = function (classInfo, obj, myEmitter) {
-    existsPublic()
+    existsPublic(obj.appPath, obj.dataPath)
     if (!obj.savePath) {
         myEmitter.emit('warn', {text: '请先设置报告的下载路径（在设置里面设置报告的下载路径）！'})
         return
@@ -17,7 +17,7 @@ let batchNoScreen = function (classInfo, obj, myEmitter) {
     }
     classInfo[0].status = 2
     let classList = classInfo[0].children
-    let pdfServerBasePath = obj.appPath, savePath = obj.savePath, errClassList = [], index = 0, classIndex = 0
+    let pdfServerBasePath = obj.dataPath, savePath = obj.savePath, errClassList = [], index = 0, classIndex = 0
     let {header, footer, cover, content} = getPart(obj.type)
     let reportModel = getReportModel(obj.type)
     //先获取单个班级中学生的id
@@ -128,7 +128,7 @@ let batchNoScreen = function (classInfo, obj, myEmitter) {
                 wkFunc()
                 function wkFunc(){
                     let killSubChild = false, timer
-                    let subChild = execFile('public/exe/wkhtmltopdf.exe', ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], {maxBuffer: 1000 * 1024}, (error, stdout, stderr) => {
+                    let subChild = execFile(`${obj.dataPath}/public/exe/wkhtmltopdf.exe`, ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], {maxBuffer: 1000 * 1024}, (error, stdout, stderr) => {
                         if(!killSubChild){
                             clearTimeout(timer)
                         }else{
@@ -147,7 +147,7 @@ let batchNoScreen = function (classInfo, obj, myEmitter) {
                                     }
                                 }
                             }
-                            if(correctList[index].repeatCount < 6){
+                            if(correctList[index].repeatCount < pdfFailRepeatCount){
                                 correctList[index].status = 5 //下载异常
                                 getPdf(correctList, errList, noPayList, failPdfList, tempPdfName)
                             }else{
@@ -192,7 +192,7 @@ let batchNoScreen = function (classInfo, obj, myEmitter) {
                         killSubChild = true
                         subChild.kill('SIGTERM')
                         wkFunc()
-                    }, 3000 * 60)
+                    }, wkTimeout)
                 }
             } else {
                 index++

@@ -1,12 +1,12 @@
 const axios = require("axios")
 const {execFile} = require('child_process')
-const {getReportModel, getPart, baseURL, existsPublic} = require('./common')
+const {getReportModel, getPart, baseURL, existsPublic, wkTimeout, pdfFailRepeatCount} = require('./common')
 const fse = require('fs-extra')
 const fs = require('fs')
 
 
 let singleNoScreen = function (reportIdList, obj, myEmitter) {
-    existsPublic()
+    existsPublic(obj.appPath, obj.dataPath)
     if (!obj.savePath) {
         myEmitter.emit('warn', {text: '请先设置报告的下载路径（在设置里面设置报告的下载路径）！'})
         return
@@ -14,7 +14,7 @@ let singleNoScreen = function (reportIdList, obj, myEmitter) {
         myEmitter.emit('warn', {text: '报告的下载路径不存在，请重新设置（在设置里面设置报告的下载路径）！'})
         return
     }
-    let pdfServerBasePath = obj.appPath, savePath = obj.savePath, correctList = [], errList = [], failPdfList = [],
+    let pdfServerBasePath = obj.dataPath, savePath = obj.savePath, correctList = [], errList = [], failPdfList = [],
         successPdfList = [], index = 0
     let {header, footer, cover, content} = getPart(obj.type)
     let reportModel = getReportModel(obj.type)
@@ -25,8 +25,6 @@ let singleNoScreen = function (reportIdList, obj, myEmitter) {
             fs.mkdirSync(savePath)
         }
     }
-    console.log(correctList)
-    console.log(obj)
     if (obj.type == 1 || obj.type == 2) {
         reportIdList.forEach((item) => {
             getReportData(item, function (item) {
@@ -104,7 +102,7 @@ let singleNoScreen = function (reportIdList, obj, myEmitter) {
                 wkFunc()
                 function wkFunc() {
                     let killSubChild = false, timer
-                    let subChild = execFile('public/exe/wkhtmltopdf.exe', ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], {maxBuffer: 1000 * 1024}, (error, stdout, stderr) => {
+                    let subChild = execFile(`${obj.dataPath}/public/exe/wkhtmltopdf.exe`, ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], {maxBuffer: 1000 * 1024}, (error, stdout, stderr) => {
                         if (!killSubChild) {
                             clearTimeout(timer)
                         }else{
@@ -124,7 +122,7 @@ let singleNoScreen = function (reportIdList, obj, myEmitter) {
                                 }
                             }
                             //如果错误的pdf连续生成了3次还是生成错误就不再生成了
-                            if (correctList[index].repeatCount < 6) {
+                            if (correctList[index].repeatCount < pdfFailRepeatCount) {
                                 correctList[index].status = 5 //下载异常
                                 getPdf(reportIdList, obj, tempPdfName)
                             } else {
@@ -171,7 +169,7 @@ let singleNoScreen = function (reportIdList, obj, myEmitter) {
                         killSubChild = true
                         subChild.kill('SIGTERM')
                         wkFunc()
-                    }, 3000 * 60)
+                    }, wkTimeout)
                 }
             } else {
                 index++

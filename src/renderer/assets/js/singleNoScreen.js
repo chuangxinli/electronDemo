@@ -1,12 +1,12 @@
 const axios = require("axios")
 const {execFile} = require('child_process')
-const {getReportModel, getPart, baseURL, existsPublic} = require('./common')
+const {getReportModel, getPart, baseURL, existsPublic, pdfFailRepeatCount, wkTimeout} = require('./common')
 const fse = require('fs-extra')
 const fs = require('fs')
 
 
 let singleNoScreen = function (reportInfo, obj, myEmitter) {
-    existsPublic()
+    existsPublic(obj.appPath, obj.dataPath)
     if (!obj.savePath) {
         myEmitter.emit('warn', {text: '请先设置报告的下载路径（在设置里面设置报告的下载路径）！'})
         return
@@ -14,9 +14,7 @@ let singleNoScreen = function (reportInfo, obj, myEmitter) {
         myEmitter.emit('warn', {text: '报告的下载路径不存在，请重新设置（在设置里面设置报告的下载路径）！'})
         return
     }
-    console.log(reportInfo)
-    console.log(obj)
-    let pdfServerBasePath = obj.appPath, savePath = obj.savePath, correctList = [], errList = [], failPdfList = [], successPdfList = [], index = 0, reportIdList = reportInfo.gradeReportList
+    let pdfServerBasePath = obj.dataPath, savePath = obj.savePath, correctList = [], errList = [], failPdfList = [], successPdfList = [], index = 0, reportIdList = reportInfo.gradeReportList
     let {header, footer, cover, content} = getPart(obj.type)
     let reportModel = getReportModel(obj.type)
     //错误列表中下载的报告的存放地址
@@ -103,7 +101,7 @@ let singleNoScreen = function (reportInfo, obj, myEmitter) {
                 wkFunc()
                 function wkFunc() {
                     let killSubChild = false, timer
-                    let subChild = execFile('public/exe/wkhtmltopdf.exe', ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], {maxBuffer: 1000 * 1024}, (error, stdout, stderr) => {
+                    let subChild = execFile(`${obj.dataPath}/public/exe/wkhtmltopdf.exe`, ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], {maxBuffer: 1000 * 1024}, (error, stdout, stderr) => {
                         if (!killSubChild) {
                             clearTimeout(timer)
                         }else{
@@ -123,7 +121,7 @@ let singleNoScreen = function (reportInfo, obj, myEmitter) {
                                 }
                             }
                             //如果错误的pdf连续生成了3次还是生成错误就不再生成了
-                            if (correctList[index].repeatCount < 6) {
+                            if (correctList[index].repeatCount < pdfFailRepeatCount) {
                                 correctList[index].status = 5 //下载异常
                                 getPdf(reportIdList, obj, tempPdfName)
                             } else {
@@ -172,7 +170,7 @@ let singleNoScreen = function (reportInfo, obj, myEmitter) {
                         killSubChild = true
                         subChild.kill('SIGTERM')
                         wkFunc()
-                    }, 3000 * 60)
+                    }, wkTimeout)
                 }
             } else {
                 index++

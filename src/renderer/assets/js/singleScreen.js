@@ -2,13 +2,13 @@ const pug = require('pug')
 const fs = require('fs')
 const path = require('path')
 const axios = require('axios')
-const {baseURL, getReportModel, existsPublic} = require('./common')
+const {baseURL, getReportModel, existsPublic, wkTimeout, pdfFailRepeatCount} = require('./common')
 const {execFile} = require('child_process')
 const fse = require("fs-extra")
 
 
 let singleScreen = function (reportInfo, obj, myEmitter) {
-  existsPublic()
+  existsPublic(obj.appPath, obj.dataPath)
   if (!obj.savePath) {
     myEmitter.emit('warn', {text: '请先设置报告的下载路径（在设置里面设置报告的下载路径）！'})
     return
@@ -16,7 +16,7 @@ let singleScreen = function (reportInfo, obj, myEmitter) {
     myEmitter.emit('warn', {text: '报告的下载路径不存在，请重新设置（在设置里面设置报告的下载路径）！'})
     return
   }
-  let pdfServerBasePath = obj.appPath, savePath = obj.savePath, correctList = [], errList = [], noPayList = [], failPdfList = [], successList = [], index = 0, reportIdList = (reportInfo.classReportList && reportInfo.classReportList.length > 0) ? reportInfo.classReportList : reportInfo.singlePersonList  //可能是个人也可能是班级报告
+  let pdfServerBasePath = obj.dataPath, savePath = obj.savePath, correctList = [], errList = [], noPayList = [], failPdfList = [], successList = [], index = 0, reportIdList = (reportInfo.classReportList && reportInfo.classReportList.length > 0) ? reportInfo.classReportList : reportInfo.singlePersonList  //可能是个人也可能是班级报告
   let reportModel = getReportModel(obj.type)
   //错误列表中下载的报告的存放地址
   if(obj.errReport){
@@ -31,7 +31,7 @@ let singleScreen = function (reportInfo, obj, myEmitter) {
       let correctIds = [], pathStrUrls = [], isStrs
       correctList.forEach((item) => {
         correctIds.push(item.id)
-        pathStrUrls.push(path.normalize(`${obj.appPath}/public/html/${item.id}.html`))
+        pathStrUrls.push(path.normalize(`${obj.dataPath}/public/html/${item.id}.html`))
       })
       if (correctList.length === 1) {
         correctIds.push(correctIds[0])
@@ -42,7 +42,7 @@ let singleScreen = function (reportInfo, obj, myEmitter) {
       pathStrUrls = pathStrUrls.toString()
       console.log('正确id：' + correctIds)
       console.log('image 生成中...');
-      execFile('public/exe/phantomjs.exe', ['public/pug/screen_shot.js', pathStrUrls, isStrs], function (err, stdout, stderr) {
+      execFile(`${obj.dataPath}/public/exe/phantomjs.exe`, [`${obj.dataPath}/public/pug/screen_shot.js`, pathStrUrls, isStrs, obj.dataPath], function (err, stdout, stderr) {
         console.log('image 生成结束...')
         if (err) {
           console.error(`图片生成失败`, stderr)
@@ -63,15 +63,15 @@ let singleScreen = function (reportInfo, obj, myEmitter) {
       if (response.data.recode == 0) {
         if (obj.type == 1 || obj.type == 2) {
           if (response.data.contentType === 'all') {
-            let temp = pug.renderFile('public/pug/report.pug', response.data)
-            fs.writeFileSync(`public/html/${params.id}.html`, temp)
+            let temp = pug.renderFile(`${obj.dataPath}/public/pug/report.pug`, response.data)
+            fs.writeFileSync(`${obj.dataPath}/public/html/${params.id}.html`, temp)
             correctList.push(params)
           } else {
             noPayList.push(params)
           }
         } else if (obj.type == 5 || obj.type == 6) {
-          let temp = pug.renderFile('public/pug/classReport.pug', response.data)
-          fs.writeFileSync(`public/html/${params.id}.html`, temp)
+          let temp = pug.renderFile(`${obj.dataPath}/public/pug/classReport.pug`, response.data)
+          fs.writeFileSync(`${obj.dataPath}/public/html/${params.id}.html`, temp)
           correctList.push(params)
         }
         if (noPayList.length + errList.length + correctList.length === reportIdList.length) {
@@ -136,7 +136,7 @@ let singleScreen = function (reportInfo, obj, myEmitter) {
         function wkFunc(){
           //如果3分钟后wkhtmltopdf命令的回调函数还没有执行，就假设wkhtmltopdf进程中断了；杀掉该子进程，重新函数
           let killSubChild = false, timer
-          let subChild = execFile('public/exe/wkhtmltopdf.exe', ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], {maxBuffer: 1000 * 1024}, (error, stdout, stderr) => {
+          let subChild = execFile(`${obj.dataPath}/public/exe/wkhtmltopdf.exe`, ['--outline-depth', '2', '--footer-html', params.footer, '--header-html', params.header, 'cover', params.cover, params.content, params.pdfName], {maxBuffer: 1000 * 1024}, (error, stdout, stderr) => {
             if(!killSubChild){ //没有该杀掉
               clearTimeout(timer)
             }else{ //执行了杀掉子进程
@@ -155,7 +155,7 @@ let singleScreen = function (reportInfo, obj, myEmitter) {
                   }
                 }
               }
-              if(correctList[index].repeatCount < 6){
+              if(correctList[index].repeatCount < pdfFailRepeatCount){
                 myEmitter.emit('pdf_error', {id, type: obj.type})
                 correctList[index].status = 5 //下载异常
                 getPdf(reportIdList, obj, tempPdfName)
@@ -205,7 +205,7 @@ let singleScreen = function (reportInfo, obj, myEmitter) {
             killSubChild = true
             subChild.kill('SIGTERM')
             wkFunc()
-          }, 3000 * 60)
+          }, wkTimeout)
         }
       }else{
         index++

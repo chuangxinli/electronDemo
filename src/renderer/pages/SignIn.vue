@@ -1,5 +1,5 @@
 <template>
-    <div style="position: relative">
+    <div style="position: relative;">
         <div class="login_background"></div>
         <div class="login_background_2">
             <div class="login_left">
@@ -12,12 +12,6 @@
                     <div class="login_box">
                         <h2 class="title">请您使用您的有谱教师账号登录</h2>
                         <el-form :label-position="labelPosition" label-width="80px" :model="formLabelAlign" class="signin">
-                            <!--<el-form-item label="账号：" class="mBot50 mTop80">
-                                <el-input v-model="formLabelAlign.username" @keyup.native.enter="beforeLogin"></el-input>
-                            </el-form-item>
-                            <el-form-item label="密码：" class="mBot50">
-                                <el-input v-model="formLabelAlign.password" type="password" @keyup.native.13="beforeLogin"></el-input>
-                            </el-form-item>-->
                             <div class="input_box" :class="{'ipt_active': iptUserActive}">
                                 <i class="iconfont icon-yonghu2"></i>
                                 <input type="text" v-model="formLabelAlign.username" @keyup.enter="beforeLogin" placeholder="请输入用户名" @focus="iptUserActive = true" @blur="iptUserActive = false">
@@ -69,6 +63,8 @@
 <script>
     const fs = require('fs')
     const asar = require('asar')
+    const os = require('os')
+    const path = require('path')
     import {Loading} from 'element-ui'
 
     const fse = require('fs-extra')
@@ -99,11 +95,8 @@
             appPath() {
                 return this.$store.state.reportData.appPath
             },
-            errReportList() {
-                return this.$store.state.reportData.errReportList
-            },
-            successReportList() {
-                return this.$store.state.reportData.successReportList
+            dataPath() {
+                return this.$store.state.reportData.dataPath
             }
         },
         created() {
@@ -163,6 +156,17 @@
             this.detectionVersion()
         },
         mounted() {
+            console.log(this.appPath)
+            console.log(this.appPath.split('\\node_modules')[0])
+            if(this.global.dev){
+                this.$store.dispatch('GET_DATA_PATH', {
+                    dataPath: this.appPath.split('\\node_modules')[0]
+                })
+            }else{
+                this.$store.dispatch('GET_DATA_PATH', {
+                    dataPath: os.homedir().split(':')[0] + ':' + path.sep + 'ProgramData' + path.sep + 'downloadreport'
+                })
+            }
             let that = this
             window.addEventListener('online', function () {
                 that.$notify({
@@ -201,7 +205,6 @@
             async detectionVersion() {
                 let data = await this.api.get(`${this.global.version_url}/data.json?${new Date().getTime()}`, {})
                 if (data) {
-                    console.log(data.version)
                     function isDown(curVersion, remoteVertion) {
                         curVersion = curVersion.split('.')
                         remoteVertion = remoteVertion.split('.')
@@ -223,7 +226,7 @@
             },
             beforeLogin() {
                 //首次登录处理
-                if (!fs.existsSync('public')) {
+                if (!fs.existsSync(`${this.dataPath}/public`)) {
                     let loadingInstance = Loading.service({
                         lock: true,
                         text: '首次登录配置中...',
@@ -232,14 +235,14 @@
                     })
                     setTimeout(() => {
                         try {
-                            asar.extractAll(this.appPath, '')
-                            if (!fs.existsSync('public/html')) {
-                                fs.mkdirSync('public/html')
+                            asar.extractAll(this.appPath, this.dataPath)
+                            if (!fs.existsSync(`${this.dataPath}${path.sep}public${path.sep}html`)) {
+                                fs.mkdirSync(`${this.dataPath}${path.sep}public${path.sep}html`)
                             }
-                            fse.removeSync('node_modules')
-                            fse.removeSync('data.json')
-                            fse.removeSync('dist')
-                        } catch (e) {
+                            fse.removeSync(`${this.dataPath}${path.sep}node_modules`)
+                            fse.removeSync(`${this.dataPath}${path.sep}data.json`)
+                            fse.removeSync(`${this.dataPath}${path.sep}dist`)
+                        }catch (e) {
                             console.log(e)
                         }
                         loadingInstance.close()
