@@ -1,6 +1,7 @@
 {
   "name": "downloadreport",
-  "version": "0.0.8",
+  "version": "1.0.0",
+
   "author": "chuangxinli <1358601985@qq.com>",
   "description": "An electron-vue project",
   "license": null,
@@ -17,7 +18,7 @@
     "postinstall": ""
   },
   "build": {
-    "productName": "有谱报告下载小助手",
+    "productName": "有谱报告下载助手",
     "appId": "com.lcx-example.yourapp",
     "directories": {
       "output": "build"
@@ -52,7 +53,7 @@
       "icon": "build/icons/icon.icns"
     },
     "win": {
-      "icon": "build/icons/logowin.ico",
+      "icon": "build/icons/logo7.ico",
       "target": [
         "nsis"
       ]
@@ -64,9 +65,9 @@
       "oneClick": false,
       "allowElevation": true,
       "allowToChangeInstallationDirectory": true,
-      "installerIcon": "build/icons/logowin.ico",
-      "uninstallerIcon": "build/icons/logowin.ico",
-      "installerHeaderIcon": "build/icons/logowin.ico",
+      "installerIcon": "build/icons/logo7.ico",
+      "uninstallerIcon": "build/icons/logo7.ico",
+      "installerHeaderIcon": "build/icons/logo7.ico",
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "perMachine": true,

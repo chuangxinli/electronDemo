@@ -10,10 +10,10 @@ const fse = require("fs-extra")
 let singleScreen = function (reportIdList, obj, myEmitter) {
     existsPublic()
     if (!obj.savePath) {
-        myEmitter.emit('warn', {text: '请先设置报告的下载路径！'})
+        myEmitter.emit('warn', {text: '请先设置报告的下载路径（在设置里面设置报告的下载路径）！'})
         return
     } else if (!fs.existsSync(obj.savePath)){
-        myEmitter.emit('warn', {text: '报告的下载路径不存在，请重新设置！'})
+        myEmitter.emit('warn', {text: '报告的下载路径不存在，请重新设置！（在设置里面设置报告的下载路径）'})
         return
     }
     console.log(reportIdList)

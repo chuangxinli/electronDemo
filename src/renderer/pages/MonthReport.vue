@@ -493,7 +493,6 @@
                     for(let i = 0, len = this.global.downTaskList.length; i < len; i++){
                         if((row.homeworkId == this.global.downTaskList[i].taskId) && this.global.downTaskList[i].reportType == this.reportType){
                             if(this.global.downTaskList[i].gradeReportInfo.gradeReportList && this.global.downTaskList[i].gradeReportInfo.gradeReportList.length > 0 && !this.global.downTaskList[i].gradeReportInfo.isComplete){
-                                alert(1)
                                 this.$message({
                                     type: 'info',
                                     message: '当前考试任务正在下载，不能重复下载，请等待本次任务下载完成，再接着下载！',
@@ -502,7 +501,6 @@
                                 return
                             }
                             if(this.global.downTaskList[i].classReportInfo.classReportList &&　this.global.downTaskList[i].classReportInfo.classReportList.length > 0 && !this.global.downTaskList[i].classReportInfo.isComplete){
-                                alert(2)
                                 this.$message({
                                     type: 'info',
                                     message: '当前考试任务正在下载，不能重复下载，请等待本次任务下载完成，再接着下载！',
@@ -511,7 +509,6 @@
                                 return
                             }
                             if(this.global.downTaskList[i].classPersonReportList.length > 0 && this.global.downTaskList[i].classPersonReportList[0].children && this.global.downTaskList[i].classPersonReportList[0].children.length > 0 && !this.global.downTaskList[i].classPersonReportList[0].isComplete){
-                                alert(3)
                                 this.$message({
                                     type: 'info',
                                     message: '当前考试任务正在下载，不能重复下载，请等待本次任务下载完成，再接着下载！',
@@ -521,7 +518,6 @@
                                 return
                             }
                             if(this.global.downTaskList[i].singlePersonInfo.singlePersonList &&　this.global.downTaskList[i].singlePersonInfo.singlePersonList.length > 0 && !this.global.downTaskList[i].singlePersonInfo.isComplete){
-                                alert(4)
                                 this.$message({
                                     type: 'info',
                                     message: '当前考试任务正在下载，不能重复下载，请等待本次任务下载完成，再接着下载！',

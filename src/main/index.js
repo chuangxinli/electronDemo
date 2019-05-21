@@ -53,7 +53,8 @@ function createWindow() {
     minHeight: 680
   })
   mainWindow.maximize()
-  mainWindow.webContents.openDevTools()
+    //调试的时候用
+  //mainWindow.webContents.openDevTools()
 
   mainWindow.loadURL(winURL)
   mainWindow.on('close', (e) => {

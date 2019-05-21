@@ -9,10 +9,10 @@ const uuid = require('uuid/v4')
 let batchNoScreen = function (classInfo, obj, myEmitter) {
     existsPublic()
     if (!obj.savePath) {
-        myEmitter.emit('warn', {text: '请先设置报告的下载路径！'})
+        myEmitter.emit('warn', {text: '请先设置报告的下载路径（在设置里面设置报告的下载路径）！'})
         return
     } else if (!fs.existsSync(obj.savePath)){
-        myEmitter.emit('warn', {text: '报告的下载路径不存在，请重新设置！'})
+        myEmitter.emit('warn', {text: '报告的下载路径不存在，请重新设置（在设置里面设置报告的下载路径）！'})
         return
     }
     classInfo[0].status = 2

@@ -10,10 +10,10 @@ const fse = require("fs-extra")
 let singleScreen = function (reportInfo, obj, myEmitter) {
   existsPublic()
   if (!obj.savePath) {
-    myEmitter.emit('warn', {text: '请先设置报告的下载路径！'})
+    myEmitter.emit('warn', {text: '请先设置报告的下载路径（在设置里面设置报告的下载路径）！'})
     return
   } else if (!fs.existsSync(obj.savePath)){
-    myEmitter.emit('warn', {text: '报告的下载路径不存在，请重新设置！'})
+    myEmitter.emit('warn', {text: '报告的下载路径不存在，请重新设置（在设置里面设置报告的下载路径）！'})
     return
   }
   let pdfServerBasePath = obj.appPath, savePath = obj.savePath, correctList = [], errList = [], noPayList = [], failPdfList = [], successList = [], index = 0, reportIdList = (reportInfo.classReportList && reportInfo.classReportList.length > 0) ? reportInfo.classReportList : reportInfo.singlePersonList  //可能是个人也可能是班级报告

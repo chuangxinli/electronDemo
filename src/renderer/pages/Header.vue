@@ -1,6 +1,6 @@
 <template>
     <div class="header" style="-webkit-app-region: drag">
-        <div class="title">欢迎使用有谱报告下载小助手</div>
+        <div class="title">欢迎使用有谱报告下载助手</div>
         <div class="signOut mLeft40 mRight20" style="position: relative">
             <el-popover
                     placement="bottom"

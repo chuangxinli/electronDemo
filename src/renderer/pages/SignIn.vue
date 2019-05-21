@@ -1,36 +1,7 @@
 <template>
     <div style="position: relative">
-        <div class="login_background">
-            <!--提示有新版本-->
-            <el-dialog
-                    title="友情提示"
-                    :visible.sync="isDownDialogVisible"
-                    width="400px"
-                    center>
-                <p class="center">检测到了新的版本是否下载！</p>
-                <span slot="footer" class="dialog-footer">
-                <el-button @click="isDownDialogVisible = false">取 消</el-button>
-                <el-button type="primary" @click="conformDown()">确 定</el-button>
-            </span>
-            </el-dialog>
-            <!--新版本下载进度-->
-            <el-dialog
-                    title="友情提示"
-                    :visible.sync="downDialogVisible"
-                    :close-on-click-modal="false"
-                    width="400px"
-                    center>
-                <p class="center">正在下载中。。。。。。请耐心等待！</p>
-                <div class="center mTop20">
-                    <el-progress type="circle" :percentage="downloadPercent" color="#8e71c7"></el-progress>
-                </div>
-            </el-dialog>
-        </div>
+        <div class="login_background"></div>
         <div class="login_background_2">
-            <div class="info">
-                <img src="../assets/img/logo.png" alt="">
-                <span>有谱报告下载助手</span>
-            </div>
             <div class="login_left">
                 <div class="left_img">
                     <img src="../assets/img/login_3.png" alt="">
@@ -67,6 +38,30 @@
             </div>
         </div>
         <close-tip></close-tip>
+        <!--提示有新版本-->
+        <el-dialog
+                title="友情提示"
+                :visible.sync="isDownDialogVisible"
+                width="400px"
+                center>
+            <p class="center">检测到了新的版本是否下载！</p>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="isDownDialogVisible = false">取 消</el-button>
+                <el-button type="primary" @click="conformDown()">确 定</el-button>
+            </span>
+        </el-dialog>
+        <!--新版本下载进度-->
+        <el-dialog
+                title="友情提示"
+                :visible.sync="downDialogVisible"
+                :close-on-click-modal="false"
+                width="400px"
+                center>
+            <p class="center">正在下载中。。。。。。请耐心等待！</p>
+            <div class="center mTop20">
+                <el-progress type="circle" :percentage="downloadPercent" color="#8e71c7"></el-progress>
+            </div>
+        </el-dialog>
     </div>
 </template>
 
@@ -207,11 +202,10 @@
                 let data = await this.api.get(`${this.global.version_url}/data.json?${new Date().getTime()}`, {})
                 if (data) {
                     console.log(data.version)
-
                     function isDown(curVersion, remoteVertion) {
                         curVersion = curVersion.split('.')
                         remoteVertion = remoteVertion.split('.')
-                        if (curVersion[0] < remoteVertion[0]) {
+                        if (curVersion[0] < remoteVertion[0]) { //每次更新时依次对比每一位的数字大小，都为1位数字
                             return true
                         } else if (curVersion[1] < remoteVertion[1]) {
                             return true
@@ -385,25 +379,6 @@
         background-repeat: no-repeat;
     }
 
-    .info {
-        width: 100%;
-        height: 50px;
-        line-height: 50px;
-    }
-
-    .info > img {
-        margin-left: 10px;
-        margin-top: 10px;
-        width: 30px;
-        float: left;
-    }
-
-    .info > span {
-        float: left;
-        font-size: 20px;
-        color: red;
-        margin-left: 6px;
-    }
 
     .login_left {
         float: left;

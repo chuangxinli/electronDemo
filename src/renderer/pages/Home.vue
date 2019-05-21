@@ -4,7 +4,9 @@
         <div class="main">
             <Aside></Aside>
             <div class="view">
-                <router-view></router-view>
+                <div class="viewBbox">
+                    <router-view></router-view>
+                </div>
                 <Footer></Footer>
             </div>
         </div>
@@ -30,7 +32,6 @@
     export default {
         data() {
             return {
-                getHeight: {},
                 setDialogVisible: false
             }
         },
@@ -65,9 +66,14 @@
     }
     .view{
         position: relative;
-        padding: 80px 20px 80px 220px;
+        margin-top: 60px;
+        margin-left: 200px;
         height: 100%;
         min-height: 660px;
+    }
+    .viewBbox{
+        margin-bottom: 60px;
+        padding: 20px;
     }
     .savePath{
         min-height: 40px;
