@@ -5,9 +5,11 @@
             <Aside></Aside>
             <div class="view">
                 <div class="viewBbox">
-                    <router-view></router-view>
+                    <div style="min-height: 600px">
+                        <router-view></router-view>
+                    </div>
+                    <Footer></Footer>
                 </div>
-                <Footer></Footer>
             </div>
         </div>
         <!--设置弹框-->
@@ -65,15 +67,17 @@
         height: 100%;
     }
     .view{
-        position: relative;
-        margin-top: 60px;
-        margin-left: 200px;
-        height: 100%;
-        min-height: 660px;
+        position: fixed;
+        top: 60px;
+        left: 200px;
+        right: 0;
+        bottom: 0;
+        z-index: 10;
     }
     .viewBbox{
-        margin-bottom: 60px;
         padding: 20px;
+        height: 100%;
+        overflow-y: scroll;
     }
     .savePath{
         min-height: 40px;

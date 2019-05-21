@@ -1,6 +1,6 @@
 <template>
     <div class="footer">
-        <p>铭仁（北京）教育科技有限公司 © Copyright 2019</p>
+        <div>铭仁（北京）教育科技有限公司 © Copyright 2019</div>
     </div>
 </template>
 
@@ -15,17 +15,8 @@
 </script>
 
 <style scoped>
-    .footer{
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
+    .footer div{
         height: 60px;
-        line-height: 60px;
-        margin-left: 200px;
-    }
-    .footer p{
-        width: 100%;
         text-align: center;
     }
 </style>
