@@ -1,10 +1,9 @@
 
 const del = require('del')
 let api_url, type = 1   //1正式 2 测试
-let dev = true   //开发环境  打包成exe时，必须为false
 function delTemp(dataPath) {
-    del.sync(`${dataPath}/public/html/*`)
-    del.sync(`${dataPath}/public/report/clip_tool/images/*`)
+    del.sync(`${dataPath}/public/html/*`, {force: true})
+    del.sync(`${dataPath}/public/report/clip_tool/images/*`, {force: true})
 }
 function isAllowDownReport(downTaskList) {
     let num = 0
@@ -50,7 +49,6 @@ export default {
     schoolId: '',
     delTemp,
     isAllowDownReport,
-    dev,
     downTaskList: [],  //下载报告列表
     isDownTaskComplete: true,
     myEmitter: '',  //事件监听

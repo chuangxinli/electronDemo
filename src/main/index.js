@@ -7,7 +7,7 @@ import global from '../renderer/global'
 import store from '../renderer/store'
 
 console.log('savePath:', store.state.reportData.savePath)
-const dataPath = store.state.reportData.savePath
+const dataPath = store.state.reportData.dataPath
 
 store.dispatch('GET_APP_PATH', {appPath: app.getAppPath()})
 console.log('app.getAppPath:', app.getAppPath())
@@ -20,6 +20,11 @@ console.log(app.getVersion()) //electron的版本
 if (process.env.NODE_ENV !== 'development') {
   global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
+
+console.log('--------------------')
+console.log(process.env.NODE_ENV)
+console.log('--------------------')
+console.log(app.getName())
 
 let mainWindow, isClose = false
 const winURL = process.env.NODE_ENV === 'development'
@@ -53,9 +58,9 @@ function createWindow() {
   })
   setTimeout(() => {
     mainWindow.maximize()
-  }, 1500)
-    //调试的时候用
-  mainWindow.webContents.openDevTools()
+  }, 2000)
+  //调试的时候用
+  //mainWindow.webContents.openDevTools()
 
   mainWindow.loadURL(winURL)
   mainWindow.on('close', (e) => {
@@ -70,7 +75,10 @@ function createWindow() {
   })
 
   //清空生成报告时临时所需的html和img
+  console.log('+++++++++++++++++')
+  console.log(dataPath)
   if(dataPath){
+
     global.delTemp(dataPath)
   }
 }

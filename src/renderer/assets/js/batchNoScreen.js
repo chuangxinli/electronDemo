@@ -83,10 +83,8 @@ let batchNoScreen = function (classInfo, obj, myEmitter) {
                 noPayList.push(id)
             }
             if (correctList.length + noPayList.length + errList.length === personList.length) {
-                console.log(correctList)
-                console.log(classList[classIndex - 1].children)
                 classList[classIndex - 1].children = correctList
-                console.log('执行了！')
+                classList[classIndex - 1].allNum = correctList.length
                 classList[classIndex - 1].status = 2
                 classList[classIndex - 1].children = correctList
                 getPdf(correctList, errList, noPayList, failPdfList)

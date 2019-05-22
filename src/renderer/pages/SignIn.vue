@@ -88,7 +88,8 @@
                 tips: '',
                 downloadPercent: 0,
                 iptUserActive: false,
-                iptPwdActive: false
+                iptPwdActive: false,
+                exeVersion: require('../../../package.json').version
             }
         },
         computed: {
@@ -153,16 +154,29 @@
                 this.global.myEmitter.on('down_report_success', (data) => {
                 })
             }
-            this.detectionVersion()
+            if(process.env.NODE_ENV === 'production'){
+                this.detectionVersion()
+            }
         },
         mounted() {
+            console.log('--------------------')
+            console.log(process.env.NODE_ENV)
+            console.log('--------------------')
             console.log(this.appPath)
+            if(/[\u4e00-\u9fa5]/.test(this.appPath)){
+                this.$notify({
+                    title: '提示',
+                    message: `检测到您把该应用安装在了包含中文的目录下面了，为了不影响你的使用，请您重新安装！`,
+                    duration: 0,
+                    type: 'success'
+                });
+            }
             console.log(this.appPath.split('\\node_modules')[0])
-            if(this.global.dev){
+            if(process.env.NODE_ENV === 'development'){
                 this.$store.dispatch('GET_DATA_PATH', {
                     dataPath: this.appPath.split('\\node_modules')[0]
                 })
-            }else{
+            }else{  //production
                 this.$store.dispatch('GET_DATA_PATH', {
                     dataPath: os.homedir().split(':')[0] + ':' + path.sep + 'ProgramData' + path.sep + 'downloadreport'
                 })
@@ -173,7 +187,7 @@
                     title: '提示',
                     message: `网络连接成功！`,
                     duration: 0,
-                    type: 'success'
+                    type: 'warning'
                 });
                 console.log('有网络了');
             })
@@ -208,6 +222,7 @@
                     function isDown(curVersion, remoteVertion) {
                         curVersion = curVersion.split('.')
                         remoteVertion = remoteVertion.split('.')
+                        console.log(curVersion, remoteVertion)
                         if (curVersion[0] < remoteVertion[0]) { //每次更新时依次对比每一位的数字大小，都为1位数字
                             return true
                         } else if (curVersion[1] < remoteVertion[1]) {
@@ -218,37 +233,52 @@
                             return false
                         }
                     }
-
-                    if (isDown(require('../../../package.json').version, data.version)) {
+                    if (isDown(this.exeVersion, data.version)) {
                         this.isDownDialogVisible = true
                     }
                 }
             },
-            beforeLogin() {
-                //首次登录处理
-                if (!fs.existsSync(`${this.dataPath}/public`)) {
-                    let loadingInstance = Loading.service({
-                        lock: true,
-                        text: '首次登录配置中...',
-                        spinner: 'el-icon-loading',
-                        background: 'rgba(0, 0, 0, 0.5)'
-                    })
-                    setTimeout(() => {
-                        try {
-                            asar.extractAll(this.appPath, this.dataPath)
-                            if (!fs.existsSync(`${this.dataPath}${path.sep}public${path.sep}html`)) {
-                                fs.mkdirSync(`${this.dataPath}${path.sep}public${path.sep}html`)
-                            }
-                            fse.removeSync(`${this.dataPath}${path.sep}node_modules`)
-                            fse.removeSync(`${this.dataPath}${path.sep}data.json`)
-                            fse.removeSync(`${this.dataPath}${path.sep}dist`)
-                        }catch (e) {
-                            console.log(e)
+            getPublic(){
+                let loadingInstance = Loading.service({
+                    lock: true,
+                    text: '数据处理中请稍后...',
+                    spinner: 'el-icon-loading',
+                    background: 'rgba(0, 0, 0, 0.5)'
+                })
+                setTimeout(() => {
+                    console.log(this.appPath, this.dataPath)
+                    try {
+                        console.log(this.appPath, this.dataPath)
+                        asar.extractAll(this.appPath, this.dataPath)
+                        if (!fs.existsSync(`${this.dataPath}${path.sep}public${path.sep}html`)) {
+                            fs.mkdirSync(`${this.dataPath}${path.sep}public${path.sep}html`)
                         }
-                        loadingInstance.close()
-                        this.onSubmit()
-                    }, 500)
-                } else {
+                        fse.removeSync(`${this.dataPath}${path.sep}node_modules`)
+                        fse.removeSync(`${this.dataPath}${path.sep}data.json`)
+                        fse.removeSync(`${this.dataPath}${path.sep}dist`)
+                        fs.writeFileSync(`${this.dataPath}${path.sep}version.json`, JSON.stringify({
+                           version: this.exeVersion
+                        }))
+                    }catch (e) {
+                        console.log(e)
+                    }
+                    loadingInstance.close()
+                    this.onSubmit()
+                }, 500)
+            },
+            beforeLogin() {
+                if(process.env.NODE_ENV !== 'development'){
+                    //如果public文件不存在或者不是最新的就处理
+                    if (!fs.existsSync(`${this.dataPath}/public`) || !fse.pathExistsSync(`${this.dataPath}${path.sep}version.json`)) {
+                        this.getPublic()
+                    }else {
+                        if(JSON.parse(fs.readFileSync(`${this.dataPath}${path.sep}version.json`).toString()).version != this.exeVersion){
+                            this.getPublic()
+                        }else{
+                            this.onSubmit()
+                        }
+                    }
+                }else{
                     this.onSubmit()
                 }
             },

@@ -5,7 +5,7 @@
             <Aside></Aside>
             <div class="view">
                 <div class="viewBbox" :style="setWidthHeight">
-                    <div style="padding: 20px; min-width: 1200px">
+                    <div style="padding: 20px;min-width: 1200px">
                         <div style="min-height: 600px">
                             <router-view></router-view>
                         </div>

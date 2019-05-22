@@ -5,6 +5,7 @@
             <el-popover
                     placement="bottom"
                     width="160"
+                    v-model="isShow"
                     trigger="click">
                 <ul class="popover_box">
                     <li v-show="savePath" @click="openSavePath">
@@ -39,7 +40,8 @@
         data() {
             return {
                 user: '',
-                role: ''
+                role: '',
+                isShow: false
             }
         },
         computed: {
@@ -53,6 +55,7 @@
         },
         methods: {
             async signOut() {
+                this.isShow = false
                 let url = '/logout'
                 let params = {
                     sid: this.global.sid
@@ -73,9 +76,11 @@
             openSavePath() {
                 //shell.openExternal('https://github.com')
                 shell.openItem(this.savePath)
+                this.isShow =  false
             },
             setSavePath(){
                 this.$emit('showSetPath')
+                this.isShow = false
             }
         }
     }

@@ -96,9 +96,12 @@
         <el-dialog
                 title="提示"
                 :visible.sync="allDownDialogVisible"
-                width="40%"
+                width="50%"
                 center>
             <h2>请根据需要选择</h2>
+            <div v-show="gradeReportList.length == 0 && classReportList.length == 0 && classList.length == 0" class="mTop20 noResponseTip">
+                数据加载中，请稍等。。。
+            </div>
             <div class="allDown" v-show="gradeReportList.length > 0">
                 <p class="reportType"><span>年级报告</span></p>
                 <el-checkbox :indeterminate="isIndeterminate_grade" v-model="checkAll_grade"
@@ -769,18 +772,33 @@
                         })
                     })
                     taskObj.classPersonReportList = tempRow
-                    batchScreen(tempRow, {
-                        gradeName: this.gradeName,
-                        subjectName: this.subjectName,
-                        savePath: this.savePath,
-                        type: 1,
-                        isBatch: true,
-                        appPath: this.appPath,
-                        dataPath: this.dataPath,
-                        taskId: this.taskId,
-                        subjectId: this.subjectId,
-                        reportType: this.reportType
-                    }, this.global.myEmitter)
+                    if(this.subjectId == 7 || this.subjectId == 10){
+                        batchNoScreen(tempRow, {
+                            gradeName: this.gradeName,
+                            subjectName: this.subjectName,
+                            savePath: this.savePath,
+                            type: 1,
+                            isBatch: true,
+                            appPath: this.appPath,
+                            dataPath: this.dataPath,
+                            taskId: this.taskId,
+                            subjectId: this.subjectId,
+                            reportType: this.reportType
+                        }, this.global.myEmitter)
+                    }else{
+                        batchScreen(tempRow, {
+                            gradeName: this.gradeName,
+                            subjectName: this.subjectName,
+                            savePath: this.savePath,
+                            type: 1,
+                            isBatch: true,
+                            appPath: this.appPath,
+                            dataPath: this.dataPath,
+                            taskId: this.taskId,
+                            subjectId: this.subjectId,
+                            reportType: this.reportType
+                        }, this.global.myEmitter)
+                    }
                 }
             },
             cancleDownReport(type, index) {
@@ -818,8 +836,8 @@
                 }
                 row.forEach((item, index) => {
                     setTimeout(() => {
-                        if([1, 2, 5, 6].includes(item.obj.type)){ //班级和个人报告
-                            singleScreenForSearch([item], {
+                        if([3, 4].includes(item.obj.type) || (item.obj.type == 1 && item.subjectId == 7) || (item.obj.type == 2 && item.subjectId == 10)){
+                            singleNoScreenForSearch([item], {
                                 gradeName: item.obj.gradeName,
                                 subjectName: item.obj.subjectName,
                                 className: item.obj.className,
@@ -833,8 +851,8 @@
                                 reportType: item.obj.reportType,
                                 taskId: item.obj.taskId
                             }, this.global.myEmitter)
-                        }else{ //年级报告
-                            singleNoScreenForSearch([item], {
+                        }else{
+                            singleScreenForSearch([item], {
                                 gradeName: item.obj.gradeName,
                                 subjectName: item.obj.subjectName,
                                 className: item.obj.className,
@@ -903,6 +921,11 @@
 </script>
 
 <style scoped>
+    .noResponseTip{
+        height: 40px;
+        line-height: 40px;
+        text-align: center;
+    }
     .reportType {
         text-align: center;
         margin-top: 20px;
