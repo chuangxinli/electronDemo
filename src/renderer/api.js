@@ -94,6 +94,6 @@ export default {
     if (obj instanceof Object) {
       obj_options = obj
     }
-    return axios.get(url, { params }, obj_options).then(checkStatus).then(checkCode)
+    return axios.get(url, {params, ...obj_options}).then(checkStatus).then(checkCode)
   }
 }

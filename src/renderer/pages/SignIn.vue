@@ -204,17 +204,19 @@
         methods: {
             conformDown() {
                 this.isDownDialogVisible = false
-                this.downDialogVisible = true
-                ipcRenderer.send("update");
-                ipcRenderer.on("message", (event, text) => {
-                    this.tips = text;
-                });
-                ipcRenderer.on("downloadProgress", (event, progressObj) => {
-                    this.downloadPercent = parseInt(progressObj.percent || 0);
-                });
-                ipcRenderer.on("isUpdateNow", () => {
-                    ipcRenderer.send("isUpdateNow");
-                });
+                setTimeout(() => {
+                    this.downDialogVisible = true
+                    ipcRenderer.send("update");
+                    ipcRenderer.on("message", (event, text) => {
+                        this.tips = text;
+                    });
+                    ipcRenderer.on("downloadProgress", (event, progressObj) => {
+                        this.downloadPercent = parseInt(progressObj.percent || 0);
+                    });
+                    ipcRenderer.on("isUpdateNow", () => {
+                        ipcRenderer.send("isUpdateNow");
+                    });
+                }, 300)
             },
             async detectionVersion() {
                 let data = await this.api.get(`${this.global.version_url}/data.json?${new Date().getTime()}`, {})
