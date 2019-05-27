@@ -28,13 +28,13 @@ function isAllowDownReport(downTaskList) {
 }
 switch (type) {
     case 1:
-        api_url = ''
+        api_url = 'http://das.51youpu.com'
         break
     case 2:
-        api_url = ''
+        api_url = 'http://120.27.195.10:8090'
         break
     default:
-        api_url = ''
+        api_url = 'http://das.51youpu.com'
 }
 export default {
     api_url,

@@ -83,7 +83,6 @@
                         label="操作"
                         width="260px">
                     <template slot-scope="scope">
-                        <!--<el-button @click="seeMonthReport(scope.row)" type="text" size="small">查看报告</el-button>-->
                         <el-button @click="showBatchDown(scope.row)" type="text" size="small">批量下载</el-button>
                         <el-button v-show="scope.row.isDown" @click="seeDownProgress(scope.row)" type="text" size="small">查看下载进度</el-button>
                         <el-button v-show="scope.row.isDown" @click="seeErrReport(scope.row)" type="text" size="small">下载失败的报告</el-button>
@@ -453,12 +452,6 @@
                 this.currentPage = currentPage
                 this.pageSize = pageSize
                 this.getTestList()
-            },
-            seeMonthReport(row) {
-                console.log(row.homeworkId)
-                this.$router.push({
-                    path: `/Home/SeeMonthReport/${row.homeworkId}/${row.subjectName}/${row.gradeName}/${row.subjectId}`
-                })
             },
             //2019-05-15
             handleCheckAllChange_grade(val) {
