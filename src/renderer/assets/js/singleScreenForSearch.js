@@ -16,8 +16,6 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
         myEmitter.emit('warn', {text: '报告的下载路径不存在，请重新设置！（在设置里面设置报告的下载路径）'})
         return
     }
-    console.log(reportIdList)
-    console.log(obj)
     let pdfServerBasePath = obj.dataPath, savePath = obj.savePath, correctList = [], errList = [], noPayList = [],
         failPdfList = [], successList = [], index = 0
     let reportModel = getReportModel(obj.type)
@@ -50,7 +48,6 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
                     console.error(`图片生成失败`, stderr)
                     return;
                 }
-                console.log(correctList)
                 getPdf(correctList, obj)
             })
         })
@@ -106,8 +103,6 @@ let singleScreen = function (reportIdList, obj, myEmitter) {
                 }
                 let id = correctList[index].id
                 let name = correctList[index].studentName ? correctList[index].studentName : correctList[index].name
-                console.log(correctList[index])
-                console.log(name)
                 name = name.replace(/[^\u4e00-\u9fa5a-zA-Z0-9\(\)（）【】\[\]\s]*/g, '')
                 if(!pdfName){
                     if (obj.isBatch && obj.type == 5 || obj.type == 6) {

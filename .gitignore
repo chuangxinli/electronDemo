@@ -9,6 +9,7 @@ resources/*
 !build/installer.nsh
 !build/license.html
 !build/license.txt
+!build/version.json
 node_modules/
 npm-debug.log
 npm-debug.log.*

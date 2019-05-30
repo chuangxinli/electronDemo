@@ -3,7 +3,6 @@ const axios = require("axios")
 const {getReportModel, getPart, baseURL, idURL, existsPublic, wkTimeout, pdfFailRepeatCount} = require('./common')
 const fse = require('fs-extra')
 const fs = require('fs')
-const uuid = require('uuid/v4')
 
 //批量下载报告下载的是每个班级里面的个人报告。下载班级报告和年级报告不走批量下载接口
 let batchNoScreen = function (classInfo, obj, myEmitter) {
@@ -77,7 +76,6 @@ let batchNoScreen = function (classInfo, obj, myEmitter) {
                     isDown: true,
                     isOpen: true,
                     isDelete: false,
-                    localId: uuid(),
                     status: 1,});
             } else {
                 noPayList.push(id)

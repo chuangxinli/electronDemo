@@ -102,12 +102,10 @@
         },
         created() {
             if (this.formLabelAlign.remember) {
-                console.log('记住密码')
                 this.formLabelAlign.username = localStorage.getItem('username')
                 this.formLabelAlign.password = localStorage.getItem('password')
             }
             if (!this.global.myEmitter) {
-                console.log('myEmitter')
                 this.global.myEmitter = new MyEmitter()
                 this.global.myEmitter.on('complete_all', (data) => {
 
@@ -134,7 +132,6 @@
 
                 })
                 this.global.myEmitter.on('warn', (data) => {
-                    console.log('warn 触发事件');
                     this.$notify({
                         title: '提示',
                         message: data.text,
@@ -143,7 +140,6 @@
                     });
                 })
                 this.global.myEmitter.on('kill_wk', (data) => {
-                    console.log('kill_wk 触发事件');
                     /*this.$notify({
                         title: '提示',
                         message: data.text,
@@ -159,10 +155,6 @@
             }
         },
         mounted() {
-            console.log('--------------------')
-            console.log(process.env.NODE_ENV)
-            console.log('--------------------')
-            console.log(this.appPath)
             if(/[\u4e00-\u9fa5]/.test(this.appPath)){
                 this.$notify({
                     title: '提示',
@@ -171,7 +163,6 @@
                     type: 'success'
                 });
             }
-            console.log(this.appPath.split('\\node_modules')[0])
             if(process.env.NODE_ENV === 'development'){
                 this.$store.dispatch('GET_DATA_PATH', {
                     dataPath: this.appPath.split('\\node_modules')[0]
@@ -189,7 +180,6 @@
                     duration: 0,
                     type: 'warning'
                 });
-                console.log('有网络了');
             })
             window.addEventListener('offline', function () {
                 that.$notify({
@@ -198,7 +188,6 @@
                     duration: 0,
                     type: 'warning'
                 });
-                console.log('断网了');
             })
         },
         methods: {
@@ -219,17 +208,16 @@
                 }, 300)
             },
             async detectionVersion() {
-                let data = await this.api.get(`${this.global.version_url}/data.json?${new Date().getTime()}`, {})
+                let data = await this.api.get(`${this.global.version_url}/version.json?${new Date().getTime()}`, {})
                 if (data) {
                     function isDown(curVersion, remoteVertion) {
                         curVersion = curVersion.split('.')
                         remoteVertion = remoteVertion.split('.')
-                        console.log(curVersion, remoteVertion)
-                        if (curVersion[0] < remoteVertion[0]) { //每次更新时依次对比每一位的数字大小，都为1位数字
+                        if ('0.' + curVersion[0] < '0.' + remoteVertion[0]) {
                             return true
-                        } else if (curVersion[1] < remoteVertion[1]) {
+                        } else if ('0.' + curVersion[1] < '0.' + remoteVertion[1]) {
                             return true
-                        } else if (curVersion[2] < remoteVertion[2]) {
+                        } else if ('0.' + curVersion[2] < '0.' + remoteVertion[2]) {
                             return true
                         } else {
                             return false
@@ -248,9 +236,7 @@
                     background: 'rgba(0, 0, 0, 0.5)'
                 })
                 setTimeout(() => {
-                    console.log(this.appPath, this.dataPath)
                     try {
-                        console.log(this.appPath, this.dataPath)
                         asar.extractAll(this.appPath, this.dataPath)
                         if (!fs.existsSync(`${this.dataPath}${path.sep}public${path.sep}html`)) {
                             fs.mkdirSync(`${this.dataPath}${path.sep}public${path.sep}html`)

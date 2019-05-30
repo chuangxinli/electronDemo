@@ -28,17 +28,17 @@ function isAllowDownReport(downTaskList) {
 }
 switch (type) {
     case 1:
-        api_url = 'http://das.51youpu.com'
+        api_url = ''
         break
     case 2:
-        api_url = 'http://120.27.195.10:8090'
+        api_url = ''
         break
     default:
-        api_url = 'http://das.51youpu.com'
+        api_url = ''
 }
 export default {
     api_url,
-    version_url: 'http://39.96.186.199/win', //判断是否有新的版本
+    version_url: 'http://download-emingren-com.oss-cn-hangzhou.aliyuncs.com/reportDownTool/win', //判断是否有新的版本
     sid: '',
     uid: '',
     roleId: '',

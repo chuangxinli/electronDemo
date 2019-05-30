@@ -5,8 +5,6 @@ const axios = require('axios')
 const {baseURL, getReportModel, idURL, existsPublic, wkTimeout, pdfFailRepeatCount} = require('./common')
 const {execFile} = require('child_process')
 const fse = require("fs-extra")
-const uuid = require('uuid/v4')
-
 
 //批量下载报告下载的是每个班级里面的个人报告。下载班级报告和年级报告不走批量下载接口
 let batchScreen = function (classInfo, obj, myEmitter) {
@@ -42,10 +40,8 @@ let batchScreen = function (classInfo, obj, myEmitter) {
               correctIds.push(correctIds[0])
               pathStrUrls.push(pathStrUrls[0])
             }
-            console.log(pathStrUrls)
             isStrs = correctIds.toString()
             pathStrUrls = pathStrUrls.toString()
-            console.log('正确id：' + correctIds)
             console.log('image 生成中...');
             execFile(`${obj.dataPath}/public/exe/phantomjs.exe`, [`${obj.dataPath}/public/pug/screen_shot.js`, pathStrUrls, isStrs, obj.dataPath], function (err, stdout, stderr) {
               console.log('image 生成结束...')
@@ -73,7 +69,6 @@ let batchScreen = function (classInfo, obj, myEmitter) {
       baseURL: idURL,
       params: params,
     }).then(function (response) {
-      console.log(response)
       classIndex++
       if (response.data.recode == 0) {
         callback(response.data.ids);
@@ -102,7 +97,6 @@ let batchScreen = function (classInfo, obj, myEmitter) {
         params.type = obj.type
         params.isOpen = true
         params.isDelete = false
-        params.localId = uuid()
         params.status = 1
         if (obj.type == 1 || obj.type == 2) {
           if (response.data.contentType === 'all') {
@@ -259,7 +253,6 @@ let batchScreen = function (classInfo, obj, myEmitter) {
                     correctIds.push(correctIds[0])
                     pathStrUrls.push(pathStrUrls[0])
                   }
-                  console.log(pathStrUrls)
                   isStrs = correctIds.toString()
                   pathStrUrls = pathStrUrls.toString()
                   console.log('正确id：' + correctIds)

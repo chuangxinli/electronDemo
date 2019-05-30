@@ -122,7 +122,7 @@ ipcMain.on('master-close', () => {
  })
  */
 
-const uploadUrl = `http://39.96.186.199/win`; // 更新包位置
+const uploadUrl = `http://download-emingren-com.oss-cn-hangzhou.aliyuncs.com/reportDownTool/win`; // 更新包位置
 
 // 主进程监听渲染进程传来的信息（这里我是手动检查更新，可以在 electron的 ready 事件完成后触发）
 // 会重复触发（这里我暂时不做这些逻辑了）

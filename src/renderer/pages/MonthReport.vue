@@ -430,7 +430,6 @@
                 }
                 let data = await this.api.get(url, params, {loading: true})
                 if (data) {
-                    console.log(data)
                     let downTaskList = []
                     this.global.downTaskList.forEach((item) => {
                         if(item.reportType == this.reportType){
